@@ -1,0 +1,88 @@
+<GridLayout xmlns="http://schemas.nativescript.org/tns.xsd" 
+            class="tutorial-overlay" 
+            visibility="{{ isVisible ? 'visible' : 'collapsed' }}"
+            opacity="{{ opacity }}"
+            rows="*, auto, *" 
+            columns="*">
+    
+    <!-- Background overlay with spotlight effect -->
+    <StackLayout row="0" rowSpan="3" col="0" class="tutorial-background bg-black opacity-70" />
+    
+    <!-- Spotlight highlight (for highlighting specific elements) -->
+    <StackLayout class="tutorial-spotlight"
+                 visibility="{{ showSpotlight ? 'visible' : 'collapsed' }}"
+                 left="{{ spotlightX }}" top="{{ spotlightY }}"
+                 width="{{ spotlightWidth }}" height="{{ spotlightHeight }}" />
+    
+    <!-- Tutorial Content -->
+    <StackLayout row="{{ contentRow }}" col="0" 
+                 class="tutorial-content bg-white rounded-xl shadow-lg mx-6"
+                 visibility="{{ showContent ? 'visible' : 'collapsed' }}">
+        
+        <!-- Progress Indicator -->
+        <StackLayout class="tutorial-progress p-4 pb-2">
+            <Label text="Step {{ currentStep }} of {{ totalSteps }}" 
+                   class="text-sm text-gray-500 text-center mb-2" />
+            <StackLayout class="bg-gray-200 rounded-full h-2">
+                <StackLayout class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-full h-2" 
+                             width="{{ progressPercentage }}%" />
+            </StackLayout>
+        </StackLayout>
+        
+        <!-- Step Content -->
+        <StackLayout class="tutorial-step-content px-4 pb-2">
+            <!-- Step Icon -->
+            <Label text="{{ stepIcon }}" 
+                   class="tutorial-step-icon text-4xl text-center mb-3"
+                   visibility="{{ stepIcon ? 'visible' : 'collapsed' }}" />
+            
+            <!-- Step Title -->
+            <Label text="{{ stepTitle }}" 
+                   class="tutorial-step-title text-xl font-bold text-gray-800 text-center mb-3" 
+                   textWrap="true" />
+            
+            <!-- Step Description -->
+            <Label text="{{ stepDescription }}" 
+                   class="tutorial-step-description text-base text-gray-600 text-center leading-relaxed" 
+                   textWrap="true" />
+        </StackLayout>
+        
+        <!-- Tutorial Actions -->
+        <GridLayout rows="auto" columns="auto, *, auto, auto" class="tutorial-actions p-4 pt-2">
+            
+            <!-- Skip Button -->
+            <Button row="0" col="0" text="Skip" 
+                    tap="{{ onSkip }}"
+                    class="btn btn-ghost text-gray-500"
+                    visibility="{{ canSkip ? 'visible' : 'collapsed' }}" />
+            
+            <!-- Previous Button -->
+            <Button row="0" col="2" text="← Back" 
+                    tap="{{ onPrevious }}"
+                    class="btn btn-outline-secondary mr-2"
+                    visibility="{{ canGoBack ? 'visible' : 'collapsed' }}" />
+            
+            <!-- Next/Finish Button -->
+            <Button row="0" col="3" text="{{ nextButtonText }}" 
+                    tap="{{ onNext }}"
+                    class="btn btn-primary" />
+        </GridLayout>
+        
+    </StackLayout>
+    
+    <!-- Floating Action Hint (for interaction-based steps) -->
+    <StackLayout class="tutorial-hint bg-blue-500 rounded-full p-3 shadow-lg"
+                 visibility="{{ showHint ? 'visible' : 'collapsed' }}"
+                 left="{{ hintX }}" top="{{ hintY }}">
+        <Label text="{{ hintIcon }}" class="text-white text-xl text-center" />
+    </StackLayout>
+    
+    <!-- Pulse Animation for Highlighted Elements -->
+    <StackLayout class="tutorial-pulse"
+                 visibility="{{ showPulse ? 'visible' : 'collapsed' }}"
+                 left="{{ pulseX }}" top="{{ pulseY }}"
+                 width="{{ pulseWidth }}" height="{{ pulseHeight }}">
+        <StackLayout class="pulse-ring bg-blue-500 rounded-full opacity-30" />
+    </StackLayout>
+    
+</GridLayout>

@@ -1,0 +1,146 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="🤝 Friends" class="action-bar">
+        <NavigationButton text="← Back" tap="{{ onBack }}" />
+        <ActionItem text="➕" tap="{{ onAddFriend }}" ios.position="right" android.position="actionBar" />
+    </ActionBar>
+
+    <GridLayout rows="auto, *">
+        
+        <!-- Loading State -->
+        <StackLayout row="0" rowSpan="2" class="loading-state bg-white flex justify-center items-center p-8" 
+                     visibility="{{ isLoading ? 'visible' : 'collapsed' }}">
+            <ActivityIndicator busy="true" class="text-blue-600 mb-4" />
+            <Label text="Loading friends..." class="text-base text-gray-600" />
+        </StackLayout>
+
+        <!-- Error State -->
+        <StackLayout row="0" rowSpan="2" class="error-state bg-white flex justify-center items-center p-8" 
+                     visibility="{{ hasError ? 'visible' : 'collapsed' }}">
+            <Label text="🤝" class="text-6xl mb-4" />
+            <Label text="Unable to Load Friends" class="text-xl font-bold text-gray-800 mb-2" />
+            <Label text="{{ errorMessage }}" class="text-base text-gray-600 text-center mb-4" textWrap="true" />
+            <Button text="Try Again" tap="{{ onRefresh }}" class="btn btn-primary" />
+        </StackLayout>
+
+        <!-- Friends Stats -->
+        <StackLayout row="0" class="friends-stats bg-white border-b border-gray-200 p-4"
+                     visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            <GridLayout rows="auto" columns="*, *, *, *" class="gap-4">
+                <StackLayout col="0" class="stat-item text-center">
+                    <Label text="{{ friendsStats.totalFriends }}" class="stat-value text-lg font-bold text-blue-600" />
+                    <Label text="Friends" class="stat-label text-xs text-gray-500" />
+                </StackLayout>
+                <StackLayout col="1" class="stat-item text-center">
+                    <Label text="{{ friendsStats.onlineFriends }}" class="stat-value text-lg font-bold text-green-600" />
+                    <Label text="Online" class="stat-label text-xs text-gray-500" />
+                </StackLayout>
+                <StackLayout col="2" class="stat-item text-center">
+                    <Label text="{{ friendsStats.pendingRequests }}" class="stat-value text-lg font-bold text-orange-600" />
+                    <Label text="Pending" class="stat-label text-xs text-gray-500" />
+                </StackLayout>
+                <StackLayout col="3" class="stat-item text-center">
+                    <Label text="{{ friendsStats.mutualFriends }}" class="stat-value text-lg font-bold text-purple-600" />
+                    <Label text="Mutual" class="stat-label text-xs text-gray-500" />
+                </StackLayout>
+            </GridLayout>
+        </StackLayout>
+
+        <!-- Friends Content -->
+        <ScrollView row="1" visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            <StackLayout class="p-4">
+                
+                <!-- Friend Requests Section -->
+                <StackLayout class="friend-requests-section mb-6" visibility="{{ pendingRequests && pendingRequests.length > 0 ? 'visible' : 'collapsed' }}">
+                    <Label text="📬 Friend Requests" class="text-lg font-bold text-gray-800 mb-4" />
+                    
+                    <Repeater items="{{ pendingRequests }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="request-card bg-blue-50 rounded-xl p-4 shadow-sm mb-3">
+                                <GridLayout rows="auto, auto" columns="auto, *, auto, auto">
+                                    <!-- Avatar -->
+                                    <StackLayout row="0" col="0" class="friend-avatar rounded-full w-12 h-12 flex justify-center items-center mr-3"
+                                                 backgroundColor="{{ $parents['Page'].bindingContext.getLevelBadgeColor(level) }}">
+                                        <Label text="{{ displayName.charAt(0) }}" class="text-white font-bold text-base" />
+                                    </StackLayout>
+                                    
+                                    <!-- Friend Info -->
+                                    <StackLayout row="0" col="1">
+                                        <Label text="{{ displayName }}" class="friend-name text-base font-bold text-gray-800" />
+                                        <Label text="Level {{ level }} • {{ mutualFriends }} mutual friends" class="friend-details text-sm text-gray-600" />
+                                    </StackLayout>
+                                    
+                                    <!-- Accept Button -->
+                                    <Button row="0" col="2" text="✓" 
+                                            tap="{{ $parents['Page'].bindingContext.onAcceptFriendRequest, userId }}"
+                                            class="btn btn-primary text-sm w-10 h-10 mr-2" />
+                                    
+                                    <!-- Decline Button -->
+                                    <Button row="0" col="3" text="✗" 
+                                            tap="{{ $parents['Page'].bindingContext.onDeclineFriendRequest, userId }}"
+                                            class="btn btn-outline-secondary text-sm w-10 h-10" />
+                                    
+                                    <!-- Request Time -->
+                                    <Label row="1" col="1" colSpan="3" text="Sent {{ timeAgo }}" 
+                                           class="text-xs text-gray-500 mt-2" />
+                                </GridLayout>
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                </StackLayout>
+
+                <!-- Friends List -->
+                <StackLayout class="friends-list-section">
+                    <GridLayout rows="auto" columns="*, auto" class="mb-4">
+                        <Label col="0" text="👥 My Friends ({{ friendsList.length }})" class="text-lg font-bold text-gray-800" />
+                        <Button col="1" text="🔍 Find Friends" tap="{{ onFindFriends }}" class="btn btn-outline-primary text-sm" />
+                    </GridLayout>
+                    
+                    <!-- Friends -->
+                    <Repeater items="{{ friendsList }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="friend-card bg-white rounded-xl p-4 shadow-sm mb-3"
+                                         tap="{{ $parents['Page'].bindingContext.onViewFriendProfile, userId }}">
+                                <GridLayout rows="auto, auto" columns="auto, *, auto">
+                                    <!-- Avatar -->
+                                    <StackLayout row="0" col="0" class="friend-avatar rounded-full w-12 h-12 flex justify-center items-center mr-3"
+                                                 backgroundColor="{{ $parents['Page'].bindingContext.getLevelBadgeColor(level) }}">
+                                        <Label text="{{ displayName.charAt(0) }}" class="text-white font-bold text-base" />
+                                    </StackLayout>
+                                    
+                                    <!-- Friend Info -->
+                                    <StackLayout row="0" col="1">
+                                        <GridLayout rows="auto" columns="*, auto">
+                                            <Label col="0" text="{{ displayName }}" class="friend-name text-base font-bold text-gray-800" />
+                                            <Label col="1" text="{{ isOnline ? '🟢' : '⚫' }}" class="text-sm" />
+                                        </GridLayout>
+                                        <Label text="Level {{ level }} • {{ currentStreak }} day streak" class="friend-details text-sm text-gray-600" />
+                                    </StackLayout>
+                                    
+                                    <!-- Actions Menu -->
+                                    <Button row="0" col="2" text="⋯" 
+                                            tap="{{ $parents['Page'].bindingContext.onFriendActions, userId }}"
+                                            class="btn btn-ghost text-gray-500 text-lg" />
+                                    
+                                    <!-- Last Activity -->
+                                    <Label row="1" col="1" colSpan="2" text="{{ lastActivity }}" 
+                                           class="text-xs text-gray-500 mt-2" />
+                                </GridLayout>
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                    
+                    <!-- Empty State -->
+                    <StackLayout class="empty-state text-center p-8" visibility="{{ friendsList.length === 0 ? 'visible' : 'collapsed' }}">
+                        <Label text="🤝" class="text-6xl mb-4" />
+                        <Label text="No Friends Yet" class="text-xl font-bold text-gray-800 mb-2" />
+                        <Label text="Connect with others to share your digital wellness journey together!" 
+                               class="text-base text-gray-600 text-center mb-4" textWrap="true" />
+                        <Button text="🔍 Find Friends" tap="{{ onFindFriends }}" class="btn btn-primary" />
+                    </StackLayout>
+                </StackLayout>
+
+            </StackLayout>
+        </ScrollView>
+
+    </GridLayout>
+</Page>

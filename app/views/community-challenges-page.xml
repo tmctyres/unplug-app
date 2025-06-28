@@ -1,0 +1,352 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="🎯 Community Challenges" class="action-bar">
+        <NavigationButton text="← Back" tap="{{ onBack }}" />
+        <ActionItem text="🔄" tap="{{ onRefresh }}" ios.position="right" android.position="actionBar" />
+    </ActionBar>
+
+    <GridLayout rows="auto, auto, *" class="bg-gray-50">
+        
+        <!-- Loading State -->
+        <StackLayout row="0" rowSpan="3" class="loading-overlay bg-white flex justify-center items-center" 
+                     visibility="{{ isLoading ? 'visible' : 'collapsed' }}">
+            <ActivityIndicator busy="true" class="activity-indicator" />
+            <Label text="Loading challenges..." class="text-gray-600 mt-4" />
+        </StackLayout>
+
+        <!-- Error State -->
+        <StackLayout row="0" rowSpan="3" class="error-state bg-white flex justify-center items-center p-8" 
+                     visibility="{{ hasError ? 'visible' : 'collapsed' }}">
+            <Label text="🎯" class="text-6xl mb-4" />
+            <Label text="Unable to Load Challenges" class="text-xl font-bold text-gray-800 mb-2" />
+            <Label text="{{ errorMessage }}" class="text-base text-gray-600 text-center mb-4" textWrap="true" />
+            <Button text="Try Again" tap="{{ onRefresh }}" class="btn btn-primary" />
+        </StackLayout>
+
+        <!-- Challenge Stats -->
+        <StackLayout row="0" class="stats-section bg-white border-b border-gray-200 p-4" 
+                     visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            <GridLayout rows="auto" columns="*, *, *, *" class="gap-4">
+                <StackLayout col="0" class="stat-item text-center">
+                    <Label text="{{ challengeStats.totalChallenges }}" class="stat-value text-lg font-bold text-blue-600" />
+                    <Label text="Active" class="stat-label text-xs text-gray-500" />
+                </StackLayout>
+                <StackLayout col="1" class="stat-item text-center">
+                    <Label text="{{ challengeStats.joinedChallenges }}" class="stat-value text-lg font-bold text-green-600" />
+                    <Label text="Joined" class="stat-label text-xs text-gray-500" />
+                </StackLayout>
+                <StackLayout col="2" class="stat-item text-center">
+                    <Label text="{{ challengeStats.completedChallenges }}" class="stat-value text-lg font-bold text-purple-600" />
+                    <Label text="Completed" class="stat-label text-xs text-gray-500" />
+                </StackLayout>
+                <StackLayout col="3" class="stat-item text-center">
+                    <Label text="{{ challengeStats.completionRate }}%" class="stat-value text-lg font-bold text-orange-600" />
+                    <Label text="Success Rate" class="stat-label text-xs text-gray-500" />
+                </StackLayout>
+            </GridLayout>
+        </StackLayout>
+
+        <!-- Tab Navigation -->
+        <StackLayout row="1" class="tab-navigation bg-white border-b border-gray-200 p-4"
+                     visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            <GridLayout rows="auto" columns="*, *, *, *" class="gap-2">
+                <Repeater items="{{ tabOptions }}">
+                    <Repeater.itemTemplate>
+                        <Button text="{{ icon }} {{ name }}"
+                                tap="{{ $parents['Page'].bindingContext.onTabChange, id }}"
+                                class="{{ $parents['Page'].bindingContext.selectedTab === id ? 'btn btn-primary text-xs' : 'btn btn-outline-secondary text-xs' }}" />
+                    </Repeater.itemTemplate>
+                </Repeater>
+            </GridLayout>
+            
+            <!-- Tab Description -->
+            <Label text="{{ tabTitle }}" class="text-lg font-bold text-gray-800 mt-4 mb-1" />
+            <Label text="{{ tabDescription }}" class="text-sm text-gray-600" textWrap="true" />
+        </StackLayout>
+
+        <!-- Tab Content -->
+        <ScrollView row="2" visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            <StackLayout class="p-4">
+                
+                <!-- Active Challenges Tab -->
+                <StackLayout class="active-challenges-tab" visibility="{{ selectedTab === 'active' ? 'visible' : 'collapsed' }}">
+                    <Repeater items="{{ activeChallenges }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="challenge-card bg-white rounded-xl p-4 shadow-sm mb-4"
+                                         tap="{{ $parents['Page'].bindingContext.onViewChallengeDetails, id }}">
+                                
+                                <!-- Challenge Header -->
+                                <GridLayout rows="auto, auto" columns="auto, *, auto" class="mb-3">
+                                    <!-- Icon & Title -->
+                                    <Label row="0" col="0" text="{{ icon }}" class="challenge-icon text-3xl mr-3" />
+                                    <StackLayout row="0" col="1">
+                                        <Label text="{{ title }}" class="challenge-title text-lg font-bold text-gray-800" />
+                                        <Label text="{{ participantText }}" class="challenge-participants text-sm text-gray-500" />
+                                    </StackLayout>
+                                    
+                                    <!-- Difficulty Badge -->
+                                    <Label row="0" col="2" text="{{ difficulty }}" 
+                                           class="difficulty-badge text-xs font-bold px-2 py-1 rounded text-white"
+                                           backgroundColor="{{ difficultyColor }}" />
+                                    
+                                    <!-- Time Remaining -->
+                                    <Label row="1" col="1" colSpan="2" text="⏰ {{ timeRemaining }}" 
+                                           class="time-remaining text-sm text-orange-600 mt-1" />
+                                </GridLayout>
+                                
+                                <!-- Challenge Description -->
+                                <Label text="{{ description }}" class="challenge-description text-sm text-gray-600 mb-3" textWrap="true" />
+                                
+                                <!-- Challenge Target -->
+                                <StackLayout class="challenge-target bg-gray-50 rounded-lg p-3 mb-3">
+                                    <Label text="🎯 Target: {{ formattedTarget }}" class="text-sm font-semibold text-gray-700" />
+                                </StackLayout>
+                                
+                                <!-- User Progress (if participating) -->
+                                <StackLayout class="user-progress mb-3" visibility="{{ isParticipating ? 'visible' : 'collapsed' }}">
+                                    <GridLayout rows="auto, auto" columns="*, auto">
+                                        <Label row="0" col="0" text="Your Progress" class="text-sm font-semibold text-gray-700" />
+                                        <Label row="0" col="1" text="{{ Math.round(userProgress) }}%" class="text-sm font-bold text-blue-600" />
+                                        
+                                        <!-- Progress Bar -->
+                                        <StackLayout row="1" col="0" colSpan="2" class="progress-bar bg-gray-200 rounded-full h-2 mt-2">
+                                            <StackLayout class="progress-fill bg-blue-500 rounded-full h-2" 
+                                                         width="{{ userProgress }}%" />
+                                        </StackLayout>
+                                    </GridLayout>
+                                </StackLayout>
+                                
+                                <!-- Action Buttons -->
+                                <GridLayout rows="auto" columns="*, auto, auto" class="gap-2">
+                                    <Button col="0" text="{{ isParticipating ? '📊 View Progress' : '🚀 Join Challenge' }}" 
+                                            tap="{{ isParticipating ? $parents['Page'].bindingContext.onViewChallengeDetails : $parents['Page'].bindingContext.onJoinChallenge, id }}"
+                                            class="{{ isParticipating ? 'btn btn-outline-primary text-sm' : 'btn btn-primary text-sm' }}"
+                                            isEnabled="{{ isJoining !== id }}" />
+                                    <Button col="1" text="👥" tap="{{ $parents['Page'].bindingContext.onInviteFriends, id }}" 
+                                            class="btn btn-outline-secondary text-sm" />
+                                    <Button col="2" text="📤" tap="{{ $parents['Page'].bindingContext.onShareChallenge, id }}" 
+                                            class="btn btn-outline-secondary text-sm" />
+                                </GridLayout>
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                    
+                    <!-- Empty State -->
+                    <StackLayout class="empty-state text-center p-8" visibility="{{ activeChallenges.length === 0 ? 'visible' : 'collapsed' }}">
+                        <Label text="🎯" class="text-6xl mb-4" />
+                        <Label text="No Active Challenges" class="text-xl font-bold text-gray-800 mb-2" />
+                        <Label text="Check back soon for new community challenges!" class="text-base text-gray-600" />
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- My Challenges Tab -->
+                <StackLayout class="my-challenges-tab" visibility="{{ selectedTab === 'my_challenges' ? 'visible' : 'collapsed' }}">
+                    <Repeater items="{{ userChallenges }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="my-challenge-card bg-white rounded-xl p-4 shadow-sm mb-4">
+                                
+                                <!-- Challenge Header -->
+                                <GridLayout rows="auto, auto" columns="auto, *, auto">
+                                    <Label row="0" col="0" text="{{ icon }}" class="challenge-icon text-3xl mr-3" />
+                                    <StackLayout row="0" col="1">
+                                        <Label text="{{ title }}" class="challenge-title text-lg font-bold text-gray-800" />
+                                        <Label text="{{ statusText }}" class="challenge-status text-sm font-semibold"
+                                               color="{{ statusColor }}" />
+                                    </StackLayout>
+                                    <Label row="0" col="2" text="{{ Math.round(progressPercentage) }}%" 
+                                           class="progress-percentage text-lg font-bold text-blue-600" />
+                                    
+                                    <Label row="1" col="1" colSpan="2" text="⏰ {{ timeRemaining }}" 
+                                           class="time-remaining text-sm text-orange-600 mt-1" />
+                                </GridLayout>
+                                
+                                <!-- Progress Details -->
+                                <StackLayout class="progress-details bg-gray-50 rounded-lg p-3 mt-3 mb-3">
+                                    <GridLayout rows="auto, auto, auto" columns="*, *">
+                                        <Label row="0" col="0" text="Progress:" class="text-sm text-gray-600" />
+                                        <Label row="0" col="1" text="{{ progressText }}" class="text-sm font-semibold text-gray-800 text-right" />
+                                        
+                                        <Label row="1" col="0" text="Completion:" class="text-sm text-gray-600" />
+                                        <Label row="1" col="1" text="{{ Math.round(progressPercentage) }}%" class="text-sm font-semibold text-blue-600 text-right" />
+                                        
+                                        <Label row="2" col="0" text="Rewards:" class="text-sm text-gray-600" />
+                                        <Label row="2" col="1" text="{{ rewardsText }}" class="text-sm font-semibold text-purple-600 text-right" />
+                                    </GridLayout>
+                                </StackLayout>
+                                
+                                <!-- Progress Bar -->
+                                <StackLayout class="progress-bar bg-gray-200 rounded-full h-3 mb-3">
+                                    <StackLayout class="progress-fill bg-gradient-to-r from-blue-500 to-purple-600 rounded-full h-3" 
+                                                 width="{{ progressPercentage }}%" />
+                                </StackLayout>
+                                
+                                <!-- Action Buttons -->
+                                <GridLayout rows="auto" columns="*, auto" class="gap-2">
+                                    <Button col="0" text="📊 View Details" 
+                                            tap="{{ $parents['Page'].bindingContext.onViewChallengeDetails, challengeId }}"
+                                            class="btn btn-primary text-sm" />
+                                    <Button col="1" text="❌ Leave" 
+                                            tap="{{ $parents['Page'].bindingContext.onLeaveChallenge, challengeId }}"
+                                            class="btn btn-outline-danger text-sm" />
+                                </GridLayout>
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                    
+                    <!-- Empty State -->
+                    <StackLayout class="empty-state text-center p-8" visibility="{{ !hasUserChallenges ? 'visible' : 'collapsed' }}">
+                        <Label text="📊" class="text-6xl mb-4" />
+                        <Label text="No Challenges Joined" class="text-xl font-bold text-gray-800 mb-2" />
+                        <Label text="Join some challenges from the Active tab to track your progress here!" class="text-base text-gray-600 text-center" textWrap="true" />
+                        <Button text="🎯 Browse Challenges" tap="{{ onTabChange, 'active' }}" class="btn btn-primary mt-4" />
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Leaderboards Tab -->
+                <StackLayout class="leaderboards-tab" visibility="{{ selectedTab === 'leaderboards' ? 'visible' : 'collapsed' }}">
+                    <Repeater items="{{ leaderboards }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="leaderboard-card bg-white rounded-xl p-4 shadow-sm mb-4">
+                                
+                                <!-- Leaderboard Header -->
+                                <GridLayout rows="auto, auto" columns="auto, *, auto">
+                                    <Label row="0" col="0" text="{{ challengeIcon }}" class="challenge-icon text-2xl mr-3" />
+                                    <Label row="0" col="1" text="{{ challengeTitle }}" class="challenge-title text-lg font-bold text-gray-800" />
+                                    <Label row="0" col="2" text="{{ totalParticipants }}" class="participant-count text-sm text-gray-500" />
+                                    
+                                    <Label row="1" col="1" colSpan="2" text="Your Rank: {{ userRank ? '#' + userRank : 'Not ranked' }}" 
+                                           class="user-rank text-sm font-semibold text-blue-600 mt-1" />
+                                </GridLayout>
+                                
+                                <!-- Top 10 Leaderboard -->
+                                <StackLayout class="leaderboard-entries mt-4">
+                                    <Label text="🏆 Top Participants" class="section-title text-sm font-bold text-gray-700 mb-3" />
+                                    
+                                    <Repeater items="{{ formattedEntries }}">
+                                        <Repeater.itemTemplate>
+                                            <GridLayout rows="auto" columns="auto, *, auto" class="leaderboard-entry p-2 mb-1 rounded-lg bg-gray-50">
+                                                <Label col="0" text="{{ rankIcon }}" class="rank-icon text-lg mr-3" />
+                                                <Label col="1" text="{{ displayName }}" class="participant-name text-sm font-semibold text-gray-800" />
+                                                <Label col="2" text="{{ formattedValue }}" class="participant-value text-sm font-bold text-blue-600" />
+                                            </GridLayout>
+                                        </Repeater.itemTemplate>
+                                    </Repeater>
+                                </StackLayout>
+                                
+                                <!-- Last Updated -->
+                                <Label text="Last updated: {{ lastUpdated | date:'short' }}" 
+                                       class="last-updated text-xs text-gray-500 text-center mt-3" />
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                    
+                    <!-- Empty State -->
+                    <StackLayout class="empty-state text-center p-8" visibility="{{ !hasLeaderboards ? 'visible' : 'collapsed' }}">
+                        <Label text="🏆" class="text-6xl mb-4" />
+                        <Label text="No Leaderboards Available" class="text-xl font-bold text-gray-800 mb-2" />
+                        <Label text="Join challenges to see leaderboards and compete with others!" class="text-base text-gray-600 text-center" textWrap="true" />
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Social Tab -->
+                <StackLayout class="social-tab" visibility="{{ selectedTab === 'social' ? 'visible' : 'collapsed' }}">
+
+                    <!-- Quick Actions -->
+                    <GridLayout rows="auto, auto" columns="*, *" class="gap-4 mb-6">
+                        <StackLayout row="0" col="0" class="social-action-card bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-4 text-center"
+                                     tap="{{ onNavigateToCircles }}">
+                            <Label text="👥" class="text-4xl mb-2" />
+                            <Label text="My Circles" class="text-white font-bold text-sm" />
+                            <Label text="Join accountability groups" class="text-white opacity-90 text-xs" textWrap="true" />
+                        </StackLayout>
+
+                        <StackLayout row="0" col="1" class="social-action-card bg-gradient-to-r from-green-500 to-blue-500 rounded-xl p-4 text-center"
+                                     tap="{{ onNavigateToLeaderboards }}">
+                            <Label text="🏆" class="text-4xl mb-2" />
+                            <Label text="Leaderboards" class="text-white font-bold text-sm" />
+                            <Label text="See your rankings" class="text-white opacity-90 text-xs" textWrap="true" />
+                        </StackLayout>
+
+                        <StackLayout row="1" col="0" class="social-action-card bg-gradient-to-r from-orange-500 to-red-500 rounded-xl p-4 text-center"
+                                     tap="{{ onNavigateToFriends }}">
+                            <Label text="🤝" class="text-4xl mb-2" />
+                            <Label text="Friends" class="text-white font-bold text-sm" />
+                            <Label text="Connect with others" class="text-white opacity-90 text-xs" textWrap="true" />
+                        </StackLayout>
+
+                        <StackLayout row="1" col="1" class="social-action-card bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-4 text-center"
+                                     tap="{{ onNavigateToAchievementSharing }}">
+                            <Label text="🎉" class="text-4xl mb-2" />
+                            <Label text="Share Achievements" class="text-white font-bold text-sm" />
+                            <Label text="Create beautiful graphics" class="text-white opacity-90 text-xs" textWrap="true" />
+                        </StackLayout>
+                    </GridLayout>
+
+                    <!-- Social Stats -->
+                    <StackLayout class="social-stats bg-white rounded-xl p-4 shadow-sm mb-4">
+                        <Label text="📊 Your Social Stats" class="text-lg font-bold text-gray-800 mb-3" />
+                        <GridLayout rows="auto, auto" columns="*, *, *" class="gap-4">
+                            <StackLayout row="0" col="0" class="text-center">
+                                <Label text="0" class="text-xl font-bold text-blue-600" />
+                                <Label text="Friends" class="text-xs text-gray-500" />
+                            </StackLayout>
+                            <StackLayout row="0" col="1" class="text-center">
+                                <Label text="0" class="text-xl font-bold text-green-600" />
+                                <Label text="Circles" class="text-xs text-gray-500" />
+                            </StackLayout>
+                            <StackLayout row="0" col="2" class="text-center">
+                                <Label text="Not Ranked" class="text-xl font-bold text-purple-600" />
+                                <Label text="Best Rank" class="text-xs text-gray-500" />
+                            </StackLayout>
+                            <StackLayout row="1" col="0" class="text-center">
+                                <Label text="0" class="text-xl font-bold text-orange-600" />
+                                <Label text="Shared" class="text-xs text-gray-500" />
+                            </StackLayout>
+                            <StackLayout row="1" col="1" class="text-center">
+                                <Label text="0" class="text-xl font-bold text-red-600" />
+                                <Label text="Likes" class="text-xs text-gray-500" />
+                            </StackLayout>
+                            <StackLayout row="1" col="2" class="text-center">
+                                <Label text="0" class="text-xl font-bold text-indigo-600" />
+                                <Label text="Comments" class="text-xs text-gray-500" />
+                            </StackLayout>
+                        </GridLayout>
+                    </StackLayout>
+
+                    <!-- Getting Started -->
+                    <StackLayout class="getting-started bg-gray-100 rounded-xl p-6">
+                        <Label text="🚀 Getting Started with Social Features" class="text-lg font-bold text-gray-800 mb-4" />
+
+                        <StackLayout class="step mb-3">
+                            <GridLayout rows="auto" columns="auto, *">
+                                <Label col="0" text="1️⃣" class="text-lg mr-3" />
+                                <Label col="1" text="Join or create circles to connect with friends and family"
+                                       class="text-sm text-gray-700" textWrap="true" />
+                            </GridLayout>
+                        </StackLayout>
+
+                        <StackLayout class="step mb-3">
+                            <GridLayout rows="auto" columns="auto, *">
+                                <Label col="0" text="2️⃣" class="text-lg mr-3" />
+                                <Label col="1" text="Participate in community challenges and climb the leaderboards"
+                                       class="text-sm text-gray-700" textWrap="true" />
+                            </GridLayout>
+                        </StackLayout>
+
+                        <StackLayout class="step mb-3">
+                            <GridLayout rows="auto" columns="auto, *">
+                                <Label col="0" text="3️⃣" class="text-lg mr-3" />
+                                <Label col="1" text="Share your achievements and support others in their journey"
+                                       class="text-sm text-gray-700" textWrap="true" />
+                            </GridLayout>
+                        </StackLayout>
+
+                        <Button text="👥 Create Your First Circle" class="btn btn-primary mt-4"
+                                tap="{{ onNavigateToCircles }}" />
+                    </StackLayout>
+                </StackLayout>
+
+            </StackLayout>
+        </ScrollView>
+
+    </GridLayout>
+</Page>

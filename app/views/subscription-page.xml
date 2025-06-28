@@ -1,0 +1,204 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="💎 Upgrade to Pro" class="action-bar bg-gradient-to-r from-purple-500 to-pink-600">
+        <NavigationButton text="← Back" tap="{{ onNavigateBack }}" />
+        <ActionItem text="Restore" tap="{{ onRestorePurchases }}" ios.position="right" android.position="actionBar"
+                    visibility="{{ storeAvailable ? 'visible' : 'collapsed' }}" />
+    </ActionBar>
+
+    <ScrollView class="bg-gray-50">
+        <StackLayout class="p-4 space-y-4">
+            
+            <!-- Hero Section -->
+            <StackLayout class="bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl p-6 shadow-lg">
+                <Label text="🌟 Unlock Your Full Potential" class="text-2xl font-bold text-white text-center mb-2" />
+                <Label text="Take your digital wellness journey to the next level with Unplug Pro" class="text-base text-white text-center opacity-90" textWrap="true" />
+            </StackLayout>
+
+            <!-- Current Plan Status -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm" visibility="{{ !isPremium ? 'visible' : 'collapsed' }}">
+                <GridLayout rows="auto" columns="auto, *, auto">
+                    <Label col="0" text="🆓" class="text-2xl mr-3" />
+                    <StackLayout col="1">
+                        <Label text="Free Plan" class="text-lg font-semibold text-gray-800" />
+                        <Label text="Basic offline tracking with limited features" class="text-sm text-gray-600" />
+                    </StackLayout>
+                    <Label col="2" text="Current" class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full" />
+                </GridLayout>
+            </StackLayout>
+
+            <!-- Pro Plan Status -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm border-2 border-green-500" visibility="{{ isPremium ? 'visible' : 'collapsed' }}">
+                <GridLayout rows="auto" columns="auto, *, auto">
+                    <Label col="0" text="💎" class="text-2xl mr-3" />
+                    <StackLayout col="1">
+                        <Label text="Unplug Pro" class="text-lg font-semibold text-green-800" />
+                        <Label text="{{ subscriptionStatus }}" class="text-sm text-green-600" />
+                    </StackLayout>
+                    <Label col="2" text="Active" class="text-xs bg-green-200 text-green-800 px-2 py-1 rounded-full" />
+                </GridLayout>
+            </StackLayout>
+
+            <!-- Feature Comparison -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                <Label text="✨ Feature Comparison" class="text-lg font-semibold text-gray-800 mb-4" />
+                
+                <!-- Header -->
+                <GridLayout rows="auto" columns="*, auto, auto" class="mb-3 pb-2 border-b border-gray-200">
+                    <Label col="0" text="Features" class="text-sm font-semibold text-gray-600" />
+                    <Label col="1" text="Free" class="text-sm font-semibold text-gray-600 text-center" />
+                    <Label col="2" text="Pro" class="text-sm font-semibold text-purple-600 text-center" />
+                </GridLayout>
+
+                <!-- Feature Rows -->
+                <Repeater items="{{ featureComparison }}">
+                    <Repeater.itemTemplate>
+                        <GridLayout rows="auto" columns="*, auto, auto" class="py-2">
+                            <Label col="0" text="{{ feature }}" class="text-sm text-gray-800" textWrap="true" />
+                            <Label col="1" text="{{ freeStatus }}" class="text-sm text-center" />
+                            <Label col="2" text="{{ proStatus }}" class="text-sm text-center" />
+                        </GridLayout>
+                    </Repeater.itemTemplate>
+                </Repeater>
+            </StackLayout>
+
+            <!-- Store Availability Notice -->
+            <StackLayout class="bg-yellow-100 rounded-xl p-4 border border-yellow-300" visibility="{{ !storeAvailable ? 'visible' : 'collapsed' }}">
+                <Label text="⚠️ Store Not Available" class="text-base font-semibold text-yellow-800 text-center mb-2" />
+                <Label text="In-app purchases are not available on this device. You can still use all free features of Unplug."
+                       class="text-sm text-yellow-700 text-center" textWrap="true" />
+                <Label text="Platform: {{ currentPlatform }}" class="text-xs text-yellow-600 text-center mt-2" />
+            </StackLayout>
+
+            <!-- Purchase Status -->
+            <StackLayout class="bg-blue-100 rounded-xl p-4 border border-blue-300" visibility="{{ isPurchasing ? 'visible' : 'collapsed' }}">
+                <Label text="🔄 Processing Purchase..." class="text-base font-semibold text-blue-800 text-center mb-2" />
+                <Label text="Please wait while we process your purchase. Do not close the app."
+                       class="text-sm text-blue-700 text-center" textWrap="true" />
+            </StackLayout>
+
+            <!-- Purchase Error -->
+            <StackLayout class="bg-red-100 rounded-xl p-4 border border-red-300" visibility="{{ purchaseError ? 'visible' : 'collapsed' }}">
+                <Label text="❌ Purchase Failed" class="text-base font-semibold text-red-800 text-center mb-2" />
+                <Label text="{{ purchaseError }}" class="text-sm text-red-700 text-center" textWrap="true" />
+            </StackLayout>
+
+            <!-- Pricing Plans -->
+            <StackLayout class="space-y-3" visibility="{{ !isPremium && storeAvailable ? 'visible' : 'collapsed' }}">
+                <Label text="💰 Choose Your Plan" class="text-lg font-semibold text-gray-800 text-center" />
+                <Label text="Platform: {{ currentPlatform }}" class="text-xs text-gray-500 text-center" />
+                
+                <!-- Monthly Plan -->
+                <StackLayout class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                    <GridLayout rows="auto, auto, auto, auto" columns="*, auto">
+                        <Label row="0" col="0" text="Monthly Pro" class="text-lg font-semibold text-gray-800" />
+                        <Label row="0" col="1" text="$2.99" class="text-2xl font-bold text-purple-600" />
+                        
+                        <Label row="1" col="0" text="per month" class="text-sm text-gray-600" />
+                        <Label row="1" col="1" text="/month" class="text-sm text-gray-600" />
+                        
+                        <Label row="2" col="0" colSpan="2" text="Perfect for trying out Pro features" class="text-sm text-gray-600 mt-2" />
+                        
+                        <Button row="3" col="0" colSpan="2" text="Start Monthly Plan"
+                                tap="{{ onPurchaseReal('pro_monthly') }}"
+                                class="btn btn-outline-primary mt-4"
+                                isEnabled="{{ !isPurchasing }}" />
+                    </GridLayout>
+                </StackLayout>
+
+                <!-- Yearly Plan (Popular) -->
+                <StackLayout class="bg-white rounded-xl p-6 shadow-lg border-2 border-purple-500 relative">
+                    <Label text="🔥 MOST POPULAR" class="text-xs bg-purple-500 text-white px-3 py-1 rounded-full text-center mb-3" />
+                    
+                    <GridLayout rows="auto, auto, auto, auto, auto" columns="*, auto">
+                        <Label row="0" col="0" text="Yearly Pro" class="text-lg font-semibold text-gray-800" />
+                        <Label row="0" col="1" text="$19.99" class="text-2xl font-bold text-purple-600" />
+                        
+                        <Label row="1" col="0" text="per year" class="text-sm text-gray-600" />
+                        <Label row="1" col="1" text="/year" class="text-sm text-gray-600" />
+                        
+                        <Label row="2" col="0" colSpan="2" text="💰 Save 44% compared to monthly!" class="text-sm text-green-600 font-semibold mt-1" />
+                        <Label row="3" col="0" colSpan="2" text="Best value for committed users" class="text-sm text-gray-600" />
+                        
+                        <Button row="4" col="0" colSpan="2" text="🚀 Start Yearly Plan"
+                                tap="{{ onPurchaseReal('pro_yearly') }}"
+                                class="btn btn-primary mt-4"
+                                isEnabled="{{ !isPurchasing }}" />
+                    </GridLayout>
+                </StackLayout>
+
+                <!-- Lifetime Plan -->
+                <StackLayout class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl p-6 shadow-lg">
+                    <GridLayout rows="auto, auto, auto, auto, auto" columns="*, auto">
+                        <Label row="0" col="0" text="Lifetime Pro" class="text-lg font-semibold text-white" />
+                        <Label row="0" col="1" text="$49.99" class="text-2xl font-bold text-white" />
+                        
+                        <Label row="1" col="0" text="one-time purchase" class="text-sm text-white opacity-90" />
+                        <Label row="1" col="1" text="forever" class="text-sm text-white opacity-90" />
+                        
+                        <Label row="2" col="0" colSpan="2" text="🎯 Never pay again!" class="text-sm text-white font-semibold mt-1" />
+                        <Label row="3" col="0" colSpan="2" text="Perfect for long-term digital wellness" class="text-sm text-white opacity-90" />
+                        
+                        <Button row="4" col="0" colSpan="2" text="💎 Get Lifetime Access"
+                                tap="{{ onPurchaseReal('pro_lifetime') }}"
+                                class="btn btn-outline-light mt-4"
+                                isEnabled="{{ !isPurchasing }}" />
+                    </GridLayout>
+                </StackLayout>
+            </StackLayout>
+
+            <!-- Pro Features Highlight -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                <Label text="🌟 What You Get with Pro" class="text-lg font-semibold text-gray-800 mb-4" />
+                
+                <Repeater items="{{ proFeatures }}">
+                    <Repeater.itemTemplate>
+                        <GridLayout rows="auto" columns="auto, *" class="mb-3">
+                            <Label col="0" text="{{ icon }}" class="text-xl mr-3" />
+                            <StackLayout col="1">
+                                <Label text="{{ title }}" class="text-base font-medium text-gray-800" />
+                                <Label text="{{ description }}" class="text-sm text-gray-600" textWrap="true" />
+                            </StackLayout>
+                        </GridLayout>
+                    </Repeater.itemTemplate>
+                </Repeater>
+            </StackLayout>
+
+            <!-- Subscription Management (Pro Users) -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm" visibility="{{ isPremium ? 'visible' : 'collapsed' }}">
+                <Label text="⚙️ Manage Subscription" class="text-lg font-semibold text-gray-800 mb-4" />
+                
+                <StackLayout class="space-y-3">
+                    <GridLayout rows="auto" columns="*, auto">
+                        <Label col="0" text="Subscription Status" class="text-sm text-gray-600" />
+                        <Label col="1" text="{{ subscriptionStatus }}" class="text-sm font-medium text-green-600" />
+                    </GridLayout>
+                    
+                    <GridLayout rows="auto" columns="*, auto" visibility="{{ subscriptionExpiry ? 'visible' : 'collapsed' }}">
+                        <Label col="0" text="Next Billing Date" class="text-sm text-gray-600" />
+                        <Label col="1" text="{{ nextBillingDate }}" class="text-sm font-medium text-gray-800" />
+                    </GridLayout>
+                    
+                    <Button text="📧 Contact Support" tap="{{ onContactSupport }}" class="btn btn-outline-secondary" />
+                    <Button text="🔄 Restore Purchases" tap="{{ onRestorePurchases }}" class="btn btn-outline-info" />
+                    <Button text="❌ Cancel Subscription" tap="{{ onCancelSubscription }}" class="btn btn-outline-danger" 
+                            visibility="{{ subscriptionType !== 'pro_lifetime' ? 'visible' : 'collapsed' }}" />
+                </StackLayout>
+            </StackLayout>
+
+            <!-- Trust & Security -->
+            <StackLayout class="bg-gray-100 rounded-xl p-6">
+                <Label text="🔒 Safe & Secure" class="text-lg font-semibold text-gray-800 mb-3 text-center" />
+                <StackLayout class="space-y-2">
+                    <Label text="✅ Secure payment processing" class="text-sm text-gray-600 text-center" />
+                    <Label text="✅ Cancel anytime, no questions asked" class="text-sm text-gray-600 text-center" />
+                    <Label text="✅ 30-day money-back guarantee" class="text-sm text-gray-600 text-center" />
+                    <Label text="✅ Your data stays private and secure" class="text-sm text-gray-600 text-center" />
+                </StackLayout>
+            </StackLayout>
+
+            <!-- FAQ Link -->
+            <Button text="❓ Frequently Asked Questions" tap="{{ onShowFAQ }}" class="btn btn-outline-info" />
+
+        </StackLayout>
+    </ScrollView>
+</Page>

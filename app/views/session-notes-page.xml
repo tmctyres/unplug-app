@@ -1,0 +1,161 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="📝 Session Notes" class="action-bar">
+        <NavigationButton text="← Back" tap="{{ onBack }}" />
+    </ActionBar>
+
+    <GridLayout rows="*, auto" class="bg-gray-50">
+        
+        <!-- Main Content -->
+        <ScrollView row="0">
+            <StackLayout class="p-4 space-y-4">
+                
+                <!-- Stats Overview -->
+                <StackLayout class="bg-white rounded-xl p-6 shadow-sm" visibility="{{ hasNotes ? 'visible' : 'collapsed' }}">
+                    <Label text="📊 Your Notes Overview" class="text-lg font-semibold text-gray-800 mb-4" />
+                    
+                    <GridLayout rows="auto" columns="*, *, *" class="gap-4">
+                        <StackLayout col="0" class="text-center">
+                            <Label text="{{ totalNotes }}" class="text-2xl font-bold text-blue-600" />
+                            <Label text="Total Notes" class="text-xs text-gray-600" />
+                        </StackLayout>
+                        
+                        <StackLayout col="1" class="text-center">
+                            <Label text="{{ averageNoteLength }}" class="text-2xl font-bold text-green-600" />
+                            <Label text="Avg Length" class="text-xs text-gray-600" />
+                        </StackLayout>
+                        
+                        <StackLayout col="2" class="text-center">
+                            <Label text="{{ mostCommonMood || 'N/A' }}" class="text-2xl font-bold text-purple-600" />
+                            <Label text="Common Mood" class="text-xs text-gray-600" />
+                        </StackLayout>
+                    </GridLayout>
+                </StackLayout>
+
+                <!-- Empty State -->
+                <StackLayout class="bg-white rounded-xl p-8 shadow-sm text-center" visibility="{{ !hasNotes ? 'visible' : 'collapsed' }}">
+                    <Label text="📝" class="text-6xl mb-4" />
+                    <Label text="No Session Notes Yet" class="text-xl font-bold text-gray-800 mb-2" />
+                    <Label text="Start adding notes to your offline sessions to track your experiences and reflect on your digital wellness journey." 
+                           class="text-base text-gray-600 mb-4" textWrap="true" />
+                    <Label text="Notes help you remember what you accomplished during your offline time and can provide valuable insights into your habits." 
+                           class="text-sm text-gray-500" textWrap="true" />
+                </StackLayout>
+
+                <!-- Recent Notes -->
+                <StackLayout visibility="{{ hasNotes ? 'visible' : 'collapsed' }}">
+                    <Label text="📚 Recent Notes" class="text-lg font-semibold text-gray-800 mb-4" />
+                    
+                    <Repeater items="{{ sessionNotes }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="bg-white rounded-xl p-4 shadow-sm mb-3">
+                                
+                                <!-- Note Header -->
+                                <GridLayout rows="auto" columns="*, auto" class="mb-3">
+                                    <StackLayout col="0">
+                                        <Label text="{{ $parents['Page'].bindingContext.formatNoteDate(sessionDate) }}" 
+                                               class="text-sm font-semibold text-gray-800" />
+                                        <Label text="{{ $parents['Page'].bindingContext.formatDuration(sessionDuration) }}" 
+                                               class="text-xs text-gray-600" />
+                                    </StackLayout>
+                                    
+                                    <StackLayout col="1" class="text-right">
+                                        <Label text="{{ $parents['Page'].bindingContext.getMoodDisplay(mood).icon }}" 
+                                               class="text-lg" 
+                                               visibility="{{ mood ? 'visible' : 'collapsed' }}" />
+                                    </StackLayout>
+                                </GridLayout>
+                                
+                                <!-- Note Content -->
+                                <Label text="{{ note }}" 
+                                       class="text-base text-gray-700 mb-3" 
+                                       textWrap="true" />
+                                
+                                <!-- Activities -->
+                                <Label text="{{ $parents['Page'].bindingContext.getActivityDisplay(activities) }}" 
+                                       class="text-sm text-blue-600 mb-3" 
+                                       textWrap="true"
+                                       visibility="{{ activities && activities.length > 0 ? 'visible' : 'collapsed' }}" />
+                                
+                                <!-- Actions -->
+                                <GridLayout rows="auto" columns="*, auto" class="border-t border-gray-200 pt-3">
+                                    <Button col="0" text="👁️ View" 
+                                            tap="{{ $parents['Page'].bindingContext.onEditNote, id }}" 
+                                            class="btn btn-ghost text-sm" />
+                                    <Button col="1" text="🗑️ Delete" 
+                                            tap="{{ $parents['Page'].bindingContext.onDeleteNote, id }}" 
+                                            class="btn btn-ghost text-sm text-red-600" />
+                                </GridLayout>
+                                
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                </StackLayout>
+
+            </StackLayout>
+        </ScrollView>
+
+        <!-- Add Note Form (when active) -->
+        <GridLayout row="1" class="bg-white border-t border-gray-200 p-4" 
+                    visibility="{{ isAddingNote ? 'visible' : 'collapsed' }}">
+            
+            <ScrollView>
+                <StackLayout class="space-y-4">
+                    
+                    <!-- Form Header -->
+                    <Label text="✍️ Add Session Note" class="text-lg font-semibold text-gray-800 text-center" />
+                    
+                    <!-- Note Input -->
+                    <StackLayout>
+                        <Label text="What did you do during your offline time?" class="text-sm text-gray-600 mb-2" />
+                        <TextView text="{{ newNote }}" 
+                                  hint="Describe your offline activities, thoughts, or experiences..."
+                                  class="textarea border border-gray-300 rounded-lg p-3 min-h-20"
+                                  textWrap="true" />
+                        <Label text="{{ noteCharacterCount }}/500 characters" 
+                               class="text-xs text-gray-500 text-right mt-1" />
+                    </StackLayout>
+                    
+                    <!-- Mood Selection -->
+                    <StackLayout>
+                        <Label text="How did you feel?" class="text-sm text-gray-600 mb-2" />
+                        <GridLayout rows="auto" columns="*, *, *, *" class="gap-2">
+                            <Repeater items="{{ moodOptions }}">
+                                <Repeater.itemTemplate>
+                                    <Button text="{{ icon }} {{ name }}" 
+                                            tap="{{ $parents['Page'].bindingContext.onMoodSelect, id }}"
+                                            class="{{ $parents['Page'].bindingContext.isMoodSelected(id) ? 'btn btn-primary text-xs' : 'btn btn-outline-secondary text-xs' }}" />
+                                </Repeater.itemTemplate>
+                            </Repeater>
+                        </GridLayout>
+                    </StackLayout>
+                    
+                    <!-- Activity Selection -->
+                    <StackLayout>
+                        <Label text="What activities did you do? ({{ selectedActivitiesCount }} selected)" 
+                               class="text-sm text-gray-600 mb-2" />
+                        <GridLayout rows="auto, auto" columns="*, *, *, *, *" class="gap-2">
+                            <Repeater items="{{ activityOptions }}">
+                                <Repeater.itemTemplate>
+                                    <Button text="{{ icon }}" 
+                                            tap="{{ $parents['Page'].bindingContext.onActivityToggle, id }}"
+                                            class="{{ $parents['Page'].bindingContext.isActivitySelected(id) ? 'btn btn-primary text-xs' : 'btn btn-outline-secondary text-xs' }}" />
+                                </Repeater.itemTemplate>
+                            </Repeater>
+                        </GridLayout>
+                    </StackLayout>
+                    
+                    <!-- Action Buttons -->
+                    <GridLayout rows="auto" columns="*, *" class="gap-3 mt-4">
+                        <Button col="0" text="Cancel" tap="{{ onCancelNote }}" class="btn btn-outline-secondary" />
+                        <Button col="1" text="Save Note" tap="{{ onSaveNote }}" 
+                                class="btn btn-primary" 
+                                isEnabled="{{ canSaveNote }}" />
+                    </GridLayout>
+                    
+                </StackLayout>
+            </ScrollView>
+            
+        </GridLayout>
+
+    </GridLayout>
+</Page>

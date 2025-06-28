@@ -1,0 +1,66 @@
+<GridLayout xmlns="http://schemas.nativescript.org/tns.xsd" 
+            class="tutorial-tooltip" 
+            visibility="{{ isVisible ? 'visible' : 'collapsed' }}"
+            opacity="{{ opacity }}"
+            rows="*, auto, *" 
+            columns="*, auto, *">
+    
+    <!-- Background overlay (optional) -->
+    <StackLayout row="0" rowSpan="3" col="0" colSpan="3" 
+                 class="tooltip-overlay" 
+                 visibility="{{ showOverlay ? 'visible' : 'collapsed' }}"
+                 opacity="0.3" />
+    
+    <!-- Tooltip Content -->
+    <StackLayout row="{{ tooltipRow }}" col="{{ tooltipCol }}" 
+                 class="tooltip-content bg-white rounded-xl shadow-lg border border-gray-200"
+                 width="{{ tooltipWidth }}"
+                 maxWidth="300">
+        
+        <!-- Tooltip Header -->
+        <GridLayout rows="auto" columns="auto, *, auto" class="tooltip-header p-4 pb-2">
+            <!-- Icon -->
+            <Label row="0" col="0" text="{{ icon }}" 
+                   class="tooltip-icon text-2xl mr-3"
+                   visibility="{{ icon ? 'visible' : 'collapsed' }}" />
+            
+            <!-- Title -->
+            <Label row="0" col="1" text="{{ title }}" 
+                   class="tooltip-title text-lg font-semibold text-gray-800" 
+                   textWrap="true" />
+            
+            <!-- Close Button -->
+            <Button row="0" col="2" text="✕" 
+                    tap="{{ onDismiss }}"
+                    class="tooltip-close btn-ghost text-gray-400 text-sm p-1"
+                    visibility="{{ dismissible ? 'visible' : 'collapsed' }}" />
+        </GridLayout>
+        
+        <!-- Tooltip Body -->
+        <StackLayout class="tooltip-body px-4 pb-2">
+            <Label text="{{ message }}" 
+                   class="tooltip-message text-sm text-gray-600 leading-relaxed" 
+                   textWrap="true" />
+        </StackLayout>
+        
+        <!-- Tooltip Actions -->
+        <GridLayout rows="auto" columns="*, auto" 
+                    class="tooltip-actions p-4 pt-2"
+                    visibility="{{ showActions ? 'visible' : 'collapsed' }}">
+            
+            <!-- Action Button -->
+            <Button row="0" col="1" text="{{ actionText }}" 
+                    tap="{{ onAction }}"
+                    class="btn btn-primary btn-sm"
+                    visibility="{{ actionText ? 'visible' : 'collapsed' }}" />
+        </GridLayout>
+        
+        <!-- Tooltip Arrow -->
+        <StackLayout class="tooltip-arrow tooltip-arrow-{{ arrowPosition }}"
+                     visibility="{{ showArrow ? 'visible' : 'collapsed' }}">
+            <Label text="▼" class="arrow-icon text-white text-lg" />
+        </StackLayout>
+        
+    </StackLayout>
+    
+</GridLayout>

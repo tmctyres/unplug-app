@@ -1,0 +1,144 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="📊 Weekly Report" class="action-bar bg-gradient-to-r from-green-500 to-blue-600">
+        <NavigationButton text="← Back" tap="{{ onNavigateBack }}" />
+        <ActionItem text="📤" tap="{{ onExportReport }}" ios.position="right" android.position="actionBar" />
+    </ActionBar>
+
+    <ScrollView class="bg-gray-50">
+        <StackLayout class="p-4 space-y-4">
+            
+            <!-- Week Selector -->
+            <StackLayout class="bg-white rounded-xl p-4 shadow-sm">
+                <GridLayout rows="auto" columns="auto, *, auto">
+                    <Button col="0" text="◀" tap="{{ onPreviousWeek }}" class="btn btn-outline-secondary w-12" />
+                    <Label col="1" text="{{ weekRangeText }}" class="text-lg font-semibold text-gray-800 text-center" />
+                    <Button col="2" text="▶" tap="{{ onNextWeek }}" class="btn btn-outline-secondary w-12" isEnabled="{{ canGoToNextWeek }}" />
+                </GridLayout>
+            </StackLayout>
+
+            <!-- Week Summary -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                <Label text="📈 Week Summary" class="text-lg font-semibold text-gray-800 mb-4" />
+                
+                <GridLayout rows="auto, auto" columns="*, *" class="gap-4">
+                    <StackLayout row="0" col="0" class="text-center">
+                        <Label text="⏰ Total Offline Time" class="text-sm text-gray-600" />
+                        <Label text="{{ weeklyOfflineTime }}" class="text-2xl font-bold text-blue-600" />
+                    </StackLayout>
+                    
+                    <StackLayout row="0" col="1" class="text-center">
+                        <Label text="⭐ XP Earned" class="text-sm text-gray-600" />
+                        <Label text="{{ weeklyXP }}" class="text-2xl font-bold text-purple-600" />
+                    </StackLayout>
+                    
+                    <StackLayout row="1" col="0" class="text-center">
+                        <Label text="📱 Sessions" class="text-sm text-gray-600" />
+                        <Label text="{{ weeklySessions }}" class="text-2xl font-bold text-green-600" />
+                    </StackLayout>
+                    
+                    <StackLayout row="1" col="1" class="text-center">
+                        <Label text="🎯 Goal Achievement" class="text-sm text-gray-600" />
+                        <Label text="{{ goalAchievementRate }}%" class="text-2xl font-bold text-orange-600" />
+                    </StackLayout>
+                </GridLayout>
+
+                <!-- Weekly Progress Bar -->
+                <StackLayout class="mt-4">
+                    <Label text="Weekly Goal Progress" class="text-sm text-gray-600 mb-2" />
+                    <StackLayout class="bg-gray-200 rounded-full h-4">
+                        <StackLayout class="bg-gradient-to-r from-green-400 to-blue-500 rounded-full h-4" width="{{ weeklyGoalProgress }}%" />
+                    </StackLayout>
+                    <Label text="{{ weeklyGoalProgress | number:'1.0-0' }}% of weekly goal achieved" class="text-xs text-gray-500 text-center mt-1" />
+                </StackLayout>
+            </StackLayout>
+
+            <!-- Daily Breakdown -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                <Label text="📅 Daily Breakdown" class="text-lg font-semibold text-gray-800 mb-4" />
+                
+                <Repeater items="{{ dailyStats }}">
+                    <Repeater.itemTemplate>
+                        <GridLayout rows="auto" columns="auto, *, auto, auto" class="p-3 border-b border-gray-100">
+                            <Label col="0" text="{{ dayName }}" class="text-sm font-medium text-gray-700 w-12" />
+                            <StackLayout col="1" class="ml-3">
+                                <Label text="{{ offlineTime }}" class="text-sm font-semibold text-blue-600" />
+                                <StackLayout class="bg-gray-200 rounded-full h-2 mt-1">
+                                    <StackLayout class="bg-blue-500 rounded-full h-2" width="{{ progressPercent }}%" />
+                                </StackLayout>
+                            </StackLayout>
+                            <Label col="2" text="{{ xpEarned }} XP" class="text-xs text-purple-600 ml-2" />
+                            <Label col="3" text="{{ goalMet ? '✅' : '⭕' }}" class="text-lg ml-2" />
+                        </GridLayout>
+                    </Repeater.itemTemplate>
+                </Repeater>
+            </StackLayout>
+
+            <!-- Achievements This Week -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm" visibility="{{ weeklyAchievements.length > 0 ? 'visible' : 'collapsed' }}">
+                <Label text="🏆 Achievements This Week" class="text-lg font-semibold text-gray-800 mb-4" />
+                
+                <Repeater items="{{ weeklyAchievements }}">
+                    <Repeater.itemTemplate>
+                        <GridLayout rows="auto" columns="auto, *" class="p-3 bg-yellow-50 rounded-lg mb-2">
+                            <Label col="0" text="{{ icon }}" class="text-2xl mr-3" />
+                            <StackLayout col="1">
+                                <Label text="{{ title }}" class="text-sm font-semibold text-gray-800" />
+                                <Label text="{{ description }}" class="text-xs text-gray-600" />
+                                <Label text="+{{ xpReward }} XP" class="text-xs text-purple-600 font-medium" />
+                            </StackLayout>
+                        </GridLayout>
+                    </Repeater.itemTemplate>
+                </Repeater>
+            </StackLayout>
+
+            <!-- Insights & Tips -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                <Label text="💡 Weekly Insights" class="text-lg font-semibold text-gray-800 mb-4" />
+                
+                <StackLayout class="space-y-3">
+                    <StackLayout class="p-3 bg-blue-50 rounded-lg">
+                        <Label text="📊 Performance" class="text-sm font-semibold text-blue-800" />
+                        <Label text="{{ performanceInsight }}" class="text-sm text-blue-700" textWrap="true" />
+                    </StackLayout>
+                    
+                    <StackLayout class="p-3 bg-green-50 rounded-lg">
+                        <Label text="🎯 Goal Progress" class="text-sm font-semibold text-green-800" />
+                        <Label text="{{ goalInsight }}" class="text-sm text-green-700" textWrap="true" />
+                    </StackLayout>
+                    
+                    <StackLayout class="p-3 bg-purple-50 rounded-lg">
+                        <Label text="🚀 Next Week" class="text-sm font-semibold text-purple-800" />
+                        <Label text="{{ nextWeekTip }}" class="text-sm text-purple-700" textWrap="true" />
+                    </StackLayout>
+                </StackLayout>
+            </StackLayout>
+
+            <!-- Comparison with Previous Week -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm" visibility="{{ showComparison ? 'visible' : 'collapsed' }}">
+                <Label text="📈 Week-over-Week Comparison" class="text-lg font-semibold text-gray-800 mb-4" />
+                
+                <GridLayout rows="auto, auto, auto" columns="*, auto, auto" class="gap-2">
+                    <Label row="0" col="0" text="Metric" class="text-sm font-semibold text-gray-600" />
+                    <Label row="0" col="1" text="This Week" class="text-sm font-semibold text-gray-600 text-center" />
+                    <Label row="0" col="2" text="Change" class="text-sm font-semibold text-gray-600 text-center" />
+                    
+                    <Label row="1" col="0" text="Offline Time" class="text-sm text-gray-700" />
+                    <Label row="1" col="1" text="{{ weeklyOfflineTime }}" class="text-sm text-blue-600 text-center" />
+                    <Label row="1" col="2" text="{{ offlineTimeChange }}" class="text-sm text-center" color="{{ offlineTimeChangeColor }}" />
+                    
+                    <Label row="2" col="0" text="Sessions" class="text-sm text-gray-700" />
+                    <Label row="2" col="1" text="{{ weeklySessions }}" class="text-sm text-green-600 text-center" />
+                    <Label row="2" col="2" text="{{ sessionsChange }}" class="text-sm text-center" color="{{ sessionsChangeColor }}" />
+                </GridLayout>
+            </StackLayout>
+
+            <!-- Pro Feature Promotion (Free Users) -->
+            <StackLayout class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 shadow-sm" visibility="{{ !isPremium ? 'visible' : 'collapsed' }}">
+                <Label text="🌟 Unlock Advanced Reports" class="text-lg font-bold text-white mb-2" />
+                <Label text="Get detailed analytics, export options, and personalized insights with Unplug Pro!" class="text-sm text-white mb-4" textWrap="true" />
+                <Button text="Upgrade to Pro" tap="{{ onUpgradeToPro }}" class="btn btn-outline-light" />
+            </StackLayout>
+
+        </StackLayout>
+    </ScrollView>
+</Page>

@@ -1,0 +1,316 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="Unplug" class="action-bar bg-gradient-to-r from-blue-500 to-purple-600">
+        <ActionItem text="🎓" tap="{{ onStartTutorialDebug }}" ios.position="left" android.position="actionBar" />
+        <ActionItem text="⚙️" tap="{{ onNavigateToSettings }}" ios.position="right" android.position="actionBar" />
+    </ActionBar>
+
+    <GridLayout rows="*, auto">
+        <!-- Main content -->
+
+    <ScrollView row="0" class="bg-gray-50">
+        <StackLayout class="p-4 space-y-4">
+            
+            <!-- Session Feedback (temporary) -->
+            <StackLayout class="session-feedback" visibility="{{ showSessionFeedback ? 'visible' : 'collapsed' }}">
+                <Label text="{{ sessionFeedbackIcon }}" class="feedback-icon text-center" />
+                <Label text="{{ sessionFeedbackText }}" class="feedback-text text-center" textWrap="true" />
+            </StackLayout>
+
+            <!-- Welcome Section -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                <Label text="{{ welcomeMessage }}" class="text-2xl font-bold text-gray-800 text-center mb-2" />
+                <Label text="{{ motivationalMessage }}" class="text-base text-gray-600 text-center" textWrap="true" />
+            </StackLayout>
+
+            <!-- Current Session (Manual Mode) -->
+            <StackLayout class="session-controls bg-white rounded-xl p-6 shadow-sm" visibility="{{ trackingMode === 'manual' ? 'visible' : 'collapsed' }}">
+                <Label text="📱 Manual Tracking Mode" class="text-lg font-semibold text-gray-800 mb-4 text-center" />
+
+                <StackLayout visibility="{{ isSessionActive ? 'visible' : 'collapsed' }}" class="text-center">
+                    <Label text="⏱️ Current Session" class="text-base text-gray-600 mb-2" />
+                    <Label text="{{ currentSessionDuration }}" class="text-3xl font-bold text-green-600 mb-4" />
+                    <Button text="End Session" tap="{{ onEndSession }}" class="btn btn-outline-danger w-full" />
+                </StackLayout>
+
+                <StackLayout visibility="{{ !isSessionActive ? 'visible' : 'collapsed' }}" class="text-center">
+                    <Label text="Ready to start your offline time?" class="text-base text-gray-600 mb-4" />
+                    <Button text="🚀 Start Offline Session" tap="{{ onStartSession }}" class="btn btn-primary w-full text-lg" />
+                </StackLayout>
+            </StackLayout>
+
+            <!-- Automatic Tracking Info (Android) -->
+            <StackLayout class="session-controls bg-white rounded-xl p-6 shadow-sm" visibility="{{ trackingMode === 'automatic' ? 'visible' : 'collapsed' }}">
+                <Label text="🤖 Automatic Tracking Active" class="text-lg font-semibold text-gray-800 mb-2 text-center" />
+                <Label text="Your offline time is being tracked automatically when your screen is off." class="text-sm text-gray-600 text-center" textWrap="true" />
+
+                <StackLayout visibility="{{ isSessionActive ? 'visible' : 'collapsed' }}" class="mt-4 text-center">
+                    <Label text="📱 Currently Offline" class="text-base text-green-600 mb-2" />
+                    <Label text="{{ currentSessionDuration }}" class="text-2xl font-bold text-green-600" />
+                </StackLayout>
+            </StackLayout>
+
+            <!-- Today's Progress -->
+            <StackLayout class="progress-section bg-white rounded-xl p-6 shadow-sm">
+                <Label text="📊 Today's Progress" class="text-lg font-semibold text-gray-800 mb-4" />
+                
+                <GridLayout rows="auto, auto" columns="*, *" class="mb-4">
+                    <StackLayout row="0" col="0" class="text-center">
+                        <Label text="⏰ Offline Time" class="text-sm text-gray-600" />
+                        <Label text="{{ todayOfflineTime }}" class="text-xl font-bold text-blue-600" />
+                    </StackLayout>
+                    
+                    <StackLayout row="0" col="1" class="text-center">
+                        <Label text="⭐ XP Earned" class="text-sm text-gray-600" />
+                        <Label text="{{ todayXP }}" class="text-xl font-bold text-purple-600" />
+                    </StackLayout>
+                </GridLayout>
+
+                <!-- Daily Goal Progress -->
+                <Label text="Daily Goal: {{ dailyGoal }}" class="text-sm text-gray-600 mb-2" />
+                <StackLayout class="bg-gray-200 rounded-full h-3 mb-2">
+                    <StackLayout class="bg-gradient-to-r from-green-400 to-blue-500 rounded-full h-3" width="{{ dailyProgress }}%" />
+                </StackLayout>
+                <Label text="{{ dailyProgress | number:'1.0-0' }}% Complete" class="text-xs text-gray-500 text-center" />
+            </StackLayout>
+
+            <!-- Level & XP -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                <Label text="🏆 Your Level" class="text-lg font-semibold text-gray-800 mb-4" />
+
+                <!-- User Title and Badge -->
+                <StackLayout class="text-center mb-4">
+                    <Label text="{{ userBadge }}" class="text-4xl mb-2" />
+                    <Label text="{{ userTitle }}" class="text-lg font-bold text-blue-600 mb-1" />
+                    <Label text="Level {{ userLevel }}" class="text-sm text-gray-600" />
+                </StackLayout>
+
+                <GridLayout rows="auto" columns="*, *, *" class="mb-4">
+                    <StackLayout col="0" class="text-center">
+                        <Label text="Total XP" class="text-sm text-gray-600" />
+                        <Label text="{{ totalXP }}" class="text-xl font-bold text-purple-600" />
+                    </StackLayout>
+
+                    <StackLayout col="1" class="text-center">
+                        <Label text="XP Multiplier" class="text-sm text-gray-600" />
+                        <Label text="{{ xpMultiplier | number:'1.1-1' }}x" class="text-xl font-bold text-green-600" />
+                    </StackLayout>
+
+                    <StackLayout col="2" class="text-center">
+                        <Label text="To Next Level" class="text-sm text-gray-600" />
+                        <Label text="{{ xpToNextLevel }}" class="text-xl font-bold text-orange-600" />
+                    </StackLayout>
+                </GridLayout>
+
+                <!-- Level Progress -->
+                <Label text="Progress to {{ userTitle }} (Level {{ userLevel + 1 }})" class="text-sm text-gray-600 mb-2" visibility="{{ xpToNextLevel > 0 ? 'visible' : 'collapsed' }}" />
+                <Label text="Maximum Level Reached!" class="text-sm text-gold-600 font-bold mb-2" visibility="{{ xpToNextLevel === 0 ? 'visible' : 'collapsed' }}" />
+                <StackLayout class="bg-gray-200 rounded-full h-4 mb-2" visibility="{{ xpToNextLevel > 0 ? 'visible' : 'collapsed' }}">
+                    <StackLayout class="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full h-4" width="{{ levelProgress }}%" />
+                </StackLayout>
+                <Label text="{{ levelProgress | number:'1.0-0' }}% Complete" class="text-xs text-gray-500 text-center" visibility="{{ xpToNextLevel > 0 ? 'visible' : 'collapsed' }}" />
+            </StackLayout>
+
+            <!-- Streak Info -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                <GridLayout rows="auto" columns="*, auto">
+                    <Label col="0" text="🔥 Streak Stats" class="text-lg font-semibold text-gray-800" />
+                    <Button col="1" text="🏆 Rankings" tap="{{ onNavigateToLeaderboards }}" class="btn btn-outline-primary text-sm" />
+                </GridLayout>
+
+                <GridLayout rows="auto" columns="*, *" class="mt-4">
+                    <StackLayout col="0" class="text-center">
+                        <Label text="🔥 Current" class="text-sm text-gray-600" />
+                        <Label text="{{ currentStreak }} days" class="text-xl font-bold text-orange-600" />
+                    </StackLayout>
+
+                    <StackLayout col="1" class="text-center">
+                        <Label text="🏅 Best" class="text-sm text-gray-600" />
+                        <Label text="{{ longestStreak }} days" class="text-xl font-bold text-red-600" />
+                    </StackLayout>
+                </GridLayout>
+
+                <Label text="See how you rank against others!" class="text-xs text-gray-500 text-center mt-2" />
+            </StackLayout>
+
+            <!-- Leaderboards Preview -->
+            <StackLayout class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 shadow-sm" tap="{{ onNavigateToLeaderboards }}">
+                <GridLayout rows="auto, auto" columns="auto, *, auto">
+                    <Label row="0" col="0" text="🏆" class="text-3xl mr-3" />
+                    <StackLayout row="0" col="1">
+                        <Label text="Leaderboards" class="text-lg font-bold text-white" />
+                        <Label text="See how you rank against others" class="text-sm text-white opacity-90" />
+                    </StackLayout>
+                    <Label row="0" col="2" text="→" class="text-2xl text-white" />
+
+                    <Label row="1" col="1" colSpan="2" text="🔥 Compete in streaks • ⏰ Weekly minutes • 👑 Levels & more!"
+                           class="text-xs text-white opacity-75 mt-2" />
+                </GridLayout>
+            </StackLayout>
+
+            <!-- Quick Actions -->
+            <GridLayout rows="auto, auto, auto, auto, auto" columns="*, *" class="quick-actions gap-4">
+                <Button row="0" col="0" text="🏆 Achievements" tap="{{ onNavigateToAchievements }}"
+                        class="btn btn-outline-primary"
+                        visibility="{{ isFeatureUnlocked('achievements') ? 'visible' : 'collapsed' }}" />
+                <Button row="0" col="1" text="📊 Analytics" tap="{{ onNavigateToAnalyticsDashboard }}"
+                        class="btn btn-outline-secondary"
+                        visibility="{{ isFeatureUnlocked('analytics_dashboard') ? 'visible' : 'collapsed' }}" />
+                <Button row="1" col="0" text="🎯 Challenges" tap="{{ onNavigateToCommunity }}"
+                        class="btn btn-outline-warning"
+                        visibility="{{ isFeatureUnlocked('challenges') ? 'visible' : 'collapsed' }}" />
+                <Button row="1" col="1" text="👥 Circles" tap="{{ onNavigateToCircles }}"
+                        class="btn btn-outline-info"
+                        visibility="{{ isFeatureUnlocked('circles') ? 'visible' : 'collapsed' }}" />
+                <Button row="2" col="0" text="🏆 Leaderboards" tap="{{ onNavigateToLeaderboards }}"
+                        class="btn btn-outline-success"
+                        visibility="{{ isFeatureUnlocked('leaderboards') ? 'visible' : 'collapsed' }}" />
+                <Button row="2" col="1" text="📝 Session Notes" tap="{{ onNavigateToSessionNotes }}"
+                        class="btn btn-outline-success"
+                        visibility="{{ isFeatureUnlocked('session_notes') ? 'visible' : 'collapsed' }}" />
+                <Button row="3" col="0" text="🌟 Social Setup" tap="{{ onNavigateToSocialOnboarding }}"
+                        class="btn btn-outline-info"
+                        visibility="{{ isFeatureUnlocked('social_profile') ? 'visible' : 'collapsed' }}" />
+                <Button row="3" col="1" text="💎 Upgrade Pro" tap="{{ onNavigateToSubscription }}"
+                        class="btn btn-primary"
+                        visibility="{{ !isPremium && isFeatureUnlocked('premium_analytics') ? 'visible' : 'collapsed' }}" />
+            </GridLayout>
+
+            <!-- Coming Soon Features -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm" visibility="{{ nextUnlockableFeatures && nextUnlockableFeatures.length > 0 ? 'visible' : 'collapsed' }}">
+                <Label text="🔮 Coming Soon" class="text-lg font-semibold text-gray-800 mb-4" />
+                <Label text="Keep progressing to unlock these features:" class="text-sm text-gray-600 mb-4" />
+
+                <Repeater items="{{ nextUnlockableFeatures }}">
+                    <Repeater.itemTemplate>
+                        <StackLayout class="bg-gray-50 rounded-lg p-4 mb-3">
+                            <GridLayout rows="auto, auto" columns="auto, *, auto">
+                                <Label row="0" col="0" text="{{ icon }}" class="text-2xl mr-3" />
+                                <StackLayout row="0" col="1">
+                                    <Label text="{{ name }}" class="text-base font-semibold text-gray-800" />
+                                    <Label text="{{ description }}" class="text-sm text-gray-600" textWrap="true" />
+                                </StackLayout>
+                                <Label row="0" col="2" text="🔒" class="text-lg text-gray-400" />
+
+                                <Label row="1" col="1" colSpan="2" text="{{ unlockConditions[0].description }}"
+                                       class="text-xs text-blue-600 mt-2" textWrap="true" />
+                            </GridLayout>
+                        </StackLayout>
+                    </Repeater.itemTemplate>
+                </Repeater>
+            </StackLayout>
+
+        </StackLayout>
+    </ScrollView>
+
+    <!-- Tutorial Overlay -->
+    <GridLayout row="0" rowSpan="2"
+                visibility="{{ tutorialOverlay.isVisible ? 'visible' : 'collapsed' }}"
+                opacity="{{ tutorialOverlay.opacity }}"
+                class="tutorial-overlay">
+        <StackLayout class="tutorial-background bg-black opacity-70" />
+
+        <!-- Tutorial Content -->
+        <StackLayout row="{{ tutorialOverlay.contentRow }}" col="0"
+                     class="tutorial-content bg-white rounded-xl shadow-lg mx-6"
+                     visibility="{{ tutorialOverlay.showContent ? 'visible' : 'collapsed' }}">
+
+            <!-- Progress Indicator -->
+            <StackLayout class="tutorial-progress p-4 pb-2">
+                <Label text="Step {{ tutorialOverlay.currentStep }} of {{ tutorialOverlay.totalSteps }}"
+                       class="text-sm text-gray-500 text-center mb-2" />
+                <StackLayout class="bg-gray-200 rounded-full h-2">
+                    <StackLayout class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-full h-2"
+                                 width="{{ tutorialOverlay.progressPercentage }}%" />
+                </StackLayout>
+            </StackLayout>
+
+            <!-- Step Content -->
+            <StackLayout class="tutorial-step-content px-4 pb-2">
+                <!-- Step Icon -->
+                <Label text="{{ tutorialOverlay.stepIcon }}"
+                       class="tutorial-step-icon text-4xl text-center mb-3"
+                       visibility="{{ tutorialOverlay.stepIcon ? 'visible' : 'collapsed' }}" />
+
+                <!-- Step Title -->
+                <Label text="{{ tutorialOverlay.stepTitle }}"
+                       class="tutorial-step-title text-xl font-bold text-gray-800 text-center mb-3"
+                       textWrap="true" />
+
+                <!-- Step Description -->
+                <Label text="{{ tutorialOverlay.stepDescription }}"
+                       class="tutorial-step-description text-base text-gray-600 text-center leading-relaxed"
+                       textWrap="true" />
+            </StackLayout>
+
+            <!-- Tutorial Actions -->
+            <GridLayout rows="auto" columns="auto, *, auto, auto" class="tutorial-actions p-4 pt-2">
+
+                <!-- Skip Button -->
+                <Button row="0" col="0" text="Skip"
+                        tap="{{ onTutorialSkip }}"
+                        class="btn btn-ghost text-gray-500"
+                        visibility="{{ tutorialOverlay.canSkip ? 'visible' : 'collapsed' }}" />
+
+                <!-- Previous Button -->
+                <Button row="0" col="2" text="← Back"
+                        tap="{{ onTutorialPrevious }}"
+                        class="btn btn-outline-secondary mr-2"
+                        visibility="{{ tutorialOverlay.canGoBack ? 'visible' : 'collapsed' }}" />
+
+                <!-- Next/Finish Button -->
+                <Button row="0" col="3" text="{{ tutorialOverlay.nextButtonText }}"
+                        tap="{{ onTutorialNext }}"
+                        class="btn btn-primary" />
+            </GridLayout>
+
+        </StackLayout>
+    </GridLayout>
+
+    <!-- Celebration Overlay -->
+    <GridLayout row="1" rowSpan="2"
+                visibility="{{ celebrationOverlay.isVisible ? 'visible' : 'collapsed' }}"
+                opacity="{{ celebrationOverlay.opacity }}"
+                class="celebration-overlay">
+
+        <!-- Background overlay -->
+        <StackLayout class="bg-black opacity-50" />
+
+        <!-- Celebration content -->
+        <StackLayout class="celebration-content text-center p-8 m-6 rounded-xl">
+
+            <!-- Main icon with animation -->
+            <Label text="{{ celebrationOverlay.celebrationIcon }}"
+                   class="celebration-icon text-8xl mb-4"
+                   scaleX="{{ celebrationOverlay.iconScale }}"
+                   scaleY="{{ celebrationOverlay.iconScale }}" />
+
+            <!-- Title -->
+            <Label text="{{ celebrationOverlay.celebrationTitle }}"
+                   class="celebration-title text-3xl font-bold text-white mb-2"
+                   textWrap="true" />
+
+            <!-- Message -->
+            <Label text="{{ celebrationOverlay.celebrationMessage }}"
+                   class="celebration-message text-lg text-white opacity-90 mb-6"
+                   textWrap="true" />
+
+            <!-- Reward info -->
+            <StackLayout visibility="{{ celebrationOverlay.showReward ? 'visible' : 'collapsed' }}"
+                         class="bg-white bg-opacity-20 rounded-xl p-4 mb-4">
+                <Label text="{{ celebrationOverlay.rewardText }}"
+                       class="text-white text-center font-semibold"
+                       textWrap="true" />
+            </StackLayout>
+
+            <!-- Continue button -->
+            <Button text="Continue"
+                    tap="{{ celebrationOverlay.onContinue }}"
+                    class="btn btn-primary mt-4"
+                    visibility="{{ celebrationOverlay.showContinueButton ? 'visible' : 'collapsed' }}" />
+
+        </StackLayout>
+
+    </GridLayout>
+
+    </GridLayout>
+</Page>

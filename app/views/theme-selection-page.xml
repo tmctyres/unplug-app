@@ -1,0 +1,101 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="Choose Theme" class="action-bar">
+        <NavigationButton text="← Back" tap="{{ onBack }}" />
+    </ActionBar>
+
+    <ScrollView class="bg-gray-50">
+        <StackLayout class="p-4 space-y-4">
+            
+            <!-- Current Theme Info -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                <Label text="🎨 Current Theme" class="text-lg font-semibold text-gray-800 mb-2" />
+                <Label text="{{ currentThemeName }}" class="text-xl font-bold text-blue-600 mb-2" />
+                <Label text="{{ isDarkMode ? 'Dark Mode' : 'Light Mode' }}" class="text-sm text-gray-600" />
+                
+                <!-- Quick Dark Mode Toggle -->
+                <Button text="{{ isDarkMode ? '☀️ Switch to Light' : '🌙 Switch to Dark' }}" 
+                        tap="{{ onToggleDarkMode }}" 
+                        class="btn btn-outline-primary mt-4" />
+            </StackLayout>
+
+            <!-- Seasonal Themes (if available) -->
+            <StackLayout class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-6 shadow-sm" 
+                         visibility="{{ hasSeasonalThemes ? 'visible' : 'collapsed' }}">
+                <Label text="🌟 Seasonal Themes Available!" class="text-lg font-bold text-white mb-2" />
+                <Label text="{{ seasonalThemesCount }} special seasonal theme(s) are available right now!" 
+                       class="text-white opacity-90 mb-4" textWrap="true" />
+                <Button text="✨ Try Seasonal Theme" 
+                        tap="{{ onAutoSwitchSeasonal }}" 
+                        class="btn btn-outline-light" />
+            </StackLayout>
+
+            <!-- Theme Categories -->
+            <Repeater items="{{ themeCategories }}">
+                <Repeater.itemTemplate>
+                    <StackLayout class="mb-6">
+                        
+                        <!-- Category Header -->
+                        <Label text="{{ name }}" class="text-xl font-bold text-gray-800 mb-4" />
+                        
+                        <!-- Themes in Category -->
+                        <GridLayout rows="auto, auto" columns="*, *" class="gap-3">
+                            <Repeater items="{{ themes }}">
+                                <Repeater.itemTemplate>
+                                    <StackLayout class="theme-card bg-white rounded-xl p-4 shadow-sm border-2"
+                                                 tap="{{ $parents['Page'].bindingContext.onThemeSelect, id }}"
+                                                 borderColor="{{ $parents['Page'].bindingContext.isCurrentTheme(id) ? '#3B82F6' : '#E5E7EB' }}">
+                                        
+                                        <!-- Theme Preview -->
+                                        <StackLayout class="theme-preview rounded-lg p-3 mb-3"
+                                                     backgroundColor="{{ colors.background }}">
+                                            <GridLayout rows="auto" columns="*, *, *" class="gap-2">
+                                                <StackLayout col="0" class="w-6 h-6 rounded-full" 
+                                                             backgroundColor="{{ colors.primary }}" />
+                                                <StackLayout col="1" class="w-6 h-6 rounded-full" 
+                                                             backgroundColor="{{ colors.secondary }}" />
+                                                <StackLayout col="2" class="w-6 h-6 rounded-full" 
+                                                             backgroundColor="{{ colors.accent }}" />
+                                            </GridLayout>
+                                        </StackLayout>
+                                        
+                                        <!-- Theme Info -->
+                                        <Label text="{{ name }}" class="text-base font-semibold text-gray-800 mb-1" />
+                                        <Label text="{{ description }}" class="text-sm text-gray-600 mb-2" textWrap="true" />
+                                        
+                                        <!-- Theme Type Badge -->
+                                        <Label text="{{ isDark ? '🌙 Dark' : '☀️ Light' }}" 
+                                               class="text-xs text-gray-500" />
+                                        
+                                        <!-- Seasonal Badge -->
+                                        <Label text="🌟 Limited Time" 
+                                               class="text-xs text-purple-600 font-semibold mt-1"
+                                               visibility="{{ isSeasonalLimited ? 'visible' : 'collapsed' }}" />
+                                        
+                                        <!-- Current Theme Indicator -->
+                                        <Label text="✓ Current" 
+                                               class="text-sm text-blue-600 font-bold mt-2"
+                                               visibility="{{ $parents['Page'].bindingContext.isCurrentTheme(id) ? 'visible' : 'collapsed' }}" />
+                                               
+                                    </StackLayout>
+                                </Repeater.itemTemplate>
+                            </Repeater>
+                        </GridLayout>
+                        
+                    </StackLayout>
+                </Repeater.itemTemplate>
+            </Repeater>
+
+            <!-- Theme Tips -->
+            <StackLayout class="bg-blue-50 rounded-xl p-6 border border-blue-200">
+                <Label text="💡 Theme Tips" class="text-lg font-semibold text-blue-800 mb-3" />
+                <Label text="• Seasonal themes are only available during specific times of the year" 
+                       class="text-sm text-blue-700 mb-2" textWrap="true" />
+                <Label text="• Dark themes are easier on the eyes during evening sessions" 
+                       class="text-sm text-blue-700 mb-2" textWrap="true" />
+                <Label text="• Nature themes can help create a more calming atmosphere" 
+                       class="text-sm text-blue-700" textWrap="true" />
+            </StackLayout>
+
+        </StackLayout>
+    </ScrollView>
+</Page>

@@ -1,0 +1,212 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="{{ chartTitle }}" class="action-bar">
+        <NavigationButton text="← Back" tap="{{ onBack }}" />
+        <ActionItem text="📤" tap="{{ onExportChart }}" ios.position="right" android.position="actionBar" />
+    </ActionBar>
+
+    <GridLayout rows="auto, *" class="bg-gray-50">
+        
+        <!-- Loading State -->
+        <StackLayout row="0" rowSpan="2" class="loading-overlay bg-white flex justify-center items-center" 
+                     visibility="{{ isLoading ? 'visible' : 'collapsed' }}">
+            <ActivityIndicator busy="true" class="activity-indicator" />
+            <Label text="Loading detailed analytics..." class="text-gray-600 mt-4" />
+        </StackLayout>
+
+        <!-- Error State -->
+        <StackLayout row="0" rowSpan="2" class="error-state bg-white flex justify-center items-center p-8" 
+                     visibility="{{ hasError ? 'visible' : 'collapsed' }}">
+            <Label text="📊" class="text-6xl mb-4" />
+            <Label text="Unable to Load Details" class="text-xl font-bold text-gray-800 mb-2" />
+            <Label text="{{ errorMessage }}" class="text-base text-gray-600 text-center mb-4" textWrap="true" />
+            <Button text="Try Again" tap="{{ onBack }}" class="btn btn-primary" />
+        </StackLayout>
+
+        <!-- Chart Type & Time Range Selector -->
+        <StackLayout row="0" class="controls-section bg-white border-b border-gray-200 p-4" 
+                     visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            
+            <!-- Chart Type Selector -->
+            <Label text="Chart Type" class="text-sm font-semibold text-gray-700 mb-2" />
+            <ScrollView orientation="horizontal" class="mb-4">
+                <StackLayout orientation="horizontal" class="gap-2">
+                    <Repeater items="{{ chartTypeOptions }}">
+                        <Repeater.itemTemplate>
+                            <Button text="{{ icon }} {{ name }}" 
+                                    class="btn btn-outline-secondary text-xs whitespace-nowrap" />
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                </StackLayout>
+            </ScrollView>
+            
+            <!-- Time Range Selector -->
+            <Label text="Time Range" class="text-sm font-semibold text-gray-700 mb-2" />
+            <GridLayout rows="auto" columns="*, *, *, *" class="gap-2">
+                <Repeater items="{{ timeRangeOptions }}">
+                    <Repeater.itemTemplate>
+                        <Button text="{{ icon }} {{ name }}" 
+                                tap="{{ $parents['Page'].bindingContext.onTimeRangeChange, id }}"
+                                class="{{ $parents['Page'].bindingContext.timeRange === id ? 'btn btn-primary text-xs' : 'btn btn-outline-secondary text-xs' }}" />
+                    </Repeater.itemTemplate>
+                </Repeater>
+            </GridLayout>
+        </StackLayout>
+
+        <!-- Main Content -->
+        <ScrollView row="1" visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            <StackLayout class="p-4 space-y-6">
+                
+                <!-- Main Chart -->
+                <StackLayout class="chart-section bg-white rounded-xl p-6 shadow-sm">
+                    <Label text="{{ chartTitle }}" class="text-xl font-bold text-gray-800 mb-2" />
+                    <Label text="{{ chartDescription }}" class="text-sm text-gray-600 mb-6" textWrap="true" />
+                    
+                    <!-- Chart Placeholder -->
+                    <StackLayout class="main-chart bg-gray-50 rounded-lg p-8 text-center min-h-64">
+                        <Label text="📊" class="text-6xl mb-4" />
+                        <Label text="Detailed Chart View" class="text-lg font-semibold text-gray-700 mb-2" />
+                        <Label text="Interactive chart would be rendered here" class="text-sm text-gray-500" />
+                    </StackLayout>
+                    
+                    <!-- Chart Actions -->
+                    <GridLayout rows="auto" columns="*, auto" class="mt-4">
+                        <Label col="0" text="Tap and drag to explore data points" class="text-xs text-gray-500" />
+                        <Button col="1" text="📤 Share" tap="{{ onExportChart }}" class="btn btn-outline-primary text-sm" />
+                    </GridLayout>
+                </StackLayout>
+
+                <!-- Comparisons Section -->
+                <StackLayout class="comparisons-section" visibility="{{ hasComparisons ? 'visible' : 'collapsed' }}">
+                    <Label text="📊 Comparisons" class="text-lg font-bold text-gray-800 mb-4" />
+                    
+                    <Repeater items="{{ comparisons }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="comparison-card bg-white rounded-xl p-4 shadow-sm mb-3"
+                                         tap="{{ $parents['Page'].bindingContext.onViewComparison, id }}">
+                                <GridLayout rows="auto, auto, auto" columns="*, auto">
+                                    <!-- Title -->
+                                    <Label row="0" col="0" text="{{ title }}" 
+                                           class="comparison-title text-base font-semibold text-gray-800 mb-2" />
+                                    <Label row="0" col="1" text="👁️" class="text-lg" />
+                                    
+                                    <!-- Key Metrics -->
+                                    <GridLayout row="1" col="0" colSpan="2" rows="auto" columns="*, *, *" class="gap-4 mb-3">
+                                        <StackLayout col="0" class="text-center">
+                                            <Label text="{{ formatChange(data.changes.minutesChange) }}" 
+                                                   class="text-lg font-bold"
+                                                   color="{{ getChangeColor(data.changes.minutesChange) }}" />
+                                            <Label text="Minutes" class="text-xs text-gray-500" />
+                                        </StackLayout>
+                                        <StackLayout col="1" class="text-center">
+                                            <Label text="{{ formatChange(data.changes.sessionCountChange) }}" 
+                                                   class="text-lg font-bold"
+                                                   color="{{ getChangeColor(data.changes.sessionCountChange) }}" />
+                                            <Label text="Sessions" class="text-xs text-gray-500" />
+                                        </StackLayout>
+                                        <StackLayout col="2" class="text-center">
+                                            <Label text="{{ formatChange(data.changes.consistencyChange) }}" 
+                                                   class="text-lg font-bold"
+                                                   color="{{ getChangeColor(data.changes.consistencyChange) }}" />
+                                            <Label text="Consistency" class="text-xs text-gray-500" />
+                                        </StackLayout>
+                                    </GridLayout>
+                                    
+                                    <!-- Top Insight -->
+                                    <Label row="2" col="0" colSpan="2" text="{{ insights[0] }}" 
+                                           class="text-sm text-blue-600 bg-blue-50 rounded-lg p-2" 
+                                           textWrap="true"
+                                           visibility="{{ insights && insights.length > 0 ? 'visible' : 'collapsed' }}" />
+                                </GridLayout>
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                </StackLayout>
+
+                <!-- Trend Analysis -->
+                <StackLayout class="trends-section" visibility="{{ hasTrends ? 'visible' : 'collapsed' }}">
+                    <Label text="📈 Trend Analysis" class="text-lg font-bold text-gray-800 mb-4" />
+                    
+                    <Repeater items="{{ trends }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="trend-card bg-white rounded-xl p-4 shadow-sm mb-3">
+                                <GridLayout rows="auto, auto, auto" columns="auto, *, auto">
+                                    <!-- Trend Icon & Title -->
+                                    <Label row="0" col="0" text="{{ $parents['Page'].bindingContext.getTrendIcon(trend.direction) }}" 
+                                           class="trend-icon text-2xl mr-3" />
+                                    <Label row="0" col="1" text="{{ title }}" 
+                                           class="trend-title text-base font-semibold text-gray-800" />
+                                    <Label row="0" col="2" text="{{ trend.strength }}" 
+                                           class="trend-strength text-sm font-bold px-2 py-1 rounded"
+                                           color="{{ $parents['Page'].bindingContext.getTrendColor(trend.direction, trend.strength) }}" />
+                                    
+                                    <!-- Description -->
+                                    <Label row="1" col="1" colSpan="2" text="{{ description }}" 
+                                           class="trend-description text-sm text-gray-600 mt-1 mb-2" 
+                                           textWrap="true" />
+                                    
+                                    <!-- Recommendation -->
+                                    <Label row="2" col="1" colSpan="2" text="{{ recommendation }}" 
+                                           class="trend-recommendation text-sm text-green-700 bg-green-50 rounded-lg p-2" 
+                                           textWrap="true" />
+                                </GridLayout>
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                </StackLayout>
+
+                <!-- Related Insights -->
+                <StackLayout class="insights-section" visibility="{{ hasRelatedInsights ? 'visible' : 'collapsed' }}">
+                    <Label text="💡 Related Insights" class="text-lg font-bold text-gray-800 mb-4" />
+                    
+                    <Repeater items="{{ relatedInsights }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="insight-card bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-4 shadow-sm mb-3">
+                                <GridLayout rows="auto, auto, auto" columns="*, auto">
+                                    <!-- Insight Content -->
+                                    <Label row="0" col="0" text="{{ title }}" 
+                                           class="insight-title text-base font-bold text-white mb-2" />
+                                    <Label row="1" col="0" text="{{ description }}" 
+                                           class="insight-description text-sm text-white opacity-90 mb-3" 
+                                           textWrap="true" />
+                                    <Label row="2" col="0" text="{{ recommendation }}" 
+                                           class="insight-recommendation text-sm text-white font-semibold bg-white bg-opacity-20 rounded-lg p-2" 
+                                           textWrap="true"
+                                           visibility="{{ actionable ? 'visible' : 'collapsed' }}" />
+                                    
+                                    <!-- Actions -->
+                                    <StackLayout row="0" col="1" rowSpan="3" class="text-center">
+                                        <Label text="{{ Math.round(confidence * 100) }}%" 
+                                               class="confidence-score text-lg font-bold text-white" />
+                                        <Label text="confidence" class="text-xs text-white opacity-75 mb-2" />
+                                        <Button text="📤" 
+                                                tap="{{ $parents['Page'].bindingContext.onShareInsight, $value }}" 
+                                                class="btn btn-ghost text-white text-sm" />
+                                    </StackLayout>
+                                </GridLayout>
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                </StackLayout>
+
+            </StackLayout>
+        </ScrollView>
+
+        <!-- Comparison Detail Modal -->
+        <GridLayout row="0" rowSpan="2" class="comparison-modal bg-black bg-opacity-50" 
+                    visibility="{{ showComparisonDetail ? 'visible' : 'collapsed' }}">
+            <StackLayout class="modal-content bg-white rounded-t-2xl p-6 mx-4 mt-20">
+                <GridLayout rows="auto" columns="*, auto" class="mb-4">
+                    <Label col="0" text="{{ selectedComparison.title }}" 
+                           class="text-xl font-bold text-gray-800" />
+                    <Button col="1" text="✕" tap="{{ onCloseComparisonDetail }}" 
+                            class="btn btn-ghost text-gray-500" />
+                </GridLayout>
+                
+                <!-- Detailed comparison content would go here -->
+                <Label text="Detailed comparison view with charts and insights" 
+                       class="text-center text-gray-600 p-8" />
+            </StackLayout>
+        </GridLayout>
+
+    </GridLayout>
+</Page>

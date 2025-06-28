@@ -1,0 +1,186 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="🏆 Achievements" class="action-bar">
+        <NavigationButton text="← Back" android.systemIcon="ic_menu_back" />
+    </ActionBar>
+
+    <ScrollView class="bg-gray-50">
+        <StackLayout class="p-4">
+
+            <!-- Achievement Stats -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm mb-4">
+                <Label text="🎯 Achievement Progress" class="text-lg font-semibold text-gray-800 mb-4 text-center" />
+
+                <GridLayout rows="auto, auto" columns="*, *, *">
+                    <StackLayout row="0" col="0" class="text-center">
+                        <Label text="{{ unlockedCount }}" class="text-2xl font-bold text-green-600" />
+                        <Label text="Unlocked" class="text-sm text-gray-600" />
+                    </StackLayout>
+
+                    <StackLayout row="0" col="1" class="text-center">
+                        <Label text="{{ totalCount }}" class="text-2xl font-bold text-blue-600" />
+                        <Label text="Total" class="text-sm text-gray-600" />
+                    </StackLayout>
+
+                    <StackLayout row="0" col="2" class="text-center">
+                        <Label text="{{ completionPercentage }}%" class="text-2xl font-bold text-purple-600" />
+                        <Label text="Complete" class="text-sm text-gray-600" />
+                    </StackLayout>
+
+                    <!-- Rarity Breakdown -->
+                    <StackLayout row="1" col="0" colSpan="3" class="mt-4">
+                        <Label text="By Rarity" class="text-sm font-semibold text-gray-700 mb-2 text-center" />
+                        <GridLayout columns="*, *, *, *">
+                            <StackLayout col="0" class="text-center">
+                                <Label text="{{ commonCount }}" class="text-lg font-bold" color="#6b7280" />
+                                <Label text="Common" class="text-xs" color="#6b7280" />
+                            </StackLayout>
+                            <StackLayout col="1" class="text-center">
+                                <Label text="{{ rareCount }}" class="text-lg font-bold" color="#3b82f6" />
+                                <Label text="Rare" class="text-xs" color="#3b82f6" />
+                            </StackLayout>
+                            <StackLayout col="2" class="text-center">
+                                <Label text="{{ epicCount }}" class="text-lg font-bold" color="#8b5cf6" />
+                                <Label text="Epic" class="text-xs" color="#8b5cf6" />
+                            </StackLayout>
+                            <StackLayout col="3" class="text-center">
+                                <Label text="{{ legendaryCount }}" class="text-lg font-bold" color="#f59e0b" />
+                                <Label text="Legendary" class="text-xs" color="#f59e0b" />
+                            </StackLayout>
+                        </GridLayout>
+                    </StackLayout>
+                </GridLayout>
+            </StackLayout>
+
+            <!-- Filter and Sort Controls -->
+            <StackLayout class="bg-white rounded-xl p-4 shadow-sm mb-4">
+                <Label text="🔍 Filter & Sort" class="text-md font-semibold text-gray-800 mb-3" />
+
+                <GridLayout rows="auto, auto" columns="*, *">
+                    <!-- Category Filter -->
+                    <StackLayout row="0" col="0" class="mr-2">
+                        <Label text="Category" class="text-sm text-gray-600 mb-1" />
+                        <Button text="{{ selectedCategory }}" tap="{{ onCategoryFilter }}"
+                                class="btn btn-outline text-sm p-2" />
+                    </StackLayout>
+
+                    <!-- Rarity Filter -->
+                    <StackLayout row="0" col="1" class="ml-2">
+                        <Label text="Rarity" class="text-sm text-gray-600 mb-1" />
+                        <Button text="{{ selectedRarity }}" tap="{{ onRarityFilter }}"
+                                class="btn btn-outline text-sm p-2" />
+                    </StackLayout>
+
+                    <!-- Status Filter -->
+                    <StackLayout row="1" col="0" class="mr-2 mt-2">
+                        <Label text="Status" class="text-sm text-gray-600 mb-1" />
+                        <Button text="{{ selectedStatus }}" tap="{{ onStatusFilter }}"
+                                class="btn btn-outline text-sm p-2" />
+                    </StackLayout>
+
+                    <!-- Sort -->
+                    <StackLayout row="1" col="1" class="ml-2 mt-2">
+                        <Label text="Sort By" class="text-sm text-gray-600 mb-1" />
+                        <Button text="{{ sortBy }}" tap="{{ onSort }}"
+                                class="btn btn-outline text-sm p-2" />
+                    </StackLayout>
+                </GridLayout>
+            </StackLayout>
+
+            <!-- Achievement Chains -->
+            <StackLayout class="bg-white rounded-xl p-4 shadow-sm mb-4" visibility="{{ hasChains ? 'visible' : 'collapsed' }}">
+                <Label text="🔗 Achievement Chains" class="text-md font-semibold text-gray-800 mb-3" />
+                <ListView items="{{ achievementChains }}" separatorColor="transparent">
+                    <ListView.itemTemplate>
+                        <StackLayout class="bg-gray-50 rounded-lg p-3 mb-2">
+                            <GridLayout columns="40, *, auto">
+                                <Label col="0" text="{{ icon }}" class="text-2xl text-center" />
+                                <StackLayout col="1" class="ml-3">
+                                    <Label text="{{ name }}" class="text-md font-semibold text-gray-800" />
+                                    <Label text="{{ description }}" class="text-sm text-gray-600" textWrap="true" />
+                                    <Label text="{{ progress }}/{{ total }} completed" class="text-xs text-blue-600 mt-1" />
+                                </StackLayout>
+                                <Label col="2" text="+{{ rewards.xp }} XP" class="text-sm font-semibold text-purple-600" />
+                            </GridLayout>
+                            <!-- Chain Progress Bar -->
+                            <StackLayout class="bg-gray-200 rounded-full h-2 mt-2">
+                                <StackLayout class="bg-blue-500 rounded-full h-2" width="{{ progressPercentage }}%" />
+                            </StackLayout>
+                        </StackLayout>
+                    </ListView.itemTemplate>
+                </ListView>
+            </StackLayout>
+
+            <!-- Achievements List -->
+            <ListView items="{{ filteredAchievements }}" class="list-group" separatorColor="transparent">
+                <ListView.itemTemplate>
+                    <StackLayout class="bg-white rounded-xl p-4 mb-3 shadow-sm" opacity="{{ unlocked ? 1.0 : 0.6 }}">
+                        <GridLayout rows="auto, auto, auto" columns="60, *">
+
+                            <!-- Achievement Icon with Rarity Border -->
+                            <StackLayout row="0" col="0" class="achievement-icon-container">
+                                <StackLayout class="achievement-icon-border" borderColor="{{ rarityColor }}" borderWidth="3" borderRadius="30" width="60" height="60">
+                                    <Label text="{{ icon }}" class="text-4xl text-center" verticalAlignment="center" />
+                                </StackLayout>
+                            </StackLayout>
+
+                            <!-- Achievement Info -->
+                            <StackLayout row="0" col="1" class="ml-4">
+                                <!-- Title with Rarity Badge -->
+                                <StackLayout orientation="horizontal" class="mb-1">
+                                    <Label text="{{ title }}" class="text-lg font-semibold text-gray-800" />
+                                    <Label text="{{ rarityName }}" class="text-xs font-bold px-2 py-1 rounded ml-2"
+                                           backgroundColor="{{ rarityColor }}" color="white" />
+                                </StackLayout>
+
+                                <Label text="{{ description }}" class="text-sm text-gray-600 mb-2" textWrap="true" />
+
+                                <!-- Category and Status -->
+                                <StackLayout orientation="horizontal" class="mb-2">
+                                    <Label text="{{ categoryName }}" class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded mr-2" />
+                                    <Label text="{{ unlocked ? '✅ Unlocked' : '🔒 Locked' }}"
+                                           class="{{ unlocked ? 'text-green-600 font-semibold' : 'text-gray-500' }} text-xs" />
+                                </StackLayout>
+
+                                <GridLayout columns="*, auto, auto" class="mt-2">
+                                    <StackLayout col="0">
+                                        <Label text="{{ unlockedAt | date:'short' }}"
+                                               class="text-xs text-gray-500"
+                                               visibility="{{ unlocked ? 'visible' : 'collapsed' }}" />
+                                        <Label text="{{ chainInfo }}"
+                                               class="text-xs text-blue-600"
+                                               visibility="{{ chainId ? 'visible' : 'collapsed' }}" />
+                                    </StackLayout>
+
+                                    <Button col="1" text="📤"
+                                            tap="{{ $parents['Page'].bindingContext.onShareAchievement, $value }}"
+                                            class="btn btn-ghost text-sm mr-2"
+                                            visibility="{{ unlocked ? 'visible' : 'collapsed' }}" />
+
+                                    <Label col="2" text="+{{ xpReward }} XP"
+                                           class="text-purple-600 font-semibold bg-purple-100 px-2 py-1 rounded" />
+                                </GridLayout>
+                            </StackLayout>
+
+                            <!-- Progress Bar -->
+                            <StackLayout row="1" col="1" class="ml-4 mt-3" visibility="{{ !unlocked ? 'visible' : 'collapsed' }}">
+                                <Label text="Progress: {{ progressText }}" class="text-xs text-gray-500 mb-1" />
+                                <StackLayout class="bg-gray-200 rounded-full h-3">
+                                    <StackLayout class="bg-gradient-to-r from-blue-400 to-purple-500 rounded-full h-3" width="{{ progressPercentage }}%" />
+                                </StackLayout>
+                                <Label text="{{ progressPercentage | number:'1.0-0' }}% complete" class="text-xs text-gray-500 mt-1" />
+                            </StackLayout>
+
+                            <!-- Requirements (for complex achievements) -->
+                            <StackLayout row="2" col="1" class="ml-4 mt-2" visibility="{{ hasRequirements &amp;&amp; !unlocked ? 'visible' : 'collapsed' }}">
+                                <Label text="Requirements:" class="text-xs font-semibold text-gray-700 mb-1" />
+                                <Label text="{{ requirementsText }}" class="text-xs text-gray-600" textWrap="true" />
+                            </StackLayout>
+
+                        </GridLayout>
+                    </StackLayout>
+                </ListView.itemTemplate>
+            </ListView>
+
+        </StackLayout>
+    </ScrollView>
+</Page>

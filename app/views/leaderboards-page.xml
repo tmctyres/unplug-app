@@ -1,0 +1,234 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="🏆 Leaderboards" class="action-bar">
+        <NavigationButton text="← Back" tap="{{ onBack }}" />
+        <ActionItem text="⚙️" tap="{{ onViewSettings }}" ios.position="right" android.position="actionBar" />
+        <ActionItem text="🔄" tap="{{ onRefresh }}" ios.position="right" android.position="actionBar" />
+    </ActionBar>
+
+    <GridLayout rows="auto, auto, *" class="bg-gray-50">
+        
+        <!-- Loading State -->
+        <StackLayout row="0" rowSpan="3" class="loading-overlay bg-white flex justify-center items-center" 
+                     visibility="{{ isLoading ? 'visible' : 'collapsed' }}">
+            <ActivityIndicator busy="true" class="activity-indicator" />
+            <Label text="Loading leaderboards..." class="text-gray-600 mt-4" />
+        </StackLayout>
+
+        <!-- Error State -->
+        <StackLayout row="0" rowSpan="3" class="error-state bg-white flex justify-center items-center p-8" 
+                     visibility="{{ hasError ? 'visible' : 'collapsed' }}">
+            <Label text="🏆" class="text-6xl mb-4" />
+            <Label text="Unable to Load Leaderboards" class="text-xl font-bold text-gray-800 mb-2" />
+            <Label text="{{ errorMessage }}" class="text-base text-gray-600 text-center mb-4" textWrap="true" />
+            <Button text="Try Again" tap="{{ onRefresh }}" class="btn btn-primary" />
+        </StackLayout>
+
+        <!-- Participation Status -->
+        <StackLayout row="0" class="participation-status p-4" 
+                     visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            
+            <!-- Participating -->
+            <StackLayout class="participating-card bg-gradient-to-r from-green-500 to-blue-500 rounded-xl p-4" 
+                         visibility="{{ isParticipating ? 'visible' : 'collapsed' }}">
+                <GridLayout rows="auto, auto" columns="auto, *, auto">
+                    <Label row="0" col="0" text="🏆" class="status-icon text-2xl mr-3" />
+                    <StackLayout row="0" col="1">
+                        <Label text="You're on the Leaderboards!" class="status-title text-lg font-bold text-white" />
+                        <Label text="Competing as {{ anonymousId }}" class="status-subtitle text-sm text-white opacity-90" />
+                    </StackLayout>
+                    <Button row="0" col="2" text="⚙️" tap="{{ onViewSettings }}" class="btn btn-ghost text-white" />
+                    
+                    <Label row="1" col="1" colSpan="2" text="{{ userRankSummary }}" 
+                           class="rank-summary text-sm text-white opacity-90 mt-2" />
+                </GridLayout>
+            </StackLayout>
+            
+            <!-- Not Participating -->
+            <StackLayout class="not-participating-card bg-gray-100 rounded-xl p-4" 
+                         visibility="{{ !isParticipating ? 'visible' : 'collapsed' }}">
+                <GridLayout rows="auto, auto" columns="auto, *, auto">
+                    <Label row="0" col="0" text="🔒" class="status-icon text-2xl mr-3" />
+                    <StackLayout row="0" col="1">
+                        <Label text="Join the Competition!" class="status-title text-lg font-bold text-gray-800" />
+                        <Label text="Compete anonymously with others" class="status-subtitle text-sm text-gray-600" />
+                    </StackLayout>
+                    <Button row="0" col="2" text="Join" tap="{{ onToggleParticipation }}" 
+                            class="btn btn-primary text-sm" isEnabled="{{ !isUpdatingParticipation }}" />
+                    
+                    <Label row="1" col="1" colSpan="2" text="Your privacy is protected - you'll appear with an anonymous name" 
+                           class="privacy-note text-xs text-gray-500 mt-2" />
+                </GridLayout>
+            </StackLayout>
+        </StackLayout>
+
+        <!-- Leaderboard Selection -->
+        <StackLayout row="1" class="leaderboard-selection bg-white border-b border-gray-200 p-4" 
+                     visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            
+            <Label text="📊 Choose Leaderboard" class="selection-title text-lg font-bold text-gray-800 mb-3" />
+            
+            <!-- Leaderboard Tabs -->
+            <ScrollView orientation="horizontal" class="leaderboard-tabs-scroll">
+                <StackLayout orientation="horizontal" class="leaderboard-tabs gap-2">
+                    <Repeater items="{{ leaderboards }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="leaderboard-tab rounded-lg p-3 text-center border-2"
+                                         backgroundColor="{{ isSelected ? '#EBF8FF' : '#F9FAFB' }}"
+                                         borderColor="{{ isSelected ? '#3B82F6' : '#E5E7EB' }}"
+                                         tap="{{ $parents['Page'].bindingContext.onSelectLeaderboard, id }}">
+                                
+                                <Label text="{{ icon }}" class="tab-icon text-2xl mb-1" />
+                                <Label text="{{ name }}" class="tab-name text-xs font-semibold text-gray-800" />
+                                
+                                <!-- User Rank -->
+                                <Label text="{{ userRankText }}" 
+                                       class="user-rank text-xs font-bold mt-1"
+                                       color="{{ userRank ? '#10B981' : '#6B7280' }}"
+                                       visibility="{{ isParticipating ? 'visible' : 'collapsed' }}" />
+                                
+                                <!-- Participant Count -->
+                                <Label text="{{ participantCount }} users" 
+                                       class="participant-count text-xs text-gray-500" />
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                </StackLayout>
+            </ScrollView>
+        </StackLayout>
+
+        <!-- Leaderboard Content -->
+        <ScrollView row="2" visibility="{{ !isLoading && !hasError && hasSelectedLeaderboard ? 'visible' : 'collapsed' }}">
+            <StackLayout class="leaderboard-content p-4">
+                
+                <!-- Leaderboard Header -->
+                <StackLayout class="leaderboard-header bg-white rounded-xl p-4 shadow-sm mb-4">
+                    <GridLayout rows="auto, auto" columns="auto, *, auto">
+                        <Label row="0" col="0" text="{{ selectedLeaderboard.icon }}" class="header-icon text-3xl mr-3" />
+                        <StackLayout row="0" col="1">
+                            <Label text="{{ selectedLeaderboard.name }}" class="header-title text-lg font-bold text-gray-800" />
+                            <Label text="{{ selectedLeaderboard.description }}" class="header-description text-sm text-gray-600" />
+                        </StackLayout>
+                        <Button row="0" col="2" text="📤" tap="{{ onShareLeaderboard }}" 
+                                class="btn btn-outline-secondary text-sm"
+                                visibility="{{ isParticipating ? 'visible' : 'collapsed' }}" />
+                        
+                        <!-- Stats -->
+                        <GridLayout row="1" col="1" colSpan="2" rows="auto" columns="*, *, *" class="header-stats mt-3 gap-4">
+                            <StackLayout col="0" class="stat-item text-center">
+                                <Label text="{{ selectedLeaderboard.totalParticipants }}" class="stat-value text-lg font-bold text-blue-600" />
+                                <Label text="Participants" class="stat-label text-xs text-gray-500" />
+                            </StackLayout>
+                            <StackLayout col="1" class="stat-item text-center" visibility="{{ selectedLeaderboard.userPosition ? 'visible' : 'collapsed' }}">
+                                <Label text="#{{ selectedLeaderboard.userPosition.rank }}" class="stat-value text-lg font-bold text-green-600" />
+                                <Label text="Your Rank" class="stat-label text-xs text-gray-500" />
+                            </StackLayout>
+                            <StackLayout col="2" class="stat-item text-center" visibility="{{ selectedLeaderboard.userPosition ? 'visible' : 'collapsed' }}">
+                                <Label text="Top {{ selectedLeaderboard.userPosition.percentile }}%" class="stat-value text-lg font-bold text-purple-600" />
+                                <Label text="Percentile" class="stat-label text-xs text-gray-500" />
+                            </StackLayout>
+                        </GridLayout>
+                    </GridLayout>
+                </StackLayout>
+
+                <!-- Top 3 Podium -->
+                <StackLayout class="podium bg-white rounded-xl p-6 shadow-sm mb-4">
+                    <Label text="🏆 Top 3" class="podium-title text-lg font-bold text-gray-800 text-center mb-4" />
+                    
+                    <GridLayout rows="auto, auto, auto" columns="*, *, *" class="podium-grid gap-2">
+                        <!-- 2nd Place -->
+                        <StackLayout row="0" col="0" class="podium-position text-center" visibility="{{ selectedLeaderboard.entries.length > 1 ? 'visible' : 'collapsed' }}">
+                            <Label text="🥈" class="podium-medal text-3xl mb-2" />
+                            <Label text="{{ selectedLeaderboard.entries[1].displayName }}" class="podium-name text-sm font-semibold text-gray-800" />
+                            <Label text="{{ selectedLeaderboard.entries[1].formattedValue }}" class="podium-value text-xs text-gray-600" />
+                        </StackLayout>
+                        
+                        <!-- 1st Place -->
+                        <StackLayout row="0" col="1" class="podium-position text-center" visibility="{{ selectedLeaderboard.entries.length > 0 ? 'visible' : 'collapsed' }}">
+                            <Label text="🥇" class="podium-medal text-4xl mb-2" />
+                            <Label text="{{ selectedLeaderboard.entries[0].displayName }}" class="podium-name text-base font-bold text-gray-800" />
+                            <Label text="{{ selectedLeaderboard.entries[0].formattedValue }}" class="podium-value text-sm text-gray-600" />
+                            <Label text="👑" class="crown text-2xl mt-1" />
+                        </StackLayout>
+                        
+                        <!-- 3rd Place -->
+                        <StackLayout row="0" col="2" class="podium-position text-center" visibility="{{ selectedLeaderboard.entries.length > 2 ? 'visible' : 'collapsed' }}">
+                            <Label text="🥉" class="podium-medal text-3xl mb-2" />
+                            <Label text="{{ selectedLeaderboard.entries[2].displayName }}" class="podium-name text-sm font-semibold text-gray-800" />
+                            <Label text="{{ selectedLeaderboard.entries[2].formattedValue }}" class="podium-value text-xs text-gray-600" />
+                        </StackLayout>
+                    </GridLayout>
+                </StackLayout>
+
+                <!-- Full Rankings -->
+                <StackLayout class="rankings bg-white rounded-xl p-4 shadow-sm">
+                    <Label text="📋 Full Rankings" class="rankings-title text-lg font-bold text-gray-800 mb-4" />
+                    
+                    <Repeater items="{{ selectedLeaderboard.entries }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="ranking-entry p-3 mb-2 rounded-lg"
+                                         backgroundColor="{{ isCurrentUser ? '#F0F9FF' : '#F9FAFB' }}"
+                                         borderColor="{{ isCurrentUser ? '#3B82F6' : 'transparent' }}"
+                                         borderWidth="{{ isCurrentUser ? 2 : 0 }}">
+                                
+                                <GridLayout rows="auto, auto" columns="auto, auto, *, auto">
+                                    <!-- Rank -->
+                                    <Label row="0" col="0" text="{{ rankIcon }}" 
+                                           class="rank-icon text-lg font-bold mr-3"
+                                           color="{{ rankColor }}" />
+                                    
+                                    <!-- Avatar -->
+                                    <StackLayout row="0" col="1" class="user-avatar rounded-full w-8 h-8 flex justify-center items-center mr-3"
+                                                 backgroundColor="{{ $parents['Page'].bindingContext.getLevelBadgeColor(5) }}">
+                                        <Label text="{{ displayName.charAt(0) }}" class="avatar-text text-white font-bold text-xs" />
+                                    </StackLayout>
+                                    
+                                    <!-- User Info -->
+                                    <StackLayout row="0" col="2">
+                                        <Label text="{{ displayName }}" class="user-name text-base font-semibold text-gray-800" />
+                                        <Label text="{{ timeAgo }}" class="last-active text-xs text-gray-500" />
+                                    </StackLayout>
+                                    
+                                    <!-- Value -->
+                                    <Label row="0" col="3" text="{{ formattedValue }}" 
+                                           class="user-value text-base font-bold text-blue-600" />
+                                    
+                                    <!-- Current User Indicator -->
+                                    <Label row="1" col="2" colSpan="2" text="👤 This is you!" 
+                                           class="current-user-indicator text-sm font-semibold text-blue-600 mt-1"
+                                           visibility="{{ isCurrentUser ? 'visible' : 'collapsed' }}" />
+                                </GridLayout>
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                    
+                    <!-- Load More -->
+                    <Button text="📜 Load More" class="btn btn-outline-secondary mt-4" 
+                            visibility="{{ selectedLeaderboard.entries.length >= 20 ? 'visible' : 'collapsed' }}" />
+                </StackLayout>
+
+                <!-- Privacy Notice -->
+                <StackLayout class="privacy-notice bg-blue-50 rounded-xl p-4 mt-4">
+                    <GridLayout rows="auto" columns="auto, *">
+                        <Label col="0" text="🔒" class="privacy-icon text-xl mr-3" />
+                        <StackLayout col="1">
+                            <Label text="Privacy Protected" class="privacy-title text-sm font-bold text-blue-800" />
+                            <Label text="All leaderboards are anonymous. Your real name and personal information are never shown to other users." 
+                                   class="privacy-text text-xs text-blue-700" textWrap="true" />
+                        </StackLayout>
+                    </GridLayout>
+                </StackLayout>
+
+            </StackLayout>
+        </ScrollView>
+
+        <!-- Empty State -->
+        <StackLayout row="2" class="empty-state text-center p-8" 
+                     visibility="{{ !isLoading && !hasError && !hasSelectedLeaderboard ? 'visible' : 'collapsed' }}">
+            <Label text="🏆" class="text-6xl mb-4" />
+            <Label text="Select a Leaderboard" class="text-xl font-bold text-gray-800 mb-2" />
+            <Label text="Choose a leaderboard above to see rankings and compete with others!" 
+                   class="text-base text-gray-600 text-center" textWrap="true" />
+        </StackLayout>
+
+    </GridLayout>
+</Page>

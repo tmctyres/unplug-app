@@ -1,0 +1,158 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="⚙️ Settings" class="action-bar">
+        <NavigationButton text="← Back" android.systemIcon="ic_menu_back" />
+    </ActionBar>
+
+    <ScrollView class="bg-gray-50">
+        <StackLayout class="p-4 space-y-4">
+            
+            <!-- Daily Goal Setting -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                <Label text="🎯 Daily Goal" class="text-lg font-semibold text-gray-800 mb-4" />
+                
+                <GridLayout rows="auto, auto" columns="*, auto">
+                    <Label row="0" col="0" text="Target offline time per day" class="text-sm text-gray-600" />
+                    <Label row="0" col="1" text="{{ dailyGoalText }}" class="text-sm font-semibold text-blue-600" />
+                    
+                    <Slider row="1" col="0" colSpan="2" 
+                            value="{{ dailyGoalMinutes }}" 
+                            minValue="30" 
+                            maxValue="720" 
+                            class="slider mt-2" />
+                </GridLayout>
+                
+                <Label text="Tip: Start with a realistic goal and gradually increase it!" class="text-xs text-gray-500 mt-2" textWrap="true" />
+            </StackLayout>
+
+            <!-- Notifications -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                <Label text="🔔 Smart Notifications" class="text-lg font-semibold text-gray-800 mb-4" />
+
+                <!-- Notification Feedback -->
+                <StackLayout class="bg-blue-50 rounded-lg p-3 mb-4"
+                             visibility="{{ showNotificationFeedback ? 'visible' : 'collapsed' }}">
+                    <Label text="{{ notificationFeedback }}"
+                           class="text-sm text-blue-700 text-center"
+                           textWrap="true" />
+                </StackLayout>
+
+                <GridLayout rows="auto, auto, auto, auto" columns="*, auto" class="gap-3">
+                    <Label row="0" col="0" text="Enable smart notifications" class="text-sm text-gray-700" />
+                    <Switch row="0" col="1" checked="{{ notificationsEnabled }}" />
+
+                    <Label row="1" col="0" text="Reminder interval" class="text-sm text-gray-700" />
+                    <Label row="1" col="1" text="{{ reminderIntervalText }}" class="text-sm text-blue-600" />
+
+                    <Slider row="2" col="0" colSpan="2"
+                            value="{{ reminderInterval }}"
+                            minValue="15"
+                            maxValue="240"
+                            isEnabled="{{ notificationsEnabled }}"
+                            class="slider" />
+
+                    <Button row="3" col="0" colSpan="2"
+                            text="🧪 Test Notification"
+                            tap="{{ onTestNotification }}"
+                            class="btn btn-outline-primary mt-3"
+                            isEnabled="{{ notificationsEnabled }}" />
+                </GridLayout>
+
+                <!-- Smart Features Info -->
+                <StackLayout class="border-t border-gray-200 pt-4 mt-4"
+                             visibility="{{ notificationsEnabled ? 'visible' : 'collapsed' }}">
+                    <Label text="🤖 Smart Features:" class="text-sm font-semibold text-gray-700 mb-2" />
+                    <Label text="• Personalized motivation based on your progress" class="text-xs text-gray-600 mb-1" />
+                    <Label text="• Contextual reminders at optimal times" class="text-xs text-gray-600 mb-1" />
+                    <Label text="• Achievement and streak celebrations" class="text-xs text-gray-600 mb-1" />
+                    <Label text="• Goal progress updates and encouragement" class="text-xs text-gray-600" />
+                </StackLayout>
+            </StackLayout>
+
+            <!-- Appearance -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                <Label text="🎨 Appearance" class="text-lg font-semibold text-gray-800 mb-4" />
+
+                <!-- Current Theme Display -->
+                <StackLayout class="mb-4">
+                    <Label text="Current Theme" class="text-sm text-gray-600 mb-1" />
+                    <Label text="{{ currentThemeName }}" class="text-base font-semibold text-blue-600" />
+                </StackLayout>
+
+                <!-- Theme Selection Button -->
+                <Button text="🎨 Choose Theme" tap="{{ onNavigateToThemeSelection }}" class="btn btn-outline-primary mb-4" />
+
+                <!-- Quick Dark Mode Toggle -->
+                <GridLayout rows="auto" columns="*, auto">
+                    <Label col="0" text="Dark mode" class="text-sm text-gray-700" />
+                    <Switch col="1" checked="{{ darkMode }}" />
+                </GridLayout>
+            </StackLayout>
+
+            <!-- Premium Features -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                <Label text="⭐ Premium Features" class="text-lg font-semibold text-gray-800 mb-4" />
+                
+                <StackLayout visibility="{{ !isPremium ? 'visible' : 'collapsed' }}">
+                    <Label text="Unlock premium features:" class="text-sm text-gray-600 mb-3" />
+                    
+                    <StackLayout class="space-y-2 mb-4">
+                        <Label text="• 📊 Detailed weekly reports" class="text-sm text-gray-700" />
+                        <Label text="• 🏆 Complete achievement list" class="text-sm text-gray-700" />
+                        <Label text="• ☁️ Cloud backup &amp; sync" class="text-sm text-gray-700" />
+                        <Label text="• 🚫 No advertisements" class="text-sm text-gray-700" />
+                        <Label text="• 📈 Advanced statistics" class="text-sm text-gray-700" />
+                    </StackLayout>
+                    
+                    <Button text="🚀 Upgrade to Premium - &#36;2.99" tap="{{ onUpgradeToPremium }}" class="btn btn-primary" />
+                </StackLayout>
+                
+                <StackLayout visibility="{{ isPremium ? 'visible' : 'collapsed' }}">
+                    <Label text="✅ Premium Active" class="text-lg font-semibold text-green-600 text-center mb-2" />
+                    <Label text="Thank you for supporting Offtime Tracker!" class="text-sm text-gray-600 text-center" />
+                </StackLayout>
+            </StackLayout>
+
+            <!-- Data Management -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                <Label text="💾 Data Management" class="text-lg font-semibold text-gray-800 mb-4" />
+                
+                <StackLayout class="space-y-3">
+                    <Button text="📤 Export Data" tap="{{ onExportData }}" class="btn btn-outline-primary" />
+                    <Button text="☁️ Backup to Cloud" tap="{{ onBackupData }}" class="btn btn-outline-secondary" 
+                            isEnabled="{{ isPremium }}" />
+                    <Button text="🔄 Restore from Backup" tap="{{ onRestoreData }}" class="btn btn-outline-secondary"
+                            isEnabled="{{ isPremium }}" />
+                </StackLayout>
+                
+                <Label text="Note: Cloud features require Premium subscription" 
+                       class="text-xs text-gray-500 mt-2 text-center"
+                       visibility="{{ !isPremium ? 'visible' : 'collapsed' }}" />
+            </StackLayout>
+
+            <!-- About -->
+            <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                <Label text="ℹ️ About" class="text-lg font-semibold text-gray-800 mb-4" />
+                
+                <StackLayout class="space-y-2">
+                    <Label text="Offtime Tracker v1.0.0" class="text-sm font-semibold text-gray-700" />
+                    <Label text="Gamify your screen-free time" class="text-sm text-gray-600" />
+                    <Label text="Built with ❤️ for digital wellness" class="text-sm text-gray-600" />
+                </StackLayout>
+                
+                <StackLayout class="space-y-2 mt-4">
+                    <Button text="⭐ Rate the App" tap="{{ onRateApp }}" class="btn btn-outline-primary" />
+                    <Button text="📧 Contact Support" tap="{{ onContactSupport }}" class="btn btn-outline-secondary" />
+                    <Button text="🔒 Privacy Policy" tap="{{ onPrivacyPolicy }}" class="btn btn-outline-secondary" />
+                </StackLayout>
+            </StackLayout>
+
+            <!-- Danger Zone -->
+            <StackLayout class="bg-red-50 border border-red-200 rounded-xl p-6">
+                <Label text="⚠️ Danger Zone" class="text-lg font-semibold text-red-800 mb-4" />
+                <Button text="🗑️ Reset All Data" tap="{{ onResetAllData }}" class="btn btn-outline-danger" />
+                <Label text="This action cannot be undone!" class="text-xs text-red-600 mt-2 text-center" />
+            </StackLayout>
+
+        </StackLayout>
+    </ScrollView>
+</Page>

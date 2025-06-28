@@ -1,0 +1,218 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="Setup" class="action-bar bg-gradient-to-r from-blue-500 to-purple-600" />
+
+    <GridLayout rows="auto, *, auto" class="bg-gradient-to-b from-blue-50 to-purple-50">
+        
+        <!-- Progress Bar -->
+        <StackLayout row="0" class="p-4">
+            <Label text="Step {{ stepNumber }} of {{ totalSteps }}" class="text-sm text-gray-600 text-center mb-2" />
+            <StackLayout class="bg-gray-200 rounded-full h-2">
+                <StackLayout class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-full h-2" width="{{ progressPercentage }}%" />
+            </StackLayout>
+        </StackLayout>
+
+        <!-- Main Content -->
+        <ScrollView row="1" class="p-6">
+            <StackLayout class="text-center">
+                
+                <!-- Step Icon -->
+                <Label text="{{ currentStep.icon }}" class="text-6xl mb-6" />
+                
+                <!-- Step Title -->
+                <Label text="{{ currentStep.title }}" class="text-2xl font-bold text-gray-800 mb-4" textWrap="true" />
+                
+                <!-- Step Description -->
+                <Label text="{{ currentStep.description }}" class="text-base text-gray-600 mb-8 leading-relaxed" textWrap="true" />
+
+                <!-- Personality Assessment (Step 2) -->
+                <StackLayout visibility="{{ currentStep.id === 'personality' ? 'visible' : 'collapsed' }}" class="mb-6">
+                    <Label text="What motivates you most?" class="text-base font-semibold text-gray-800 mb-3" />
+                    <StackLayout class="mb-3">
+                        <Button text="🏆 Achieving goals and competing with others"
+                                tap="{{ onPersonalityChoice, 'motivation_competitive' }}"
+                                class="{{ personalityChoices.motivation === 'competitive' ? 'btn btn-primary' : 'btn btn-outline-primary' }}" />
+                    </StackLayout>
+                    <StackLayout class="mb-3">
+                        <Button text="👥 Connecting and sharing with community"
+                                tap="{{ onPersonalityChoice, 'motivation_social' }}"
+                                class="{{ personalityChoices.motivation === 'social' ? 'btn btn-primary' : 'btn btn-outline-primary' }}" />
+                    </StackLayout>
+                    <StackLayout class="mb-3">
+                        <Button text="🧘 Personal growth and mindfulness"
+                                tap="{{ onPersonalityChoice, 'motivation_personal' }}"
+                                class="{{ personalityChoices.motivation === 'personal' ? 'btn btn-primary' : 'btn btn-outline-primary' }}" />
+                    </StackLayout>
+                    <StackLayout class="mb-4">
+                        <Button text="🌿 Simplicity and minimalism"
+                                tap="{{ onPersonalityChoice, 'motivation_minimal' }}"
+                                class="{{ personalityChoices.motivation === 'minimal' ? 'btn btn-primary' : 'btn btn-outline-primary' }}" />
+                    </StackLayout>
+
+                    <Label text="How do you prefer to track progress?" class="text-base font-semibold text-gray-800 mb-3" />
+                    <StackLayout class="mb-3">
+                        <Button text="📊 Detailed analytics and data"
+                                tap="{{ onPersonalityChoice, 'tracking_detailed' }}"
+                                class="{{ personalityChoices.tracking === 'detailed' ? 'btn btn-primary' : 'btn btn-outline-primary' }}" />
+                    </StackLayout>
+                    <StackLayout class="mb-3">
+                        <Button text="🎯 Simple goals and milestones"
+                                tap="{{ onPersonalityChoice, 'tracking_simple' }}"
+                                class="{{ personalityChoices.tracking === 'simple' ? 'btn btn-primary' : 'btn btn-outline-primary' }}" />
+                    </StackLayout>
+                    <StackLayout class="mb-4">
+                        <Button text="🌱 Mindful reflection and notes"
+                                tap="{{ onPersonalityChoice, 'tracking_mindful' }}"
+                                class="{{ personalityChoices.tracking === 'mindful' ? 'btn btn-primary' : 'btn btn-outline-primary' }}" />
+                    </StackLayout>
+
+                    <Label text="How social do you want to be?" class="text-base font-semibold text-gray-800 mb-3" />
+                    <StackLayout class="mb-3">
+                        <Button text="🤝 Very social - share and compete"
+                                tap="{{ onPersonalityChoice, 'social_high' }}"
+                                class="{{ personalityChoices.social === 'high' ? 'btn btn-primary' : 'btn btn-outline-primary' }}" />
+                    </StackLayout>
+                    <StackLayout class="mb-3">
+                        <Button text="👥 Somewhat social - small groups"
+                                tap="{{ onPersonalityChoice, 'social_medium' }}"
+                                class="{{ personalityChoices.social === 'medium' ? 'btn btn-primary' : 'btn btn-outline-primary' }}" />
+                    </StackLayout>
+                    <StackLayout class="mb-3">
+                        <Button text="🔒 Private - just for me"
+                                tap="{{ onPersonalityChoice, 'social_low' }}"
+                                class="{{ personalityChoices.social === 'low' ? 'btn btn-primary' : 'btn btn-outline-primary' }}" />
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Daily Goal Selection (Step 4) -->
+                <StackLayout visibility="{{ currentStep.id === 'daily_goal' ? 'visible' : 'collapsed' }}" class="mb-6">
+                    <!-- Personalized Recommendation -->
+                    <StackLayout class="bg-blue-50 rounded-lg p-4 mb-4" visibility="{{ currentStep.recommendedValue ? 'visible' : 'collapsed' }}">
+                        <Label text="💡 Recommended for You" class="text-sm font-semibold text-blue-600 mb-2" />
+                        <Label text="{{ currentStep.recommendedValue / 60 }} hours daily" class="text-lg font-bold text-blue-800" />
+                        <Label text="Based on your personality profile" class="text-xs text-blue-600" />
+                    </StackLayout>
+
+                    <StackLayout class="mb-3">
+                        <Button text="1 hour - Light digital detox"
+                                tap="{{ onGoalSelect, 60 }}"
+                                class="{{ selectedGoal === 60 ? 'btn btn-primary' : 'btn btn-outline-primary' }}" />
+                    </StackLayout>
+                    <StackLayout class="mb-3">
+                        <Button text="2 hours - Moderate offline time"
+                                tap="{{ onGoalSelect, 120 }}"
+                                class="{{ selectedGoal === 120 ? 'btn btn-primary' : 'btn btn-outline-primary' }}" />
+                    </StackLayout>
+                    <StackLayout class="mb-3">
+                        <Button text="3 hours - Recommended balance"
+                                tap="{{ onGoalSelect, 180 }}"
+                                class="{{ selectedGoal === 180 ? 'btn btn-primary' : 'btn btn-outline-primary' }}" />
+                    </StackLayout>
+                    <StackLayout class="mb-3">
+                        <Button text="4 hours - Serious unplugging"
+                                tap="{{ onGoalSelect, 240 }}"
+                                class="{{ selectedGoal === 240 ? 'btn btn-primary' : 'btn btn-outline-primary' }}" />
+                    </StackLayout>
+                    <StackLayout class="mb-3">
+                        <Button text="6 hours - Digital minimalist"
+                                tap="{{ onGoalSelect, 360 }}"
+                                class="{{ selectedGoal === 360 ? 'btn btn-primary' : 'btn btn-outline-primary' }}" />
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Tracking Mode Info (Step 2) -->
+                <StackLayout visibility="{{ currentStep.id === 'tracking_mode' ? 'visible' : 'collapsed' }}" class="mb-6">
+                    <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                        <StackLayout visibility="{{ isAndroid ? 'visible' : 'collapsed' }}">
+                            <Label text="🤖 Automatic Tracking" class="text-lg font-semibold text-green-600 mb-2" />
+                            <Label text="• Screen off = Session starts" class="text-sm text-gray-600 mb-1" />
+                            <Label text="• Screen on = Session ends" class="text-sm text-gray-600 mb-1" />
+                            <Label text="• Minimum 5 minutes to count" class="text-sm text-gray-600 mb-1" />
+                            <Label text="• Works in background" class="text-sm text-gray-600" />
+                        </StackLayout>
+                        
+                        <StackLayout visibility="{{ !isAndroid ? 'visible' : 'collapsed' }}">
+                            <Label text="👆 Manual Tracking" class="text-lg font-semibold text-blue-600 mb-2" />
+                            <Label text="• Tap 'Start Session' when going offline" class="text-sm text-gray-600 mb-1" />
+                            <Label text="• Tap 'End Session' when returning" class="text-sm text-gray-600 mb-1" />
+                            <Label text="• Full control over your sessions" class="text-sm text-gray-600 mb-1" />
+                            <Label text="• Perfect for intentional breaks" class="text-sm text-gray-600" />
+                        </StackLayout>
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Gamification Preview (Step 4) -->
+                <StackLayout visibility="{{ currentStep.id === 'gamification' ? 'visible' : 'collapsed' }}" class="mb-6">
+                    <GridLayout rows="auto, auto" columns="*, *" class="gap-4">
+                        <StackLayout row="0" col="0" class="bg-white rounded-xl p-4 shadow-sm text-center">
+                            <Label text="⭐" class="text-2xl mb-2" />
+                            <Label text="Earn XP" class="text-sm font-semibold text-purple-600" />
+                            <Label text="1 XP per minute" class="text-xs text-gray-600" />
+                        </StackLayout>
+                        
+                        <StackLayout row="0" col="1" class="bg-white rounded-xl p-4 shadow-sm text-center">
+                            <Label text="🏆" class="text-2xl mb-2" />
+                            <Label text="Achievements" class="text-sm font-semibold text-blue-600" />
+                            <Label text="Unlock rewards" class="text-xs text-gray-600" />
+                        </StackLayout>
+                        
+                        <StackLayout row="1" col="0" class="bg-white rounded-xl p-4 shadow-sm text-center">
+                            <Label text="🔥" class="text-2xl mb-2" />
+                            <Label text="Streaks" class="text-sm font-semibold text-orange-600" />
+                            <Label text="Daily consistency" class="text-xs text-gray-600" />
+                        </StackLayout>
+                        
+                        <StackLayout row="1" col="1" class="bg-white rounded-xl p-4 shadow-sm text-center">
+                            <Label text="📈" class="text-2xl mb-2" />
+                            <Label text="Level Up" class="text-sm font-semibold text-green-600" />
+                            <Label text="Progressive rewards" class="text-xs text-gray-600" />
+                        </StackLayout>
+                    </GridLayout>
+                </StackLayout>
+
+                <!-- Notifications Info (Step 5) -->
+                <StackLayout visibility="{{ currentStep.id === 'notifications' ? 'visible' : 'collapsed' }}" class="mb-6">
+                    <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                        <Label text="📱 Smart Notifications" class="text-lg font-semibold text-blue-600 mb-3" />
+                        <Label text="• Achievement unlocks" class="text-sm text-gray-600 mb-1" />
+                        <Label text="• Level up celebrations" class="text-sm text-gray-600 mb-1" />
+                        <Label text="• Gentle daily reminders" class="text-sm text-gray-600 mb-1" />
+                        <Label text="• Session completion rewards" class="text-sm text-gray-600 mb-3" />
+                        <Label text="We respect your time and won't spam you!" class="text-xs text-gray-500 italic" />
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Ready Screen (Step 6) -->
+                <StackLayout visibility="{{ currentStep.id === 'ready' ? 'visible' : 'collapsed' }}" class="mb-6">
+                    <StackLayout class="bg-white rounded-xl p-6 shadow-sm">
+                        <Label text="🎯 Your Setup:" class="text-lg font-semibold text-gray-800 mb-3" />
+                        <Label text="Daily Goal: {{ selectedGoal || 180 }} minutes" class="text-sm text-gray-600 mb-1" />
+                        <Label text="Tracking: {{ isAndroid ? 'Automatic' : 'Manual' }}" class="text-sm text-gray-600 mb-1" />
+                        <Label text="Notifications: {{ notificationsEnabled ? 'Enabled' : 'Disabled' }}" class="text-sm text-gray-600 mb-3" />
+                        <Label text="You can change these settings anytime!" class="text-xs text-gray-500 italic" />
+                    </StackLayout>
+                </StackLayout>
+
+            </StackLayout>
+        </ScrollView>
+
+        <!-- Navigation Buttons -->
+        <GridLayout row="2" columns="auto, *, auto" class="p-4 bg-white border-t border-gray-200">
+            
+            <!-- Back Button -->
+            <Button col="0" text="← Back" tap="{{ onPrevious }}" 
+                    class="btn btn-outline-secondary" 
+                    visibility="{{ canGoBack ? 'visible' : 'collapsed' }}" />
+            
+            <!-- Skip Button -->
+            <Button col="1" text="{{ currentStep.skipText || 'Skip' }}" tap="{{ onSkip }}" 
+                    class="btn btn-ghost text-gray-500" 
+                    visibility="{{ showSkipButton ? 'visible' : 'collapsed' }}" />
+            
+            <!-- Next/Finish Button -->
+            <Button col="2" text="{{ currentStep.actionText || 'Next' }}" tap="{{ onNext }}" 
+                    class="btn btn-primary" />
+                    
+        </GridLayout>
+
+    </GridLayout>
+</Page>

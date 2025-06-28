@@ -1,0 +1,207 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="📤 Share Achievement" class="action-bar">
+        <NavigationButton text="← Back" tap="{{ onBack }}" />
+        <ActionItem text="👁️" tap="{{ onPreviewFullscreen }}" ios.position="right" android.position="actionBar" />
+    </ActionBar>
+
+    <GridLayout rows="auto, *" class="bg-gray-50">
+        
+        <!-- Loading State -->
+        <StackLayout row="0" rowSpan="2" class="loading-overlay bg-white flex justify-center items-center" 
+                     visibility="{{ isLoading ? 'visible' : 'collapsed' }}">
+            <ActivityIndicator busy="true" class="activity-indicator" />
+            <Label text="Loading sharing options..." class="text-gray-600 mt-4" />
+        </StackLayout>
+
+        <!-- Error State -->
+        <StackLayout row="0" rowSpan="2" class="error-state bg-white flex justify-center items-center p-8" 
+                     visibility="{{ hasError ? 'visible' : 'collapsed' }}">
+            <Label text="📤" class="text-6xl mb-4" />
+            <Label text="Unable to Load Sharing" class="text-xl font-bold text-gray-800 mb-2" />
+            <Label text="{{ errorMessage }}" class="text-base text-gray-600 text-center mb-4" textWrap="true" />
+            <Button text="Try Again" tap="{{ onBack }}" class="btn btn-primary" />
+        </StackLayout>
+
+        <!-- Achievement Info -->
+        <StackLayout row="0" class="achievement-info bg-white border-b border-gray-200 p-4" 
+                     visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            <GridLayout rows="auto, auto" columns="auto, *, auto">
+                <!-- Achievement Icon -->
+                <Label row="0" col="0" text="{{ achievement.icon }}" class="achievement-icon text-4xl mr-4" />
+                
+                <!-- Achievement Details -->
+                <StackLayout row="0" col="1">
+                    <Label text="{{ achievement.title }}" class="achievement-title text-lg font-bold text-gray-800" />
+                    <Label text="{{ achievement.description }}" class="achievement-description text-sm text-gray-600" textWrap="true" />
+                    <Label text="{{ achievement.categoryText }} • {{ achievement.formattedDate }}" 
+                           class="achievement-meta text-xs text-gray-500 mt-1" />
+                </StackLayout>
+                
+                <!-- Rarity Badge -->
+                <Label row="0" col="2" text="{{ achievement.rarityText }}" 
+                       class="rarity-badge text-xs font-bold px-2 py-1 rounded text-white"
+                       backgroundColor="{{ achievement.rarityColor }}" />
+                
+                <!-- XP Reward -->
+                <Label row="1" col="1" colSpan="2" text="+{{ achievement.xpReward }} XP" 
+                       class="xp-reward text-sm font-semibold text-blue-600 mt-2"
+                       visibility="{{ achievement.xpReward > 0 ? 'visible' : 'collapsed' }}" />
+            </GridLayout>
+        </StackLayout>
+
+        <!-- Main Content -->
+        <ScrollView row="1" visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            <StackLayout class="p-4 space-y-6">
+                
+                <!-- Preview Section -->
+                <StackLayout class="preview-section bg-white rounded-xl p-6 shadow-sm">
+                    <Label text="📱 Preview" class="text-lg font-bold text-gray-800 mb-4" />
+                    
+                    <!-- Preview Image -->
+                    <StackLayout class="preview-container bg-gray-100 rounded-lg p-4 text-center min-h-48">
+                        <Image src="{{ previewImage }}" class="preview-image max-w-full max-h-48" 
+                               visibility="{{ previewImage ? 'visible' : 'collapsed' }}" />
+                        <StackLayout class="preview-placeholder" visibility="{{ !previewImage ? 'visible' : 'collapsed' }}">
+                            <Label text="🖼️" class="text-6xl mb-2" />
+                            <Label text="Preview will appear here" class="text-gray-500" />
+                        </StackLayout>
+                    </StackLayout>
+                    
+                    <!-- Preview Actions -->
+                    <GridLayout rows="auto" columns="*, auto" class="mt-4">
+                        <Label col="0" text="Tap a template below to see preview" class="text-sm text-gray-500" />
+                        <Button col="1" text="👁️ Fullscreen" tap="{{ onPreviewFullscreen }}" 
+                                class="btn btn-outline-secondary text-sm" />
+                    </GridLayout>
+                </StackLayout>
+
+                <!-- Template Selection -->
+                <StackLayout class="template-section bg-white rounded-xl p-6 shadow-sm">
+                    <Label text="🎨 Choose Template" class="text-lg font-bold text-gray-800 mb-4" />
+                    
+                    <!-- Template Grid -->
+                    <GridLayout rows="auto, auto" columns="*, *, *" class="template-grid gap-3">
+                        <Repeater items="{{ shareTemplates }}">
+                            <Repeater.itemTemplate>
+                                <StackLayout class="template-card rounded-lg p-3 text-center border-2"
+                                             backgroundColor="{{ selectedTemplateId === id ? '#EBF8FF' : '#F9FAFB' }}"
+                                             borderColor="{{ selectedTemplateId === id ? '#3B82F6' : '#E5E7EB' }}"
+                                             tap="{{ $parents['Page'].bindingContext.onTemplateSelected, id }}">
+                                    
+                                    <!-- Template Preview -->
+                                    <Label text="{{ preview }}" class="template-preview text-2xl mb-2" />
+                                    
+                                    <!-- Template Name -->
+                                    <Label text="{{ name }}" class="template-name text-sm font-semibold text-gray-800" />
+                                    
+                                    <!-- Premium Badge -->
+                                    <Label text="PRO" class="premium-badge text-xs font-bold px-1 py-0.5 rounded text-white bg-orange-500 mt-1"
+                                           visibility="{{ isPremium ? 'visible' : 'collapsed' }}" />
+                                    
+                                    <!-- Selected Indicator -->
+                                    <Label text="✓" class="selected-indicator text-lg text-blue-600 font-bold"
+                                           visibility="{{ selectedTemplateId === id ? 'visible' : 'collapsed' }}" />
+                                </StackLayout>
+                            </Repeater.itemTemplate>
+                        </Repeater>
+                    </GridLayout>
+                    
+                    <!-- Template Description -->
+                    <Label text="{{ selectedTemplate.description }}" 
+                           class="template-description text-sm text-gray-600 text-center mt-4" 
+                           textWrap="true" />
+                </StackLayout>
+
+                <!-- Customization Section -->
+                <StackLayout class="customization-section bg-white rounded-xl p-6 shadow-sm">
+                    <GridLayout rows="auto" columns="*, auto">
+                        <Label col="0" text="🎛️ Customize" class="text-lg font-bold text-gray-800" />
+                        <Button col="1" text="⚙️ Advanced" tap="{{ onCustomizeTemplate }}" 
+                                class="btn btn-outline-secondary text-sm" />
+                    </GridLayout>
+                    
+                    <!-- Quick Color Options -->
+                    <Label text="Colors" class="text-sm font-semibold text-gray-700 mt-4 mb-2" />
+                    <ScrollView orientation="horizontal" class="color-palette-scroll">
+                        <StackLayout orientation="horizontal" class="color-palette gap-2">
+                            <Repeater items="{{ colorPalettes }}">
+                                <Repeater.itemTemplate>
+                                    <StackLayout class="palette-option text-center">
+                                        <Label text="{{ name }}" class="palette-name text-xs text-gray-600 mb-1" />
+                                        <GridLayout rows="auto" columns="*, *, *" class="palette-colors gap-1">
+                                            <Repeater items="{{ colors }}">
+                                                <Repeater.itemTemplate>
+                                                    <StackLayout class="color-swatch w-6 h-6 rounded-full border border-gray-300"
+                                                                 backgroundColor="{{ $value }}"
+                                                                 tap="{{ $parents['Page'].bindingContext.onBackgroundColorChange, $value }}" />
+                                                </Repeater.itemTemplate>
+                                            </Repeater>
+                                        </GridLayout>
+                                    </StackLayout>
+                                </Repeater.itemTemplate>
+                            </Repeater>
+                        </StackLayout>
+                    </ScrollView>
+                    
+                    <!-- Layout Options -->
+                    <Label text="Layout" class="text-sm font-semibold text-gray-700 mt-4 mb-2" />
+                    <GridLayout rows="auto" columns="*, *, *, *" class="layout-options gap-2">
+                        <Repeater items="{{ availableLayouts }}">
+                            <Repeater.itemTemplate>
+                                <StackLayout class="layout-option rounded-lg p-2 text-center border"
+                                             backgroundColor="{{ selectedTemplate.layout === id ? '#EBF8FF' : '#F9FAFB' }}"
+                                             borderColor="{{ selectedTemplate.layout === id ? '#3B82F6' : '#E5E7EB' }}"
+                                             tap="{{ $parents['Page'].bindingContext.onLayoutChange, id }}">
+                                    <Label text="{{ icon }}" class="layout-icon text-lg" />
+                                    <Label text="{{ name }}" class="layout-name text-xs text-gray-600" />
+                                </StackLayout>
+                            </Repeater.itemTemplate>
+                        </Repeater>
+                    </GridLayout>
+                </StackLayout>
+
+                <!-- Share Actions -->
+                <StackLayout class="share-actions bg-white rounded-xl p-6 shadow-sm">
+                    <Label text="📤 Share Options" class="text-lg font-bold text-gray-800 mb-4" />
+                    
+                    <!-- Main Share Button -->
+                    <Button text="{{ isSharing ? 'Sharing...' : '🚀 Share Achievement' }}" 
+                            tap="{{ onShareAchievement }}"
+                            class="btn btn-primary text-lg mb-3"
+                            isEnabled="{{ !isSharing }}" />
+                    
+                    <!-- Additional Actions -->
+                    <GridLayout rows="auto" columns="*, *" class="gap-3">
+                        <Button col="0" text="💾 Save Template" tap="{{ onSaveTemplate }}" 
+                                class="btn btn-outline-secondary text-sm" />
+                        <Button col="1" text="📋 Copy Link" tap="{{ onCopyLink }}" 
+                                class="btn btn-outline-secondary text-sm" />
+                    </GridLayout>
+                    
+                    <!-- Share Platforms -->
+                    <Label text="Share to:" class="text-sm font-semibold text-gray-700 mt-4 mb-2" />
+                    <GridLayout rows="auto" columns="*, *, *, *" class="share-platforms gap-2">
+                        <StackLayout col="0" class="platform-option text-center p-2">
+                            <Label text="📱" class="platform-icon text-2xl" />
+                            <Label text="General" class="platform-name text-xs text-gray-600" />
+                        </StackLayout>
+                        <StackLayout col="1" class="platform-option text-center p-2">
+                            <Label text="📘" class="platform-icon text-2xl" />
+                            <Label text="Facebook" class="platform-name text-xs text-gray-600" />
+                        </StackLayout>
+                        <StackLayout col="2" class="platform-option text-center p-2">
+                            <Label text="🐦" class="platform-icon text-2xl" />
+                            <Label text="Twitter" class="platform-name text-xs text-gray-600" />
+                        </StackLayout>
+                        <StackLayout col="3" class="platform-option text-center p-2">
+                            <Label text="📷" class="platform-icon text-2xl" />
+                            <Label text="Instagram" class="platform-name text-xs text-gray-600" />
+                        </StackLayout>
+                    </GridLayout>
+                </StackLayout>
+
+            </StackLayout>
+        </ScrollView>
+
+    </GridLayout>
+</Page>

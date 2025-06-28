@@ -1,0 +1,329 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="🌟 Social Setup" class="action-bar">
+        <ActionItem text="✕" tap="{{ onExitOnboarding }}" ios.position="right" android.position="actionBar" />
+    </ActionBar>
+
+    <GridLayout rows="auto, *, auto" class="bg-gradient-to-b from-blue-50 to-purple-50">
+        
+        <!-- Loading State -->
+        <StackLayout row="0" rowSpan="3" class="loading-overlay bg-white flex justify-center items-center" 
+                     visibility="{{ isLoading ? 'visible' : 'collapsed' }}">
+            <ActivityIndicator busy="true" class="activity-indicator" />
+            <Label text="Loading onboarding..." class="text-gray-600 mt-4" />
+        </StackLayout>
+
+        <!-- Error State -->
+        <StackLayout row="0" rowSpan="3" class="error-state bg-white flex justify-center items-center p-8" 
+                     visibility="{{ hasError ? 'visible' : 'collapsed' }}">
+            <Label text="🌟" class="text-6xl mb-4" />
+            <Label text="Unable to Load Onboarding" class="text-xl font-bold text-gray-800 mb-2" />
+            <Label text="{{ errorMessage }}" class="text-base text-gray-600 text-center mb-4" textWrap="true" />
+            <Button text="Try Again" tap="{{ onExitOnboarding }}" class="btn btn-primary" />
+        </StackLayout>
+
+        <!-- Progress Header -->
+        <StackLayout row="0" class="progress-header bg-white border-b border-gray-200 p-4" 
+                     visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            
+            <!-- Progress Bar -->
+            <StackLayout class="progress-container mb-3">
+                <GridLayout rows="auto" columns="*, auto">
+                    <Label col="0" text="{{ progressText }}" class="progress-text text-sm font-semibold text-gray-700" />
+                    <Label col="1" text="{{ stepProgress }}%" class="progress-percentage text-sm font-bold text-blue-600" />
+                </GridLayout>
+                <StackLayout class="progress-bar bg-gray-200 rounded-full h-2 mt-2">
+                    <StackLayout class="progress-fill bg-gradient-to-r from-blue-500 to-purple-600 rounded-full h-2" 
+                                 width="{{ stepProgress }}%" />
+                </StackLayout>
+            </StackLayout>
+            
+            <!-- Step Info -->
+            <GridLayout rows="auto" columns="auto, *">
+                <Label col="0" text="{{ stepIcon }}" class="step-icon text-3xl mr-3" />
+                <StackLayout col="1">
+                    <Label text="{{ stepTitle }}" class="step-title text-lg font-bold text-gray-800" />
+                    <Label text="{{ stepDescription }}" class="step-description text-sm text-gray-600" textWrap="true" />
+                </StackLayout>
+            </GridLayout>
+        </StackLayout>
+
+        <!-- Step Content -->
+        <ScrollView row="1" visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            <StackLayout class="step-content p-6">
+                
+                <!-- Welcome Step -->
+                <StackLayout class="welcome-step" visibility="{{ stepType === 'info' && currentStep.id === 'welcome' ? 'visible' : 'collapsed' }}">
+                    <StackLayout class="welcome-animation text-center mb-6">
+                        <Label text="🌟" class="welcome-icon text-8xl mb-4" />
+                        <Label text="Welcome to the Community!" class="welcome-title text-2xl font-bold text-gray-800 mb-2" />
+                        <Label text="Join thousands of others on their digital wellness journey" 
+                               class="welcome-subtitle text-base text-gray-600" textWrap="true" />
+                    </StackLayout>
+                    
+                    <StackLayout class="welcome-benefits bg-white rounded-xl p-6 shadow-sm">
+                        <Label text="🎯 What you'll get:" class="benefits-title text-lg font-bold text-gray-800 mb-4" />
+                        
+                        <StackLayout class="benefit-item mb-3">
+                            <GridLayout rows="auto" columns="auto, *">
+                                <Label col="0" text="🏆" class="benefit-icon text-xl mr-3" />
+                                <Label col="1" text="Compete in anonymous leaderboards and challenges" 
+                                       class="benefit-text text-sm text-gray-700" textWrap="true" />
+                            </GridLayout>
+                        </StackLayout>
+                        
+                        <StackLayout class="benefit-item mb-3">
+                            <GridLayout rows="auto" columns="auto, *">
+                                <Label col="0" text="👥" class="benefit-icon text-xl mr-3" />
+                                <Label col="1" text="Create private circles with friends and family" 
+                                       class="benefit-text text-sm text-gray-700" textWrap="true" />
+                            </GridLayout>
+                        </StackLayout>
+                        
+                        <StackLayout class="benefit-item mb-3">
+                            <GridLayout rows="auto" columns="auto, *">
+                                <Label col="0" text="📱" class="benefit-icon text-xl mr-3" />
+                                <Label col="1" text="Share achievements and get support from the community" 
+                                       class="benefit-text text-sm text-gray-700" textWrap="true" />
+                            </GridLayout>
+                        </StackLayout>
+                        
+                        <StackLayout class="benefit-item">
+                            <GridLayout rows="auto" columns="auto, *">
+                                <Label col="0" text="💡" class="benefit-icon text-xl mr-3" />
+                                <Label col="1" text="Discover tips and strategies from other users" 
+                                       class="benefit-text text-sm text-gray-700" textWrap="true" />
+                            </GridLayout>
+                        </StackLayout>
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Profile Setup Step -->
+                <StackLayout class="profile-setup-step" visibility="{{ stepType === 'setup' && currentStep.id === 'profile_setup' ? 'visible' : 'collapsed' }}">
+                    <StackLayout class="profile-form bg-white rounded-xl p-6 shadow-sm">
+                        <Label text="👤 Create Your Profile" class="form-title text-lg font-bold text-gray-800 mb-4" />
+                        
+                        <!-- Display Name -->
+                        <StackLayout class="form-field mb-4">
+                            <Label text="Display Name *" class="field-label text-sm font-semibold text-gray-700 mb-2" />
+                            <TextField text="{{ profileSetup.displayName }}" 
+                                       hint="How you'll appear to others"
+                                       class="text-field"
+                                       textChange="{{ onSetupDataChange, 'displayName', $value }}" />
+                            <Label text="This is how other users will see you in the community" 
+                                   class="field-help text-xs text-gray-500 mt-1" />
+                        </StackLayout>
+                        
+                        <!-- Bio -->
+                        <StackLayout class="form-field mb-4">
+                            <Label text="Bio (Optional)" class="field-label text-sm font-semibold text-gray-700 mb-2" />
+                            <TextView text="{{ profileSetup.bio }}" 
+                                      hint="Tell others about your digital wellness journey..."
+                                      class="text-view h-20"
+                                      textChange="{{ onSetupDataChange, 'bio', $value }}" />
+                        </StackLayout>
+                        
+                        <!-- Profile Visibility -->
+                        <StackLayout class="form-field">
+                            <Label text="Profile Visibility" class="field-label text-sm font-semibold text-gray-700 mb-2" />
+                            <StackLayout class="visibility-options">
+                                <StackLayout class="visibility-option bg-gray-50 rounded-lg p-3 mb-2"
+                                             backgroundColor="{{ profileSetup.isPublic ? '#EBF8FF' : '#F9FAFB' }}"
+                                             tap="{{ onSetupDataChange, 'isPublic', true }}">
+                                    <GridLayout rows="auto" columns="auto, *, auto">
+                                        <Label col="0" text="🌐" class="option-icon text-lg mr-3" />
+                                        <StackLayout col="1">
+                                            <Label text="Public Profile" class="option-title text-sm font-semibold text-gray-800" />
+                                            <Label text="Others can find and connect with you" 
+                                                   class="option-description text-xs text-gray-600" />
+                                        </StackLayout>
+                                        <Label col="2" text="{{ profileSetup.isPublic ? '✓' : '' }}" 
+                                               class="option-check text-blue-600 font-bold" />
+                                    </GridLayout>
+                                </StackLayout>
+                                
+                                <StackLayout class="visibility-option bg-gray-50 rounded-lg p-3"
+                                             backgroundColor="{{ !profileSetup.isPublic ? '#EBF8FF' : '#F9FAFB' }}"
+                                             tap="{{ onSetupDataChange, 'isPublic', false }}">
+                                    <GridLayout rows="auto" columns="auto, *, auto">
+                                        <Label col="0" text="🔒" class="option-icon text-lg mr-3" />
+                                        <StackLayout col="1">
+                                            <Label text="Private Profile" class="option-title text-sm font-semibold text-gray-800" />
+                                            <Label text="Only you can see your profile information" 
+                                                   class="option-description text-xs text-gray-600" />
+                                        </StackLayout>
+                                        <Label col="2" text="{{ !profileSetup.isPublic ? '✓' : '' }}" 
+                                               class="option-check text-blue-600 font-bold" />
+                                    </GridLayout>
+                                </StackLayout>
+                            </StackLayout>
+                        </StackLayout>
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Privacy Settings Step -->
+                <StackLayout class="privacy-step" visibility="{{ stepType === 'choice' && currentStep.id === 'privacy_settings' ? 'visible' : 'collapsed' }}">
+                    <StackLayout class="privacy-form bg-white rounded-xl p-6 shadow-sm">
+                        <Label text="🔒 Privacy & Sharing Settings" class="form-title text-lg font-bold text-gray-800 mb-2" />
+                        <Label text="{{ privacyExplanation }}" class="form-description text-sm text-gray-600 mb-4" textWrap="true" />
+                        
+                        <Repeater items="{{ stepChoices }}">
+                            <Repeater.itemTemplate>
+                                <StackLayout class="choice-option bg-gray-50 rounded-lg p-4 mb-3"
+                                             backgroundColor="{{ isSelected ? '#EBF8FF' : '#F9FAFB' }}"
+                                             borderColor="{{ isSelected ? '#3B82F6' : 'transparent' }}"
+                                             borderWidth="2"
+                                             tap="{{ $parents['Page'].bindingContext.onChoiceToggle, id }}">
+                                    <GridLayout rows="auto, auto" columns="auto, *, auto">
+                                        <Label row="0" col="0" text="{{ icon }}" class="choice-icon text-2xl mr-3" />
+                                        <StackLayout row="0" col="1">
+                                            <Label text="{{ title }}" class="choice-title text-base font-semibold text-gray-800" />
+                                            <Label text="{{ description }}" class="choice-description text-sm text-gray-600" textWrap="true" />
+                                        </StackLayout>
+                                        <Label row="0" col="2" text="{{ isSelected ? '✓' : '' }}" 
+                                               class="choice-check text-xl text-blue-600 font-bold" />
+                                    </GridLayout>
+                                </StackLayout>
+                            </Repeater.itemTemplate>
+                        </Repeater>
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Features Discovery Step -->
+                <StackLayout class="features-step" visibility="{{ stepType === 'info' && currentStep.id === 'discover_features' ? 'visible' : 'collapsed' }}">
+                    <StackLayout class="features-list bg-white rounded-xl p-6 shadow-sm">
+                        <Label text="🔍 Discover Social Features" class="features-title text-lg font-bold text-gray-800 mb-4" />
+                        
+                        <Repeater items="{{ socialFeatures }}">
+                            <Repeater.itemTemplate>
+                                <StackLayout class="feature-item bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-4 mb-3">
+                                    <GridLayout rows="auto, auto" columns="auto, *">
+                                        <Label row="0" col="0" text="{{ icon }}" class="feature-icon text-3xl mr-4" />
+                                        <StackLayout row="0" col="1">
+                                            <Label text="{{ title }}" class="feature-title text-base font-bold text-gray-800" />
+                                            <Label text="{{ description }}" class="feature-description text-sm text-gray-600" textWrap="true" />
+                                        </StackLayout>
+                                    </GridLayout>
+                                </StackLayout>
+                            </Repeater.itemTemplate>
+                        </Repeater>
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Circle Creation Step -->
+                <StackLayout class="circle-step" visibility="{{ stepType === 'choice' && currentStep.id === 'create_circle' ? 'visible' : 'collapsed' }}">
+                    <StackLayout class="circle-form bg-white rounded-xl p-6 shadow-sm">
+                        <Label text="👥 Create Your First Circle" class="form-title text-lg font-bold text-gray-800 mb-2" />
+                        <Label text="{{ circleExplanation }}" class="form-description text-sm text-gray-600 mb-4" textWrap="true" />
+                        
+                        <Repeater items="{{ stepChoices }}">
+                            <Repeater.itemTemplate>
+                                <StackLayout class="circle-option bg-gray-50 rounded-lg p-4 mb-3"
+                                             backgroundColor="{{ isSelected ? '#EBF8FF' : '#F9FAFB' }}"
+                                             borderColor="{{ isSelected ? '#3B82F6' : 'transparent' }}"
+                                             borderWidth="2"
+                                             tap="{{ $parents['Page'].bindingContext.onChoiceToggle, id }}">
+                                    <GridLayout rows="auto, auto" columns="auto, *, auto">
+                                        <Label row="0" col="0" text="{{ icon }}" class="circle-icon text-3xl mr-3" />
+                                        <StackLayout row="0" col="1">
+                                            <Label text="{{ title }}" class="circle-title text-base font-semibold text-gray-800" />
+                                            <Label text="{{ description }}" class="circle-description text-sm text-gray-600" textWrap="true" />
+                                        </StackLayout>
+                                        <Label row="0" col="2" text="{{ isSelected ? '✓' : '' }}" 
+                                               class="circle-check text-xl text-blue-600 font-bold" />
+                                    </GridLayout>
+                                </StackLayout>
+                            </Repeater.itemTemplate>
+                        </Repeater>
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Community Guidelines Step -->
+                <StackLayout class="guidelines-step" visibility="{{ stepType === 'info' && currentStep.id === 'community_guidelines' ? 'visible' : 'collapsed' }}">
+                    <StackLayout class="guidelines-list bg-white rounded-xl p-6 shadow-sm">
+                        <Label text="📋 Community Guidelines" class="guidelines-title text-lg font-bold text-gray-800 mb-4" />
+                        
+                        <Repeater items="{{ communityGuidelines }}">
+                            <Repeater.itemTemplate>
+                                <StackLayout class="guideline-item border-l-4 border-blue-500 bg-blue-50 rounded-r-lg p-4 mb-3">
+                                    <GridLayout rows="auto, auto" columns="auto, *">
+                                        <Label row="0" col="0" text="{{ icon }}" class="guideline-icon text-2xl mr-3" />
+                                        <StackLayout row="0" col="1">
+                                            <Label text="{{ title }}" class="guideline-title text-base font-bold text-gray-800" />
+                                            <Label text="{{ description }}" class="guideline-description text-sm text-gray-600" textWrap="true" />
+                                        </StackLayout>
+                                    </GridLayout>
+                                </StackLayout>
+                            </Repeater.itemTemplate>
+                        </Repeater>
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Completion Step -->
+                <StackLayout class="completion-step" visibility="{{ stepType === 'info' && currentStep.id === 'completion' ? 'visible' : 'collapsed' }}">
+                    <StackLayout class="completion-animation text-center mb-6">
+                        <Label text="🎉" class="completion-icon text-8xl mb-4" />
+                        <Label text="You're All Set!" class="completion-title text-2xl font-bold text-gray-800 mb-2" />
+                        <Label text="Welcome to the Unplug community! Start exploring and connecting with others." 
+                               class="completion-subtitle text-base text-gray-600" textWrap="true" />
+                    </StackLayout>
+                    
+                    <StackLayout class="completion-summary bg-white rounded-xl p-6 shadow-sm">
+                        <Label text="🌟 What's Next:" class="summary-title text-lg font-bold text-gray-800 mb-4" />
+                        
+                        <StackLayout class="next-step mb-3">
+                            <GridLayout rows="auto" columns="auto, *">
+                                <Label col="0" text="🏆" class="next-icon text-xl mr-3" />
+                                <Label col="1" text="Check out the leaderboards to see how you rank" 
+                                       class="next-text text-sm text-gray-700" textWrap="true" />
+                            </GridLayout>
+                        </StackLayout>
+                        
+                        <StackLayout class="next-step mb-3">
+                            <GridLayout rows="auto" columns="auto, *">
+                                <Label col="0" text="🎯" class="next-icon text-xl mr-3" />
+                                <Label col="1" text="Join community challenges to stay motivated" 
+                                       class="next-text text-sm text-gray-700" textWrap="true" />
+                            </GridLayout>
+                        </StackLayout>
+                        
+                        <StackLayout class="next-step">
+                            <GridLayout rows="auto" columns="auto, *">
+                                <Label col="0" text="📱" class="next-icon text-xl mr-3" />
+                                <Label col="1" text="Share your first post in the community feed" 
+                                       class="next-text text-sm text-gray-700" textWrap="true" />
+                            </GridLayout>
+                        </StackLayout>
+                    </StackLayout>
+                </StackLayout>
+
+            </StackLayout>
+        </ScrollView>
+
+        <!-- Action Buttons -->
+        <StackLayout row="2" class="action-buttons bg-white border-t border-gray-200 p-4" 
+                     visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            <GridLayout rows="auto" columns="auto, *, auto" class="gap-3">
+                <!-- Back Button -->
+                <Button col="0" text="← Back" 
+                        tap="{{ onBack }}"
+                        class="btn btn-outline-secondary"
+                        visibility="{{ !isFirstStep ? 'visible' : 'collapsed' }}"
+                        isEnabled="{{ !isProcessing }}" />
+                
+                <!-- Skip Button -->
+                <Button col="1" text="Skip" 
+                        tap="{{ onSkip }}"
+                        class="btn btn-ghost"
+                        visibility="{{ canSkip ? 'visible' : 'collapsed' }}"
+                        isEnabled="{{ !isProcessing }}" />
+                
+                <!-- Continue Button -->
+                <Button col="2" text="{{ isProcessing ? 'Processing...' : actionText }}" 
+                        tap="{{ onContinue }}"
+                        class="btn btn-primary"
+                        isEnabled="{{ !isProcessing && canContinue }}" />
+            </GridLayout>
+        </StackLayout>
+
+    </GridLayout>
+</Page>

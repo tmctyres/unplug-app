@@ -1,0 +1,2663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unplug - Screen-Time Tracker (Web Demo)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Digital Wellness Color Palette */
+            --primary-50: #f0f9ff;
+            --primary-100: #e0f2fe;
+            --primary-200: #bae6fd;
+            --primary-300: #7dd3fc;
+            --primary-400: #38bdf8;
+            --primary-500: #0ea5e9;
+            --primary-600: #0284c7;
+            --primary-700: #0369a1;
+            --primary-800: #075985;
+            --primary-900: #0c4a6e;
+
+            --secondary-50: #fdf4ff;
+            --secondary-100: #fae8ff;
+            --secondary-200: #f5d0fe;
+            --secondary-300: #f0abfc;
+            --secondary-400: #e879f9;
+            --secondary-500: #d946ef;
+            --secondary-600: #c026d3;
+            --secondary-700: #a21caf;
+            --secondary-800: #86198f;
+            --secondary-900: #701a75;
+
+            --success-50: #f0fdf4;
+            --success-100: #dcfce7;
+            --success-200: #bbf7d0;
+            --success-300: #86efac;
+            --success-400: #4ade80;
+            --success-500: #22c55e;
+            --success-600: #16a34a;
+            --success-700: #15803d;
+            --success-800: #166534;
+            --success-900: #14532d;
+
+            --warning-50: #fffbeb;
+            --warning-100: #fef3c7;
+            --warning-200: #fde68a;
+            --warning-300: #fcd34d;
+            --warning-400: #fbbf24;
+            --warning-500: #f59e0b;
+            --warning-600: #d97706;
+            --warning-700: #b45309;
+            --warning-800: #92400e;
+            --warning-900: #78350f;
+
+            /* Neutral Colors */
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+
+            /* Spacing & Typography */
+            --border-radius: 16px;
+            --border-radius-lg: 24px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--gray-50) 0%, var(--primary-50) 100%);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+
+        /* Enhanced Gradients */
+        .gradient-primary {
+            background: linear-gradient(135deg, var(--primary-500) 0%, var(--secondary-500) 100%);
+        }
+
+        .gradient-success {
+            background: linear-gradient(135deg, var(--success-400) 0%, var(--primary-500) 100%);
+        }
+
+        .gradient-warning {
+            background: linear-gradient(135deg, var(--warning-400) 0%, var(--warning-600) 100%);
+        }
+
+        .gradient-premium {
+            background: linear-gradient(135deg, var(--secondary-500) 0%, var(--warning-500) 100%);
+        }
+
+        /* Glass Morphism Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Enhanced Cards */
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--gray-200);
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-premium {
+            background: linear-gradient(135deg, rgba(217, 70, 239, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 2px solid var(--secondary-200);
+        }
+
+        /* Progress Bars with Animation */
+        .progress-bar {
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-500);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-600);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-500);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary-600);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary-500);
+            color: var(--primary-500);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-500);
+            color: white;
+        }
+
+        /* Dark Mode */
+        .dark {
+            background: linear-gradient(135deg, var(--gray-900) 0%, var(--gray-800) 100%);
+        }
+
+        .dark .card {
+            background: var(--gray-800);
+            border-color: var(--gray-700);
+            color: var(--gray-100);
+        }
+
+        .dark .card:hover {
+            background: var(--gray-750);
+        }
+
+        .dark .text-gray-800 {
+            color: var(--gray-100);
+        }
+
+        .dark .text-gray-600 {
+            color: var(--gray-400);
+        }
+
+        .dark .text-gray-500 {
+            color: var(--gray-500);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% {
+                transform: translate3d(0,0,0);
+            }
+            40%, 43% {
+                transform: translate3d(0, -8px, 0);
+            }
+            70% {
+                transform: translate3d(0, -4px, 0);
+            }
+            90% {
+                transform: translate3d(0, -2px, 0);
+            }
+        }
+
+        .animate-fadeInUp {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .animate-bounce {
+            animation: bounce 1s infinite;
+        }
+
+        /* Loading States */
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Onboarding Modal -->
+    <div id="onboardingModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                <div id="onboardingContent">
+                    <!-- Onboarding steps will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tutorial Overlay -->
+    <div id="tutorialOverlay" class="fixed inset-0 bg-black bg-opacity-70 z-40 hidden">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                <div id="tutorialContent">
+                    <!-- Tutorial steps will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Tooltip -->
+    <div id="featureTooltip" class="fixed z-30 bg-white rounded-lg shadow-lg border p-4 max-w-xs hidden">
+        <div class="flex justify-between items-start mb-2">
+            <h3 id="tooltipTitle" class="font-semibold text-gray-800"></h3>
+            <button onclick="hideTooltip()" class="text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+        <p id="tooltipMessage" class="text-sm text-gray-600 mb-3"></p>
+        <div class="flex justify-end space-x-2">
+            <button id="tooltipAction" onclick="handleTooltipAction()" class="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"></button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="gradient-primary text-white p-6 shadow-xl">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">Unplug</h1>
+                <p class="text-sm opacity-90 font-medium">Digital Wellness Tracker</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="showTutorialMenu()" class="p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-all duration-200" title="Tutorial & Help">
+                    <span class="text-xl">🎓</span>
+                </button>
+                <button onclick="toggleDarkMode()" class="p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-all duration-200">
+                    <span class="text-xl">🌙</span>
+                </button>
+                <button onclick="showSettings()" class="p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-all duration-200">
+                    <span class="text-xl">⚙️</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Page -->
+    <div id="main-page" class="page max-w-md mx-auto p-6 space-y-6 animate-fadeInUp">
+        <!-- Welcome Section -->
+        <div class="card p-8 text-center">
+            <div class="mb-4">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full gradient-primary flex items-center justify-center">
+                    <span class="text-2xl">🧘‍♂️</span>
+                </div>
+                <h2 id="welcomeMessage" class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2"></h2>
+                <p id="motivationalMessage" class="text-base text-gray-600 dark:text-gray-400 leading-relaxed"></p>
+            </div>
+        </div>
+
+        <!-- Current Session -->
+        <div id="sessionCard" class="card p-8">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                    Manual Tracking Mode
+                </div>
+            </div>
+
+            <div id="activeSession" class="text-center hidden">
+                <div class="mb-6">
+                    <div class="w-24 h-24 mx-auto mb-4 rounded-full gradient-success flex items-center justify-center animate-pulse">
+                        <span class="text-3xl">⏱️</span>
+                    </div>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 mb-2">Current Session</p>
+                    <p id="sessionDuration" class="text-4xl font-bold gradient-primary bg-clip-text text-transparent mb-6">0m</p>
+                </div>
+                <button onclick="endSession()" class="btn btn-secondary w-full text-lg py-4">
+                    <span class="text-xl mr-2">⏹️</span>
+                    End Session
+                </button>
+            </div>
+
+            <div id="inactiveSession" class="text-center">
+                <div class="mb-6">
+                    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                        <span class="text-2xl">📱</span>
+                    </div>
+                    <p class="text-lg text-gray-600 dark:text-gray-400 mb-6">Ready to start your offline time?</p>
+                </div>
+                <div class="space-y-3">
+                    <button onclick="startSession()" class="btn btn-primary w-full text-lg py-4">
+                        <span class="text-xl mr-2">🚀</span>
+                        Start Offline Session
+                    </button>
+                    <button onclick="startDemoSession()" class="btn btn-outline w-full">
+                        <span class="text-lg mr-2">⚡</span>
+                        Demo Mode (Fast)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Progress -->
+        <div class="card p-8">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">Today's Progress</h3>
+                <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center">
+                    <span class="text-sm">📊</span>
+                </div>
+            </div>
+
+            <!-- Progress Stats Grid -->
+            <div class="grid grid-cols-2 gap-6 mb-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-blue-50 dark:bg-blue-900 flex items-center justify-center">
+                        <span class="text-2xl">⏰</span>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Offline Time</p>
+                    <p id="todayOfflineTime" class="text-2xl font-bold text-blue-600 dark:text-blue-400">0m</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-purple-50 dark:bg-purple-900 flex items-center justify-center">
+                        <span class="text-2xl">⭐</span>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">XP Earned</p>
+                    <p id="todayXP" class="text-2xl font-bold text-purple-600 dark:text-purple-400">0</p>
+                </div>
+            </div>
+
+            <!-- Daily Goal Progress -->
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-2xl p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Daily Goal</span>
+                    <span id="dailyGoal" class="text-sm font-bold text-gray-800 dark:text-gray-200">3h</span>
+                </div>
+
+                <div class="relative">
+                    <div class="bg-gray-200 dark:bg-gray-600 rounded-full h-4 mb-3 overflow-hidden">
+                        <div id="dailyProgressBar" class="gradient-success rounded-full h-4 progress-bar transition-all duration-1000 ease-out" style="width: 0%"></div>
+                    </div>
+                    <p id="dailyProgressText" class="text-center text-sm font-medium text-gray-600 dark:text-gray-400">0% Complete</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level & XP -->
+        <div class="card p-8">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">Your Level</h3>
+                <div class="w-8 h-8 rounded-full gradient-warning flex items-center justify-center">
+                    <span class="text-sm">🏆</span>
+                </div>
+            </div>
+
+            <!-- Level Display -->
+            <div class="text-center mb-8">
+                <div class="relative inline-block">
+                    <div class="w-24 h-24 mx-auto rounded-full gradient-warning flex items-center justify-center mb-4 shadow-lg">
+                        <span id="userBadge" class="text-4xl">🌱</span>
+                    </div>
+                    <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 px-3 py-1 rounded-full shadow-md">
+                        <span class="text-xs font-bold text-gray-600 dark:text-gray-400">LEVEL <span id="userLevel">1</span></span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h4 id="userTitle" class="text-lg font-bold text-blue-600 dark:text-blue-400">Digital Novice</h4>
+                </div>
+            </div>
+
+            <!-- XP Stats -->
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="text-center">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Total XP</p>
+                    <p id="totalXP" class="text-lg font-bold text-purple-600 dark:text-purple-400">0</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">XP Multiplier</p>
+                    <p id="xpMultiplier" class="text-lg font-bold text-green-600 dark:text-green-400">1.0x</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">To Next Level</p>
+                    <p id="xpToNextLevel" class="text-lg font-bold text-orange-600 dark:text-orange-400">50</p>
+                </div>
+            </div>
+
+            <!-- Level Progress -->
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-2xl p-4">
+                <div class="bg-gray-200 dark:bg-gray-600 rounded-full h-3 overflow-hidden">
+                    <div id="levelProgressBar" class="gradient-warning rounded-full h-3 progress-bar transition-all duration-1000 ease-out" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Streak Info -->
+        <div class="card p-8">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">Streak Stats</h3>
+                <div class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center">
+                    <span class="text-sm">🔥</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-orange-50 dark:bg-orange-900 flex items-center justify-center">
+                        <span class="text-2xl">🔥</span>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Current Streak</p>
+                    <p id="currentStreak" class="text-2xl font-bold text-orange-600 dark:text-orange-400">0 days</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-red-50 dark:bg-red-900 flex items-center justify-center">
+                        <span class="text-2xl">🏅</span>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Best Streak</p>
+                    <p id="longestStreak" class="text-2xl font-bold text-red-600 dark:text-red-400">0 days</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Premium Status -->
+        <div id="premium-status" class="card-premium p-6 text-center" style="display: none;">
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-12 h-12 rounded-full gradient-premium flex items-center justify-center mr-3">
+                    <span class="text-xl">💎</span>
+                </div>
+                <div>
+                    <div class="text-lg font-bold text-gray-800 dark:text-gray-100">Unplug Pro Active</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400" id="premium-status-text">Enjoying ad-free experience</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div id="quickActions" class="space-y-4">
+            <!-- Row 1 -->
+            <div class="grid grid-cols-2 gap-4">
+                <button id="achievementsBtn" onclick="showAchievements()" class="card p-6 text-center hover:scale-105 transition-transform duration-200 border-2 border-blue-200 hover:border-blue-400">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-blue-500 flex items-center justify-center">
+                        <span class="text-xl">🏆</span>
+                    </div>
+                    <div class="text-sm font-semibold text-blue-600 dark:text-blue-400">Achievements</div>
+                </button>
+                <button id="analyticsBtn" onclick="showStats()" class="card p-6 text-center hover:scale-105 transition-transform duration-200 border-2 border-gray-200 hover:border-gray-400">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-500 flex items-center justify-center">
+                        <span class="text-xl">📊</span>
+                    </div>
+                    <div class="text-sm font-semibold text-gray-600 dark:text-gray-400">Statistics</div>
+                </button>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="grid grid-cols-2 gap-4">
+                <button id="socialBtn" onclick="showSocialFeatures()" class="card p-6 text-center hover:scale-105 transition-transform duration-200 border-2 border-green-200 hover:border-green-400" style="display: none;">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-green-500 flex items-center justify-center">
+                        <span class="text-xl">👥</span>
+                    </div>
+                    <div class="text-sm font-semibold text-green-600 dark:text-green-400">Social</div>
+                </button>
+                <button id="challengesBtn" onclick="showChallenges()" class="card p-6 text-center hover:scale-105 transition-transform duration-200 border-2 border-orange-200 hover:border-orange-400" style="display: none;">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-orange-500 flex items-center justify-center">
+                        <span class="text-xl">🎯</span>
+                    </div>
+                    <div class="text-sm font-semibold text-orange-600 dark:text-orange-400">Challenges</div>
+                </button>
+            </div>
+
+            <!-- Row 3 -->
+            <div class="grid grid-cols-2 gap-4">
+                <button id="premiumBtn" onclick="showSubscription()" class="card p-6 text-center hover:scale-105 transition-transform duration-200 border-2 border-purple-200 hover:border-purple-400" style="display: none;">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-full gradient-premium flex items-center justify-center">
+                        <span class="text-xl">💎</span>
+                    </div>
+                    <div class="text-sm font-semibold text-purple-600 dark:text-purple-400">Upgrade Pro</div>
+                </button>
+                <button onclick="showSettings()" class="card p-6 text-center hover:scale-105 transition-transform duration-200 border-2 border-gray-200 hover:border-gray-400">
+                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-500 flex items-center justify-center">
+                        <span class="text-xl">⚙️</span>
+                    </div>
+                    <div class="text-sm font-semibold text-gray-600 dark:text-gray-400">Settings</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Coming Soon Features -->
+        <div id="comingSoonSection" class="card p-6" style="display: none;">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">🔮 Coming Soon</h3>
+            <p class="text-sm text-gray-600 mb-4">Keep progressing to unlock these features:</p>
+            <div id="comingSoonFeatures" class="space-y-3">
+                <!-- Features will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievement Modal -->
+    <div id="achievementModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 m-4 max-w-sm">
+            <h3 class="text-xl font-bold text-center mb-4">🎉 Achievement Unlocked!</h3>
+            <div id="achievementContent" class="text-center">
+                <div class="text-4xl mb-2">👶</div>
+                <h4 class="font-bold text-lg">First Steps</h4>
+                <p class="text-gray-600 mb-4">Complete your first 30 minutes offline</p>
+                <p class="text-purple-600 font-bold">+100 XP</p>
+            </div>
+            <button onclick="closeAchievementModal()" class="bg-blue-500 text-white px-6 py-2 rounded-lg w-full mt-4">
+                Awesome!
+            </button>
+        </div>
+    </div>
+
+    <!-- Achievements Page -->
+    <div id="achievements-page" class="page max-w-md mx-auto p-6 space-y-6 animate-fadeInUp" style="display: none;">
+        <!-- Header -->
+        <div class="card p-6">
+            <div class="flex items-center justify-between">
+                <button onclick="showMainPage()" class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200">
+                    <span class="text-xl">←</span>
+                </button>
+                <div class="text-center">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Achievements</h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Your digital wellness milestones</p>
+                </div>
+                <div class="w-10"></div>
+            </div>
+        </div>
+
+        <!-- Achievement Progress -->
+        <div class="card p-8">
+            <div class="text-center mb-6">
+                <div class="w-20 h-20 mx-auto mb-4 rounded-full gradient-premium flex items-center justify-center shadow-lg">
+                    <span class="text-3xl">🏆</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Your Progress</h3>
+            </div>
+
+            <div class="text-center mb-6">
+                <div class="flex items-center justify-center space-x-2 mb-4">
+                    <div class="text-4xl font-bold gradient-primary bg-clip-text text-transparent" id="achievements-unlocked">0</div>
+                    <div class="text-2xl text-gray-400">/</div>
+                    <div class="text-2xl font-bold text-gray-600 dark:text-gray-400">10</div>
+                </div>
+                <div class="text-sm text-gray-600 dark:text-gray-400" id="achievements-total">achievements unlocked</div>
+            </div>
+
+            <div class="bg-gray-100 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
+                <div id="achievements-progress-bar" class="gradient-premium rounded-full h-4 progress-bar transition-all duration-1000 ease-out" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Achievements List -->
+        <div id="achievements-list" class="space-y-4">
+            <!-- Achievements will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Statistics Page -->
+    <div id="statistics-page" class="page max-w-md mx-auto p-6 space-y-6 animate-fadeInUp" style="display: none;">
+        <!-- Header -->
+        <div class="card p-6">
+            <div class="flex items-center justify-between">
+                <button onclick="showMainPage()" class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200">
+                    <span class="text-xl">←</span>
+                </button>
+                <div class="text-center">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Statistics</h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Your digital wellness insights</p>
+                </div>
+                <div class="w-10"></div>
+            </div>
+        </div>
+
+        <!-- Overall Stats -->
+        <div class="card p-8">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white">Overall Statistics</h3>
+                <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center">
+                    <span class="text-sm">📊</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-blue-50 dark:bg-blue-900 flex items-center justify-center">
+                        <span class="text-2xl">⏰</span>
+                    </div>
+                    <div class="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1" id="total-offline-time">0h</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Total Offline Time</div>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-green-50 dark:bg-green-900 flex items-center justify-center">
+                        <span class="text-2xl">📱</span>
+                    </div>
+                    <div class="text-2xl font-bold text-green-600 dark:text-green-400 mb-1" id="total-sessions">0</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Total Sessions</div>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-purple-50 dark:bg-purple-900 flex items-center justify-center">
+                        <span class="text-2xl">📈</span>
+                    </div>
+                    <div class="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1" id="average-session">0m</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Average Session</div>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-orange-50 dark:bg-orange-900 flex items-center justify-center">
+                        <span class="text-2xl">🏆</span>
+                    </div>
+                    <div class="text-2xl font-bold text-orange-600 dark:text-orange-400 mb-1" id="best-day">0h</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Best Day</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weekly Chart -->
+        <div class="card p-8">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white">This Week</h3>
+                <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                    <span class="text-sm">📊</span>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Mon</span>
+                    <div class="flex-1 mx-4 bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                        <div class="bg-blue-500 rounded-full h-3" style="width: 60%"></div>
+                    </div>
+                    <span class="text-sm font-bold text-gray-800 dark:text-gray-200">1.2h</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Tue</span>
+                    <div class="flex-1 mx-4 bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                        <div class="bg-green-500 rounded-full h-3" style="width: 80%"></div>
+                    </div>
+                    <span class="text-sm font-bold text-gray-800 dark:text-gray-200">2.1h</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Wed</span>
+                    <div class="flex-1 mx-4 bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                        <div class="bg-purple-500 rounded-full h-3" style="width: 40%"></div>
+                    </div>
+                    <span class="text-sm font-bold text-gray-800 dark:text-gray-200">0.8h</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Thu</span>
+                    <div class="flex-1 mx-4 bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                        <div class="bg-yellow-500 rounded-full h-3" style="width: 90%"></div>
+                    </div>
+                    <span class="text-sm font-bold text-gray-800 dark:text-gray-200">2.7h</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Fri</span>
+                    <div class="flex-1 mx-4 bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                        <div class="bg-red-500 rounded-full h-3" style="width: 30%"></div>
+                    </div>
+                    <span class="text-sm font-bold text-gray-800 dark:text-gray-200">0.5h</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Sat</span>
+                    <div class="flex-1 mx-4 bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                        <div class="bg-indigo-500 rounded-full h-3" style="width: 100%"></div>
+                    </div>
+                    <span class="text-sm font-bold text-gray-800 dark:text-gray-200">3.2h</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Sun</span>
+                    <div class="flex-1 mx-4 bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                        <div class="bg-pink-500 rounded-full h-3" style="width: 70%"></div>
+                    </div>
+                    <span class="text-sm font-bold text-gray-800 dark:text-gray-200">1.8h</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session History -->
+        <div class="card p-8">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white">Recent Sessions</h3>
+                <div class="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center">
+                    <span class="text-sm">📝</span>
+                </div>
+            </div>
+
+            <div id="session-history" class="space-y-3">
+                <!-- Session history will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Page -->
+    <div id="settings-page" class="page max-w-md mx-auto p-4 space-y-4" style="display: none;">
+        <!-- Header -->
+        <div class="bg-white rounded-xl p-4 shadow-sm dark:bg-gray-800">
+            <div class="flex items-center justify-between">
+                <button onclick="showMainPage()" class="text-2xl">← Back</button>
+                <h2 class="text-xl font-bold text-gray-800 dark:text-white">⚙️ Settings</h2>
+                <div></div>
+            </div>
+        </div>
+
+        <!-- App Preferences -->
+        <div class="bg-white rounded-xl p-6 shadow-sm dark:bg-gray-800">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">App Preferences</h3>
+
+            <!-- Dark Mode Toggle -->
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <div class="text-base text-gray-800 dark:text-white">🌙 Dark Mode</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Switch between light and dark themes</div>
+                </div>
+                <button onclick="toggleDarkMode()" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Toggle</button>
+            </div>
+
+            <!-- Daily Goal -->
+            <div class="mb-4">
+                <div class="text-base text-gray-800 dark:text-white mb-2">🎯 Daily Goal</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400 mb-2" id="daily-goal-display">3 hours</div>
+                <input type="range" id="daily-goal-slider" min="1" max="12" value="3" onchange="updateDailyGoal(this.value)" class="w-full">
+            </div>
+
+            <!-- Notifications -->
+            <div class="flex justify-between items-center">
+                <div>
+                    <div class="text-base text-gray-800 dark:text-white">🔔 Notifications</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Get notified about achievements</div>
+                </div>
+                <button onclick="toggleNotifications()" class="bg-green-500 text-white px-4 py-2 rounded-lg" id="notifications-btn">Enabled</button>
+            </div>
+        </div>
+
+        <!-- Data Management -->
+        <div class="bg-white rounded-xl p-6 shadow-sm dark:bg-gray-800">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Data Management</h3>
+            <div class="space-y-3">
+                <button onclick="exportData()" class="bg-blue-500 text-white px-4 py-2 rounded-lg w-full">📤 Export Data</button>
+                <button onclick="resetData()" class="bg-red-500 text-white px-4 py-2 rounded-lg w-full">🗑️ Reset All Data</button>
+            </div>
+        </div>
+
+        <!-- About -->
+        <div class="bg-white rounded-xl p-6 shadow-sm dark:bg-gray-800">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">About</h3>
+            <div class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
+                <div>Unplug - Screen-Time Tracker v1.0.0</div>
+                <div>Help reduce screen addiction through mindful offline time tracking</div>
+                <div>Built with ❤️ for digital wellness</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscription Page -->
+    <div id="subscription-page" class="page max-w-md mx-auto p-4 space-y-4" style="display: none;">
+        <!-- Header -->
+        <div class="bg-white rounded-xl p-4 shadow-sm dark:bg-gray-800">
+            <div class="flex items-center justify-between">
+                <button onclick="showMainPage()" class="text-2xl">← Back</button>
+                <h2 class="text-xl font-bold text-gray-800 dark:text-white">💎 Upgrade to Pro</h2>
+                <div></div>
+            </div>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="gradient-premium rounded-2xl p-8 shadow-xl text-center">
+            <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                <span class="text-4xl">🌟</span>
+            </div>
+            <h3 class="text-3xl font-bold text-white mb-4">Unlock Your Full Potential</h3>
+            <p class="text-lg text-white opacity-90 leading-relaxed">Take your digital wellness journey to the next level with Unplug Pro</p>
+        </div>
+
+        <!-- Current Plan Status -->
+        <div id="free-plan-status" class="bg-white rounded-xl p-6 shadow-sm dark:bg-gray-800">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <span class="text-2xl mr-3">🆓</span>
+                    <div>
+                        <div class="text-lg font-semibold text-gray-800 dark:text-white">Free Plan</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Basic offline tracking with limited features</div>
+                    </div>
+                </div>
+                <span class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded-full">Current</span>
+            </div>
+        </div>
+
+        <!-- Pro Plan Status (Hidden by default) -->
+        <div id="pro-plan-status" class="bg-white rounded-xl p-6 shadow-sm border-2 border-green-500 dark:bg-gray-800" style="display: none;">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <span class="text-2xl mr-3">💎</span>
+                    <div>
+                        <div class="text-lg font-semibold text-green-800 dark:text-green-400">Unplug Pro</div>
+                        <div class="text-sm text-green-600 dark:text-green-400" id="subscription-status-text">Active</div>
+                    </div>
+                </div>
+                <span class="text-xs bg-green-200 text-green-800 px-2 py-1 rounded-full">Active</span>
+            </div>
+        </div>
+
+        <!-- Feature Comparison -->
+        <div class="bg-white rounded-xl p-6 shadow-sm dark:bg-gray-800">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">✨ Feature Comparison</h3>
+
+            <!-- Header -->
+            <div class="grid grid-cols-3 gap-4 mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">
+                <div class="text-sm font-semibold text-gray-600 dark:text-gray-400">Features</div>
+                <div class="text-sm font-semibold text-gray-600 dark:text-gray-400 text-center">Free</div>
+                <div class="text-sm font-semibold text-purple-600 text-center">Pro</div>
+            </div>
+
+            <!-- Feature Rows -->
+            <div class="space-y-2">
+                <div class="grid grid-cols-3 gap-4 py-2">
+                    <div class="text-sm text-gray-800 dark:text-white">Basic offline tracking</div>
+                    <div class="text-sm text-center">✅</div>
+                    <div class="text-sm text-center">✅</div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 py-2">
+                    <div class="text-sm text-gray-800 dark:text-white">Achievement system</div>
+                    <div class="text-sm text-center">Limited</div>
+                    <div class="text-sm text-center">✅ Complete</div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 py-2">
+                    <div class="text-sm text-gray-800 dark:text-white">Weekly reports</div>
+                    <div class="text-sm text-center">❌</div>
+                    <div class="text-sm text-center">✅</div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 py-2">
+                    <div class="text-sm text-gray-800 dark:text-white">Data export</div>
+                    <div class="text-sm text-center">❌</div>
+                    <div class="text-sm text-center">✅</div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 py-2">
+                    <div class="text-sm text-gray-800 dark:text-white">Cloud backup</div>
+                    <div class="text-sm text-center">❌</div>
+                    <div class="text-sm text-center">✅</div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 py-2">
+                    <div class="text-sm text-gray-800 dark:text-white">Advertisements</div>
+                    <div class="text-sm text-center">Yes</div>
+                    <div class="text-sm text-center">❌ None</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing Plans -->
+        <div id="pricing-plans" class="space-y-3">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white text-center">💰 Choose Your Plan</h3>
+
+            <!-- Monthly Plan -->
+            <div class="card p-8 border-2 border-gray-200 hover:border-purple-300 transition-all duration-300 hover:scale-105">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
+                        <span class="text-2xl">📅</span>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Monthly Pro</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Perfect for trying out Pro features</p>
+                </div>
+
+                <div class="text-center mb-6">
+                    <div class="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-1">$2.99</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">per month</div>
+                </div>
+
+                <button onclick="purchaseSubscription('monthly')" class="btn btn-secondary w-full text-lg py-4">
+                    Start Monthly Plan
+                </button>
+            </div>
+
+            <!-- Yearly Plan (Popular) -->
+            <div class="card p-8 border-2 border-purple-500 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900 dark:to-blue-900 relative transform scale-105 shadow-xl">
+                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <div class="gradient-premium px-4 py-2 rounded-full shadow-lg">
+                        <span class="text-white text-xs font-bold">🔥 MOST POPULAR</span>
+                    </div>
+                </div>
+
+                <div class="text-center mb-6 mt-4">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full gradient-premium flex items-center justify-center shadow-lg">
+                        <span class="text-2xl text-white">📅</span>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Yearly Pro</h4>
+                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm font-semibold mb-2">
+                        <span class="text-xs mr-1">💰</span>
+                        Save 44% vs monthly!
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Best value for committed users</p>
+                </div>
+
+                <div class="text-center mb-6">
+                    <div class="text-4xl font-bold gradient-primary bg-clip-text text-transparent mb-1">$19.99</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">per year</div>
+                </div>
+
+                <button onclick="purchaseSubscription('yearly')" class="btn btn-primary w-full text-lg py-4 shadow-lg">
+                    <span class="text-xl mr-2">🚀</span>
+                    Start Yearly Plan
+                </button>
+            </div>
+
+            <!-- Lifetime Plan -->
+            <div class="gradient-warning rounded-2xl p-8 shadow-xl text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-white bg-opacity-10 rounded-full -mr-16 -mt-16"></div>
+                <div class="absolute bottom-0 left-0 w-24 h-24 bg-white bg-opacity-10 rounded-full -ml-12 -mb-12"></div>
+
+                <div class="relative text-center mb-6">
+                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
+                        <span class="text-2xl">💎</span>
+                    </div>
+                    <h4 class="text-xl font-bold mb-2">Lifetime Pro</h4>
+                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-white bg-opacity-20 text-sm font-semibold mb-2">
+                        <span class="text-xs mr-1">🎯</span>
+                        Never pay again!
+                    </div>
+                    <p class="text-sm opacity-90">Perfect for long-term digital wellness</p>
+                </div>
+
+                <div class="text-center mb-6">
+                    <div class="text-4xl font-bold mb-1">$49.99</div>
+                    <div class="text-sm opacity-90">one-time payment</div>
+                </div>
+
+                <button onclick="purchaseSubscription('lifetime')" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-4 rounded-xl w-full border border-white border-opacity-30 backdrop-blur-sm transition-all duration-200 text-lg font-semibold">
+                    <span class="text-xl mr-2">💎</span>
+                    Get Lifetime Access
+                </button>
+            </div>
+        </div>
+
+        <!-- Pro Features Highlight -->
+        <div class="bg-white rounded-xl p-6 shadow-sm dark:bg-gray-800">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">🌟 What You Get with Pro</h3>
+
+            <div class="space-y-3">
+                <div class="flex items-start">
+                    <span class="text-xl mr-3">📊</span>
+                    <div>
+                        <div class="text-base font-medium text-gray-800 dark:text-white">Detailed Weekly Reports</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Get comprehensive insights into your offline habits with beautiful charts</div>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <span class="text-xl mr-3">☁️</span>
+                    <div>
+                        <div class="text-base font-medium text-gray-800 dark:text-white">Cloud Backup & Sync</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Never lose your progress. Sync across all your devices automatically</div>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <span class="text-xl mr-3">📤</span>
+                    <div>
+                        <div class="text-base font-medium text-gray-800 dark:text-white">Data Export</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Export your data in PDF or JSON format for personal records</div>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <span class="text-xl mr-3">🚫</span>
+                    <div>
+                        <div class="text-base font-medium text-gray-800 dark:text-white">Ad-Free Experience</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Enjoy a clean, distraction-free interface without any advertisements</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trust & Security -->
+        <div class="bg-gray-100 dark:bg-gray-700 rounded-xl p-6">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3 text-center">🔒 Safe & Secure</h3>
+            <div class="space-y-2 text-center">
+                <div class="text-sm text-gray-600 dark:text-gray-400">✅ Secure payment processing</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">✅ Cancel anytime, no questions asked</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">✅ 30-day money-back guarantee</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">✅ Your data stays private and secure</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Level System Data
+        const levelSystem = [
+            { level: 1, requiredXP: 0, title: "Digital Novice", badge: "🌱", xpMultiplier: 1.0 },
+            { level: 2, requiredXP: 50, title: "Screen Breaker", badge: "📱", xpMultiplier: 1.0 },
+            { level: 3, requiredXP: 150, title: "Mindful Beginner", badge: "🧘", xpMultiplier: 1.1 },
+            { level: 4, requiredXP: 300, title: "Focus Finder", badge: "🎯", xpMultiplier: 1.1 },
+            { level: 5, requiredXP: 500, title: "Offline Explorer", badge: "🗺️", xpMultiplier: 1.2 },
+            { level: 6, requiredXP: 750, title: "Digital Minimalist", badge: "✨", xpMultiplier: 1.2 },
+            { level: 7, requiredXP: 1050, title: "Presence Practitioner", badge: "🌸", xpMultiplier: 1.3 },
+            { level: 8, requiredXP: 1400, title: "Mindfulness Warrior", badge: "⚔️", xpMultiplier: 1.3 },
+            { level: 9, requiredXP: 1800, title: "Zen Apprentice", badge: "🕯️", xpMultiplier: 1.4 },
+            { level: 10, requiredXP: 2250, title: "Balance Keeper", badge: "⚖️", xpMultiplier: 1.4 },
+            { level: 11, requiredXP: 2750, title: "Serenity Seeker", badge: "🌊", xpMultiplier: 1.5 },
+            { level: 12, requiredXP: 3300, title: "Digital Sage", badge: "🧙", xpMultiplier: 1.5 },
+            { level: 13, requiredXP: 3900, title: "Tranquility Master", badge: "🏔️", xpMultiplier: 1.6 },
+            { level: 14, requiredXP: 4550, title: "Mindful Guardian", badge: "🛡️", xpMultiplier: 1.6 },
+            { level: 15, requiredXP: 5250, title: "Enlightened Soul", badge: "💫", xpMultiplier: 1.7 },
+            { level: 16, requiredXP: 6000, title: "Wisdom Keeper", badge: "📿", xpMultiplier: 1.7 },
+            { level: 17, requiredXP: 6800, title: "Peace Ambassador", badge: "🕊️", xpMultiplier: 1.8 },
+            { level: 18, requiredXP: 7650, title: "Harmony Architect", badge: "🏛️", xpMultiplier: 1.8 },
+            { level: 19, requiredXP: 8550, title: "Stillness Sage", badge: "🌌", xpMultiplier: 1.9 },
+            { level: 20, requiredXP: 9500, title: "Unplug Legend", badge: "👑", xpMultiplier: 2.0 }
+        ];
+
+        function getLevelInfo(level) {
+            return levelSystem.find(l => l.level === level) || levelSystem[0];
+        }
+
+        function calculateLevel(totalXP) {
+            let level = 1;
+            for (let i = levelSystem.length - 1; i >= 0; i--) {
+                if (totalXP >= levelSystem[i].requiredXP) {
+                    level = levelSystem[i].level;
+                    break;
+                }
+            }
+            return level;
+        }
+
+        // App State
+        let appState = {
+            isSessionActive: false,
+            sessionStartTime: null,
+            sessionDuration: 0,
+            totalXP: parseInt(localStorage.getItem('totalXP') || '0'),
+            todayOfflineMinutes: parseInt(localStorage.getItem('todayOfflineMinutes') || '0'),
+            currentStreak: parseInt(localStorage.getItem('currentStreak') || '0'),
+            longestStreak: parseInt(localStorage.getItem('longestStreak') || '0'),
+            dailyGoalMinutes: parseInt(localStorage.getItem('dailyGoalMinutes') || '180'),
+            achievements: JSON.parse(localStorage.getItem('achievements') || '[]'),
+            isPremium: localStorage.getItem('isPremium') === 'true',
+            subscriptionType: localStorage.getItem('subscriptionType') || 'free',
+            subscriptionExpiry: localStorage.getItem('subscriptionExpiry') ? new Date(localStorage.getItem('subscriptionExpiry')) : null,
+
+            // New onboarding and tutorial features
+            hasCompletedOnboarding: localStorage.getItem('hasCompletedOnboarding') === 'true',
+            personalityType: localStorage.getItem('personalityType') || null,
+            completedTutorials: JSON.parse(localStorage.getItem('completedTutorials') || '[]'),
+            dismissedTooltips: JSON.parse(localStorage.getItem('dismissedTooltips') || '[]'),
+            unlockedFeatures: JSON.parse(localStorage.getItem('unlockedFeatures') || '["basic_tracking", "session_controls", "achievements", "analytics"]'),
+            totalSessions: parseInt(localStorage.getItem('totalSessions') || '0'),
+
+            // Tutorial state
+            activeTutorial: null,
+            currentTutorialStep: 0,
+            showingTooltip: false
+        };
+
+        let sessionTimer = null;
+
+        // Initialize app
+        function initApp() {
+            updateWelcomeMessage();
+            updateMotivationalMessage();
+            updateDisplay();
+            updateFeatureVisibility();
+            setInterval(updateWelcomeMessage, 60000); // Update every minute
+
+            // Check if onboarding is needed
+            // For demo purposes, set hasCompletedOnboarding to true by default
+            if (!appState.hasCompletedOnboarding && localStorage.getItem('forceOnboarding') === 'true') {
+                setTimeout(() => showOnboarding(), 1000);
+            } else {
+                // Mark as completed for demo
+                if (!appState.hasCompletedOnboarding) {
+                    appState.hasCompletedOnboarding = true;
+                    localStorage.setItem('hasCompletedOnboarding', 'true');
+                }
+                // Check for feature unlocks and tutorials
+                checkFeatureUnlocks();
+            }
+        }
+
+        function updateWelcomeMessage() {
+            const hour = new Date().getHours();
+            let message = "Good evening! 🌙";
+            if (hour < 12) message = "Good morning! 🌅";
+            else if (hour < 17) message = "Good afternoon! ☀️";
+            
+            document.getElementById('welcomeMessage').textContent = message;
+        }
+
+        function updateMotivationalMessage() {
+            const element = document.getElementById('motivationalMessage');
+            
+            if (appState.todayOfflineMinutes === 0) {
+                element.textContent = "Ready to start your digital detox journey?";
+            } else if (appState.todayOfflineMinutes >= appState.dailyGoalMinutes) {
+                element.textContent = "🎉 You've reached your daily goal! Amazing work!";
+            } else {
+                const remaining = appState.dailyGoalMinutes - appState.todayOfflineMinutes;
+                element.textContent = `${formatDuration(remaining)} left to reach your daily goal!`;
+            }
+        }
+
+        function startSession() {
+            appState.isSessionActive = true;
+            appState.sessionStartTime = new Date();
+            appState.sessionDuration = 0;
+
+            document.getElementById('activeSession').classList.remove('hidden');
+            document.getElementById('inactiveSession').classList.add('hidden');
+
+            sessionTimer = setInterval(() => {
+                appState.sessionDuration = Math.floor((new Date() - appState.sessionStartTime) / (1000 * 60));
+                document.getElementById('sessionDuration').textContent = formatDuration(appState.sessionDuration);
+                console.log(`Session active: ${appState.sessionDuration} minutes`);
+            }, 60000);
+
+            // Also update immediately and every 10 seconds for demo purposes
+            const quickTimer = setInterval(() => {
+                if (!appState.isSessionActive) {
+                    clearInterval(quickTimer);
+                    return;
+                }
+                appState.sessionDuration = Math.floor((new Date() - appState.sessionStartTime) / (1000 * 60));
+                document.getElementById('sessionDuration').textContent = formatDuration(appState.sessionDuration);
+            }, 10000);
+
+            updateDisplay();
+        }
+
+        function startDemoSession() {
+            appState.isSessionActive = true;
+            appState.sessionStartTime = new Date();
+            appState.sessionDuration = 0;
+
+            document.getElementById('activeSession').classList.remove('hidden');
+            document.getElementById('inactiveSession').classList.add('hidden');
+
+            // Demo mode: 1 second = 1 minute for fast testing
+            sessionTimer = setInterval(() => {
+                appState.sessionDuration++;
+                document.getElementById('sessionDuration').textContent = formatDuration(appState.sessionDuration);
+                console.log(`Demo session active: ${appState.sessionDuration} minutes`);
+            }, 1000);
+
+            updateDisplay();
+        }
+
+        function endSession() {
+            if (!appState.isSessionActive) return;
+
+            clearInterval(sessionTimer);
+            appState.isSessionActive = false;
+
+            // Use the current session duration (already calculated by timer)
+            const sessionMinutes = appState.sessionDuration;
+
+            // Only count sessions longer than 5 minutes
+            if (sessionMinutes >= 5) {
+                // Add offline time and XP (1 XP per minute)
+                appState.todayOfflineMinutes += sessionMinutes;
+                appState.totalXP += sessionMinutes;
+
+                console.log(`Session completed: ${sessionMinutes} minutes, Total XP: ${appState.totalXP}, Today: ${appState.todayOfflineMinutes} minutes`);
+
+                checkAchievements();
+                saveData();
+                showSessionCompleted();
+            } else {
+                alert(`Session too short (${sessionMinutes} minutes). Minimum session length is 5 minutes.`);
+            }
+
+            document.getElementById('activeSession').classList.add('hidden');
+            document.getElementById('inactiveSession').classList.remove('hidden');
+
+            updateDisplay();
+        }
+
+        function checkAchievements() {
+            const achievements = [
+                { id: 'first_steps', title: 'First Steps', icon: '👶', xp: 100, target: 30 },
+                { id: 'digital_minimalist', title: 'Digital Minimalist', icon: '🧘', xp: 250, target: 120 },
+                { id: 'offline_master', title: 'Offline Master', icon: '🏆', xp: 500, target: 300 }
+            ];
+            
+            achievements.forEach(achievement => {
+                if (!appState.achievements.includes(achievement.id) && appState.todayOfflineMinutes >= achievement.target) {
+                    appState.achievements.push(achievement.id);
+                    appState.totalXP += achievement.xp;
+                    showAchievement(achievement);
+                }
+            });
+        }
+
+        function showAchievement(achievement) {
+            document.getElementById('achievementContent').innerHTML = `
+                <div class="text-4xl mb-2">${achievement.icon}</div>
+                <h4 class="font-bold text-lg">${achievement.title}</h4>
+                <p class="text-gray-600 mb-4">Complete ${achievement.target} minutes offline</p>
+                <p class="text-purple-600 font-bold">+${achievement.xp} XP</p>
+            `;
+            document.getElementById('achievementModal').classList.remove('hidden');
+            document.getElementById('achievementModal').classList.add('flex');
+        }
+
+        function closeAchievementModal() {
+            document.getElementById('achievementModal').classList.add('hidden');
+            document.getElementById('achievementModal').classList.remove('flex');
+        }
+
+        function showSessionCompleted() {
+            alert(`Great job! 🌟\nYou stayed offline for ${formatDuration(appState.sessionDuration)}! Keep it up!`);
+        }
+
+        function updateDisplay() {
+            // Update stats - today's XP should be the same as today's offline minutes (1 XP per minute)
+            const todayXP = appState.todayOfflineMinutes; // XP earned today
+
+            document.getElementById('todayOfflineTime').textContent = formatDuration(appState.todayOfflineMinutes);
+            document.getElementById('todayXP').textContent = todayXP;
+            appState.level = calculateLevel(appState.totalXP);
+            document.getElementById('totalXP').textContent = appState.totalXP;
+            document.getElementById('currentStreak').textContent = `${appState.currentStreak} days`;
+            document.getElementById('longestStreak').textContent = `${appState.longestStreak} days`;
+
+            // Update daily goal display
+            const dailyGoalHours = appState.dailyGoalMinutes / 60;
+            document.getElementById('dailyGoal').textContent = `${dailyGoalHours}h`;
+
+            // Update progress bars
+            const dailyProgress = Math.min(100, (appState.todayOfflineMinutes / appState.dailyGoalMinutes) * 100);
+            document.getElementById('dailyProgressBar').style.width = `${dailyProgress}%`;
+            document.getElementById('dailyProgressText').textContent = `${Math.round(dailyProgress)}% Complete`;
+
+            // Calculate level progress using new progressive system
+            const levelInfo = getLevelInfo(appState.level);
+            const nextLevelInfo = getLevelInfo(appState.level + 1);
+
+            let levelProgress = 100;
+            let xpToNextLevel = 0;
+
+            if (nextLevelInfo) {
+                const currentLevelXP = levelInfo.requiredXP;
+                const nextLevelXP = nextLevelInfo.requiredXP;
+                const progressXP = appState.totalXP - currentLevelXP;
+                const totalXPNeeded = nextLevelXP - currentLevelXP;
+
+                levelProgress = Math.min(100, (progressXP / totalXPNeeded) * 100);
+                xpToNextLevel = nextLevelXP - appState.totalXP;
+            }
+
+            document.getElementById('levelProgressBar').style.width = `${levelProgress}%`;
+            document.getElementById('xpToNextLevel').textContent = xpToNextLevel;
+
+            // Update level display with title and badge
+            document.getElementById('userLevel').textContent = appState.level;
+            document.getElementById('userTitle').textContent = levelInfo.title;
+            document.getElementById('userBadge').textContent = levelInfo.badge;
+            document.getElementById('xpMultiplier').textContent = levelInfo.xpMultiplier.toFixed(1) + 'x';
+
+            updateMotivationalMessage();
+            updatePremiumStatus();
+
+            console.log(`Display updated - Today: ${appState.todayOfflineMinutes}min, XP: ${appState.totalXP}, Level: ${appState.level}, Daily Progress: ${Math.round(dailyProgress)}%`);
+        }
+
+        function updatePremiumStatus() {
+            const premiumStatusDiv = document.getElementById('premium-status');
+            const premiumStatusText = document.getElementById('premium-status-text');
+
+            if (appState.isPremium) {
+                premiumStatusDiv.style.display = 'block';
+
+                if (appState.subscriptionType === 'lifetime') {
+                    premiumStatusText.textContent = 'Lifetime Pro - Enjoying ad-free experience';
+                } else if (appState.subscriptionExpiry) {
+                    const daysRemaining = Math.ceil((appState.subscriptionExpiry - new Date()) / (1000 * 60 * 60 * 24));
+                    premiumStatusText.textContent = `${appState.subscriptionType} Pro - ${daysRemaining} days remaining`;
+                } else {
+                    premiumStatusText.textContent = 'Pro Active - Enjoying ad-free experience';
+                }
+            } else {
+                premiumStatusDiv.style.display = 'none';
+            }
+        }
+
+        function formatDuration(minutes) {
+            if (minutes < 60) return `${minutes}m`;
+            const hours = Math.floor(minutes / 60);
+            const remainingMinutes = minutes % 60;
+            return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+        }
+
+        function saveData() {
+            localStorage.setItem('totalXP', appState.totalXP.toString());
+            localStorage.setItem('todayOfflineMinutes', appState.todayOfflineMinutes.toString());
+            localStorage.setItem('currentStreak', appState.currentStreak.toString());
+            localStorage.setItem('longestStreak', appState.longestStreak.toString());
+            localStorage.setItem('dailyGoalMinutes', appState.dailyGoalMinutes.toString());
+            localStorage.setItem('achievements', JSON.stringify(appState.achievements));
+
+            console.log('Data saved:', {
+                totalXP: appState.totalXP,
+                todayOfflineMinutes: appState.todayOfflineMinutes,
+                currentStreak: appState.currentStreak,
+                longestStreak: appState.longestStreak
+            });
+        }
+
+        function showSettings() {
+            showPage('settings');
+        }
+
+        function showAchievements() {
+            showPage('achievements');
+        }
+
+        function showStats() {
+            showPage('statistics');
+        }
+
+        function showSubscription() {
+            showPage('subscription');
+        }
+
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.style.display = 'none';
+            });
+
+            // Show selected page
+            document.getElementById(pageId + '-page').style.display = 'block';
+
+            // Update page content based on current data
+            if (pageId === 'achievements') {
+                updateAchievementsPage();
+            } else if (pageId === 'statistics') {
+                updateStatisticsPage();
+            } else if (pageId === 'settings') {
+                updateSettingsPage();
+            } else if (pageId === 'subscription') {
+                updateSubscriptionPage();
+            }
+        }
+
+        function showMainPage() {
+            showPage('main');
+        }
+
+        function toggleDarkMode() {
+            const body = document.body;
+            const isDark = body.classList.contains('dark');
+
+            if (isDark) {
+                body.classList.remove('dark');
+                localStorage.setItem('darkMode', 'false');
+            } else {
+                body.classList.add('dark');
+                localStorage.setItem('darkMode', 'true');
+            }
+
+            // Update theme button
+            const themeButton = document.querySelector('button[onclick="toggleDarkMode()"]');
+            themeButton.textContent = isDark ? '🌙' : '☀️';
+        }
+
+        function initializeDarkMode() {
+            const savedDarkMode = localStorage.getItem('darkMode');
+            if (savedDarkMode === 'true') {
+                document.body.classList.add('dark');
+                const themeButton = document.querySelector('button[onclick="toggleDarkMode()"]');
+                if (themeButton) themeButton.textContent = '☀️';
+            }
+        }
+
+        // Page update functions
+        function updateAchievementsPage() {
+            const achievements = [
+                // Time-based achievements
+                { id: 'first_steps', title: 'First Steps', icon: '👶', description: 'Complete your first 30 minutes offline', target: 30, unlocked: appState.todayOfflineMinutes >= 30, category: 'Time-based', rarity: 'Common', xp: 50 },
+                { id: 'one_hour', title: 'One Hour Hero', icon: '⏰', description: 'Stay offline for 1 hour', target: 60, unlocked: appState.todayOfflineMinutes >= 60, category: 'Time-based', rarity: 'Common', xp: 100 },
+                { id: 'three_hours', title: 'Three Hour Champion', icon: '🏅', description: 'Stay offline for 3 hours', target: 180, unlocked: appState.todayOfflineMinutes >= 180, category: 'Time-based', rarity: 'Rare', xp: 300 },
+                { id: 'six_hours', title: 'Six Hour Master', icon: '🎯', description: 'Stay offline for 6 hours', target: 360, unlocked: appState.todayOfflineMinutes >= 360, category: 'Time-based', rarity: 'Epic', xp: 600 },
+                { id: 'full_day', title: 'Digital Hermit', icon: '🏔️', description: 'Stay offline for 24 hours straight', target: 1440, unlocked: appState.todayOfflineMinutes >= 1440, category: 'Time-based', rarity: 'Legendary', xp: 2000 },
+
+                // Streak achievements
+                { id: 'consistency', title: 'Consistency Champion', icon: '🔥', description: 'Maintain a 3-day streak', target: 3, unlocked: appState.currentStreak >= 3, category: 'Streak', rarity: 'Common', xp: 300 },
+                { id: 'week_warrior', title: 'Week Warrior', icon: '⚡', description: 'Maintain a 7-day streak', target: 7, unlocked: appState.currentStreak >= 7, category: 'Streak', rarity: 'Rare', xp: 700 },
+                { id: 'month_master', title: 'Month Master', icon: '🌙', description: 'Maintain a 30-day streak', target: 30, unlocked: appState.currentStreak >= 30, category: 'Streak', rarity: 'Epic', xp: 2000 },
+
+                // Milestone achievements
+                { id: 'session_master', title: 'Session Master', icon: '🌱', description: 'Complete 10 offline sessions', target: 10, unlocked: false, category: 'Milestone', rarity: 'Common', xp: 200 },
+                { id: 'mindful_master', title: 'Mindful Master', icon: '🧘‍♂️', description: 'Reach 50 hours total offline time', target: 3000, unlocked: appState.totalXP >= 3000, category: 'Milestone', rarity: 'Epic', xp: 2500 },
+                { id: 'unplug_champion', title: 'Unplug Champion', icon: '🏆', description: 'Achieve 100 hours total offline time', target: 6000, unlocked: appState.totalXP >= 6000, category: 'Milestone', rarity: 'Legendary', xp: 5000 },
+
+                // Special achievements
+                { id: 'early_bird', title: 'Early Bird', icon: '🌅', description: 'Start 5 sessions before 8 AM', target: 5, unlocked: false, category: 'Time of Day', rarity: 'Rare', xp: 300 },
+                { id: 'weekend_warrior', title: 'Weekend Warrior', icon: '🏖️', description: 'Complete 4+ hour sessions on weekends', target: 240, unlocked: false, category: 'Weekend', rarity: 'Epic', xp: 600 },
+                { id: 'perfect_week', title: 'Perfect Week', icon: '💎', description: 'Meet daily goal every day for a week', target: 7, unlocked: false, category: 'Combo', rarity: 'Epic', xp: 1500 }
+            ];
+
+            const unlockedCount = achievements.filter(a => a.unlocked).length;
+            const progressPercent = (unlockedCount / achievements.length) * 100;
+
+            document.getElementById('achievements-unlocked').textContent = unlockedCount;
+            document.getElementById('achievements-total').textContent = `of ${achievements.length} achievements unlocked`;
+            document.getElementById('achievements-progress-bar').style.width = `${progressPercent}%`;
+
+            const achievementsList = document.getElementById('achievements-list');
+            achievementsList.innerHTML = '';
+
+            achievements.forEach((achievement, index) => {
+                const achievementDiv = document.createElement('div');
+                const isUnlocked = achievement.unlocked;
+
+                achievementDiv.className = `card p-6 transition-all duration-300 hover:scale-105 ${
+                    isUnlocked
+                        ? 'border-2 border-green-200 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900 dark:to-blue-900'
+                        : 'opacity-75 hover:opacity-90'
+                }`;
+
+                achievementDiv.style.animationDelay = `${index * 100}ms`;
+                achievementDiv.classList.add('animate-fadeInUp');
+
+                const rarityColors = {
+                    'Common': '#6b7280',
+                    'Rare': '#3b82f6',
+                    'Epic': '#8b5cf6',
+                    'Legendary': '#f59e0b'
+                };
+
+                const rarityColor = rarityColors[achievement.rarity] || '#6b7280';
+
+                achievementDiv.innerHTML = `
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-16 h-16 rounded-full ${
+                                isUnlocked
+                                    ? 'gradient-success shadow-lg'
+                                    : 'bg-gray-200 dark:bg-gray-700'
+                            } flex items-center justify-center border-3" style="border-color: ${rarityColor}">
+                                <span class="text-2xl">${achievement.icon}</span>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <h4 class="text-lg font-bold text-gray-800 dark:text-white">${achievement.title}</h4>
+                                        <span class="text-xs font-bold px-2 py-1 rounded text-white" style="background-color: ${rarityColor}">${achievement.rarity}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded">${achievement.category}</span>
+                                        <span class="text-xs text-purple-600 dark:text-purple-400 font-semibold">+${achievement.xp} XP</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 leading-relaxed">${achievement.description}</p>
+
+                                    ${isUnlocked ? `
+                                        <div class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs font-medium">
+                                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                            Unlocked!
+                                        </div>
+                                    ` : `
+                                        <div class="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs font-medium">
+                                            <span class="w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
+                                            Target: ${formatDuration(achievement.target)}
+                                        </div>
+                                    `}
+                                </div>
+                                <div class="ml-4">
+                                    ${isUnlocked
+                                        ? '<div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center"><span class="text-white text-sm">✓</span></div>'
+                                        : '<div class="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center"><span class="text-gray-500 text-sm">🔒</span></div>'
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                achievementsList.appendChild(achievementDiv);
+            });
+        }
+
+        function updateStatisticsPage() {
+            const totalSessions = Math.ceil(appState.todayOfflineMinutes / 30) || 0;
+            const averageSession = totalSessions > 0 ? Math.round(appState.todayOfflineMinutes / totalSessions) : 0;
+            const qualityScore = calculateQualityScore();
+            const weeklyAverage = Math.floor(appState.totalOfflineMinutes / 7);
+
+            document.getElementById('total-offline-time').textContent = formatDuration(appState.todayOfflineMinutes);
+            document.getElementById('total-sessions').textContent = totalSessions;
+            document.getElementById('average-session').textContent = formatDuration(averageSession);
+            document.getElementById('best-day').textContent = formatDuration(appState.todayOfflineMinutes);
+
+            // Update session history
+            const sessionHistory = document.getElementById('session-history');
+            sessionHistory.innerHTML = '';
+
+            if (totalSessions > 0) {
+                for (let i = 0; i < Math.min(totalSessions, 5); i++) {
+                    const sessionDiv = document.createElement('div');
+                    sessionDiv.className = 'flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700 rounded';
+                    sessionDiv.innerHTML = `
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Session ${i + 1}</span>
+                        <span class="text-sm font-medium text-gray-800 dark:text-white">${formatDuration(30)}</span>
+                    `;
+                    sessionHistory.appendChild(sessionDiv);
+                }
+            } else {
+                sessionHistory.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400 py-4">No sessions completed yet</div>';
+            }
+        }
+
+        function updateSettingsPage() {
+            const dailyGoalHours = appState.dailyGoalMinutes / 60;
+            document.getElementById('daily-goal-slider').value = dailyGoalHours;
+            document.getElementById('daily-goal-display').textContent = `${dailyGoalHours} hours`;
+        }
+
+        // Settings functions
+        function updateDailyGoal(hours) {
+            appState.dailyGoalMinutes = hours * 60;
+            document.getElementById('daily-goal-display').textContent = `${hours} hours`;
+            localStorage.setItem('dailyGoalMinutes', appState.dailyGoalMinutes.toString());
+            updateDisplay();
+        }
+
+        function toggleNotifications() {
+            const btn = document.getElementById('notifications-btn');
+            const isEnabled = btn.textContent === 'Enabled';
+            btn.textContent = isEnabled ? 'Disabled' : 'Enabled';
+            btn.className = isEnabled ? 'bg-gray-500 text-white px-4 py-2 rounded-lg' : 'bg-green-500 text-white px-4 py-2 rounded-lg';
+            localStorage.setItem('notificationsEnabled', (!isEnabled).toString());
+        }
+
+        function exportData() {
+            const data = {
+                totalXP: appState.totalXP,
+                todayOfflineMinutes: appState.todayOfflineMinutes,
+                currentStreak: appState.currentStreak,
+                longestStreak: appState.longestStreak,
+                achievements: appState.achievements,
+                exportDate: new Date().toISOString()
+            };
+
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'unplug-data-export.json';
+            link.click();
+            URL.revokeObjectURL(url);
+
+            alert('Data exported successfully!');
+        }
+
+        function resetData() {
+            if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+                localStorage.clear();
+                appState = {
+                    isSessionActive: false,
+                    sessionStartTime: null,
+                    sessionDuration: 0,
+                    totalXP: 0,
+                    todayOfflineMinutes: 0,
+                    currentStreak: 0,
+                    longestStreak: 0,
+                    dailyGoalMinutes: 180,
+                    achievements: []
+                };
+                updateDisplay();
+                alert('All data has been reset.');
+            }
+        }
+
+        // Subscription functions
+        function purchaseSubscription(planType) {
+            // Simulate purchase process
+            const plans = {
+                monthly: { name: 'Monthly Pro', price: '$2.99/month', duration: 1 },
+                yearly: { name: 'Yearly Pro', price: '$19.99/year', duration: 12 },
+                lifetime: { name: 'Lifetime Pro', price: '$49.99 one-time', duration: 'lifetime' }
+            };
+
+            const plan = plans[planType];
+            if (!plan) return;
+
+            // Show processing message
+            const processingMsg = `Processing ${plan.name} purchase...`;
+            console.log(processingMsg);
+
+            // Simulate network delay
+            setTimeout(() => {
+                // Simulate 90% success rate
+                if (Math.random() < 0.9) {
+                    // Success
+                    appState.isPremium = true;
+                    appState.subscriptionType = planType;
+
+                    // Set expiry date
+                    const expiryDate = new Date();
+                    if (planType === 'monthly') {
+                        expiryDate.setMonth(expiryDate.getMonth() + 1);
+                    } else if (planType === 'yearly') {
+                        expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+                    } else if (planType === 'lifetime') {
+                        expiryDate.setFullYear(expiryDate.getFullYear() + 100);
+                    }
+
+                    appState.subscriptionExpiry = expiryDate;
+
+                    // Save to localStorage
+                    localStorage.setItem('isPremium', 'true');
+                    localStorage.setItem('subscriptionType', planType);
+                    localStorage.setItem('subscriptionExpiry', expiryDate.toISOString());
+
+                    // Show success message
+                    alert(`🎉 Welcome to Unplug Pro!\n\nYour ${plan.name} subscription is now active. Enjoy all the Pro features and thank you for supporting digital wellness!`);
+
+                    // Update subscription page display
+                    updateSubscriptionPage();
+
+                    // Go back to main page
+                    showMainPage();
+                } else {
+                    // Failure
+                    const errors = [
+                        'Payment method declined',
+                        'Network connection failed',
+                        'App Store temporarily unavailable',
+                        'Insufficient funds'
+                    ];
+                    const randomError = errors[Math.floor(Math.random() * errors.length)];
+                    alert(`Purchase Failed\n\n${randomError}\n\nPlease try again.`);
+                }
+            }, 2000);
+        }
+
+        function updateSubscriptionPage() {
+            if (appState.isPremium) {
+                // Show pro status
+                document.getElementById('free-plan-status').style.display = 'none';
+                document.getElementById('pro-plan-status').style.display = 'block';
+                document.getElementById('pricing-plans').style.display = 'none';
+
+                // Update status text
+                const statusText = document.getElementById('subscription-status-text');
+                if (appState.subscriptionType === 'lifetime') {
+                    statusText.textContent = 'Lifetime Pro - Active';
+                } else {
+                    const daysRemaining = Math.ceil((appState.subscriptionExpiry - new Date()) / (1000 * 60 * 60 * 24));
+                    statusText.textContent = `${appState.subscriptionType} Pro - ${daysRemaining} days remaining`;
+                }
+            } else {
+                // Show free status
+                document.getElementById('free-plan-status').style.display = 'block';
+                document.getElementById('pro-plan-status').style.display = 'none';
+                document.getElementById('pricing-plans').style.display = 'block';
+            }
+        }
+
+        // Onboarding System
+        function showOnboarding() {
+            const modal = document.getElementById('onboardingModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            showOnboardingStep(0);
+        }
+
+        function showOnboardingStep(stepIndex) {
+            const steps = [
+                {
+                    title: 'Welcome to Unplug! 🌟',
+                    content: `
+                        <div class="text-center">
+                            <div class="text-6xl mb-4">🚀</div>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4">Welcome to Unplug!</h2>
+                            <p class="text-gray-600 mb-6">Take control of your screen time and discover the joy of being offline. Let's get you started on your digital wellness journey.</p>
+                            <button onclick="window.nextOnboardingStep()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">Get Started</button>
+                        </div>
+                    `
+                },
+                {
+                    title: 'Tell Us About You 🧠',
+                    content: `
+                        <div class="text-center">
+                            <div class="text-6xl mb-4">🎯</div>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4">Tell Us About You</h2>
+                            <p class="text-gray-600 mb-6">What motivates you most?</p>
+                            <div class="space-y-3 text-left">
+                                <button onclick="window.selectPersonality('achiever')" class="w-full p-3 text-left border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors">
+                                    🏆 Achieving goals and competing with others
+                                </button>
+                                <button onclick="window.selectPersonality('socializer')" class="w-full p-3 text-left border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors">
+                                    👥 Connecting and sharing with community
+                                </button>
+                                <button onclick="window.selectPersonality('explorer')" class="w-full p-3 text-left border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors">
+                                    🧘 Personal growth and mindfulness
+                                </button>
+                                <button onclick="window.selectPersonality('minimalist')" class="w-full p-3 text-left border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors">
+                                    🌿 Simplicity and minimalism
+                                </button>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    title: 'Set Your Daily Goal 🎯',
+                    content: `
+                        <div class="text-center">
+                            <div class="text-6xl mb-4">⏰</div>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4">Set Your Daily Goal</h2>
+                            <div id="personalizedRecommendation" class="bg-blue-50 rounded-lg p-4 mb-4" style="display: none;">
+                                <p class="text-sm font-semibold text-blue-600 mb-1">💡 Recommended for You</p>
+                                <p id="recommendedGoal" class="text-lg font-bold text-blue-800"></p>
+                                <p class="text-xs text-blue-600">Based on your personality profile</p>
+                            </div>
+                            <p class="text-gray-600 mb-6">How much offline time would you like to aim for each day?</p>
+                            <div class="space-y-3">
+                                <button onclick="window.selectGoal(60)" class="w-full p-3 text-left border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors">1 hour - Light digital detox</button>
+                                <button onclick="window.selectGoal(120)" class="w-full p-3 text-left border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors">2 hours - Moderate offline time</button>
+                                <button onclick="window.selectGoal(180)" class="w-full p-3 text-left border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors">3 hours - Recommended balance</button>
+                                <button onclick="window.selectGoal(300)" class="w-full p-3 text-left border rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors">5 hours - Serious unplugging</button>
+                            </div>
+                        </div>
+                    `
+                },
+                {
+                    title: 'You\'re All Set! ✨',
+                    content: `
+                        <div class="text-center">
+                            <div class="text-6xl mb-4">🎉</div>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4">You're All Set!</h2>
+                            <p class="text-gray-600 mb-6">Your personalized Unplug experience is ready. Let's start your digital wellness journey!</p>
+                            <button onclick="window.completeOnboarding()" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors">Start My Journey</button>
+                        </div>
+                    `
+                }
+            ];
+
+            if (stepIndex >= 0 && stepIndex < steps.length) {
+                document.getElementById('onboardingContent').innerHTML = steps[stepIndex].content;
+                appState.currentOnboardingStep = stepIndex;
+            }
+        }
+
+        function selectPersonality(type) {
+            console.log('Personality selected:', type);
+            appState.personalityType = type;
+
+            // Show personalized recommendation
+            const recommendations = {
+                achiever: { goal: 300, description: 'Ambitious goal for competitive achievers' },
+                socializer: { goal: 180, description: 'Balanced goal for community-focused users' },
+                explorer: { goal: 240, description: 'Moderate goal for mindful explorers' },
+                minimalist: { goal: 120, description: 'Simple goal for minimalist approach' }
+            };
+
+            const rec = recommendations[type];
+            if (rec) {
+                const recElement = document.getElementById('personalizedRecommendation');
+                const goalElement = document.getElementById('recommendedGoal');
+                if (recElement) recElement.style.display = 'block';
+                if (goalElement) goalElement.textContent = `${rec.goal / 60} hours daily`;
+            }
+
+            nextOnboardingStep();
+        }
+
+        // Make functions globally accessible
+        window.selectPersonality = selectPersonality;
+
+        function selectGoal(minutes) {
+            console.log('Goal selected:', minutes);
+            appState.dailyGoalMinutes = minutes;
+            localStorage.setItem('dailyGoalMinutes', minutes.toString());
+            nextOnboardingStep();
+        }
+
+        function nextOnboardingStep() {
+            const currentStep = appState.currentOnboardingStep || 0;
+            showOnboardingStep(currentStep + 1);
+        }
+
+        // Make functions globally accessible
+        window.selectGoal = selectGoal;
+        window.nextOnboardingStep = nextOnboardingStep;
+        window.completeOnboarding = completeOnboarding;
+
+        function completeOnboarding() {
+            appState.hasCompletedOnboarding = true;
+            localStorage.setItem('hasCompletedOnboarding', 'true');
+            localStorage.setItem('personalityType', appState.personalityType || 'explorer');
+
+            // Hide onboarding modal
+            const modal = document.getElementById('onboardingModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            // Update display and show tutorial
+            updateDisplay();
+            updateFeatureVisibility();
+
+            // Start main app tutorial
+            setTimeout(() => startTutorial(), 1000);
+        }
+
+        // Tutorial System
+        function showTutorialMenu() {
+            const options = [
+                'Main App Tour',
+                'Reset Onboarding',
+                'Test Feature Tooltip',
+                'Check Feature Unlocks'
+            ];
+
+            const choice = prompt('Choose a tutorial option:\n' + options.map((opt, i) => `${i + 1}. ${opt}`).join('\n'));
+            const index = parseInt(choice) - 1;
+
+            if (index >= 0 && index < options.length) {
+                switch (index) {
+                    case 0: startTutorial(); break;
+                    case 1: resetOnboarding(); break;
+                    case 2: showTestTooltip(); break;
+                    case 3: checkFeatureUnlocks(); break;
+                }
+            }
+        }
+
+        function startTutorial() {
+            const tutorial = {
+                steps: [
+                    {
+                        title: 'Welcome to Unplug! 🌟',
+                        content: 'This is your main dashboard where you can track your offline time and see your progress.',
+                        highlight: null
+                    },
+                    {
+                        title: 'Session Controls ▶️',
+                        content: 'Use these buttons to start and end your offline sessions. Track your digital wellness journey!',
+                        highlight: '.session-controls'
+                    },
+                    {
+                        title: 'Your Progress 📊',
+                        content: 'Here you can see your current level, XP, and daily progress towards your goals.',
+                        highlight: '.progress-section'
+                    },
+                    {
+                        title: 'Quick Actions ⚡',
+                        content: 'Access achievements, analytics, and other features quickly from these buttons.',
+                        highlight: '#quickActions'
+                    }
+                ]
+            };
+
+            appState.activeTutorial = tutorial;
+            appState.currentTutorialStep = 0;
+            showTutorialStep();
+        }
+
+        function showTutorialStep() {
+            const tutorial = appState.activeTutorial;
+            const step = tutorial.steps[appState.currentTutorialStep];
+
+            if (!step) {
+                completeTutorial();
+                return;
+            }
+
+            const overlay = document.getElementById('tutorialOverlay');
+            const content = document.getElementById('tutorialContent');
+
+            content.innerHTML = `
+                <div class="text-center">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm text-gray-500">Step ${appState.currentTutorialStep + 1} of ${tutorial.steps.length}</span>
+                        <button onclick="skipTutorial()" class="text-gray-400 hover:text-gray-600">Skip</button>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+                        <div class="bg-blue-500 h-2 rounded-full" style="width: ${((appState.currentTutorialStep + 1) / tutorial.steps.length) * 100}%"></div>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">${step.title}</h3>
+                    <p class="text-gray-600 mb-6">${step.content}</p>
+                    <div class="flex justify-between">
+                        <button onclick="previousTutorialStep()" class="px-4 py-2 text-gray-600 hover:text-gray-800" ${appState.currentTutorialStep === 0 ? 'style="visibility: hidden;"' : ''}>← Back</button>
+                        <button onclick="nextTutorialStep()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
+                            ${appState.currentTutorialStep === tutorial.steps.length - 1 ? 'Finish' : 'Next'}
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+        }
+
+        function nextTutorialStep() {
+            appState.currentTutorialStep++;
+            showTutorialStep();
+        }
+
+        function previousTutorialStep() {
+            if (appState.currentTutorialStep > 0) {
+                appState.currentTutorialStep--;
+                showTutorialStep();
+            }
+        }
+
+        function skipTutorial() {
+            completeTutorial();
+        }
+
+        function completeTutorial() {
+            const overlay = document.getElementById('tutorialOverlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+
+            appState.activeTutorial = null;
+            appState.currentTutorialStep = 0;
+
+            if (!appState.completedTutorials.includes('main_app_tour')) {
+                appState.completedTutorials.push('main_app_tour');
+                localStorage.setItem('completedTutorials', JSON.stringify(appState.completedTutorials));
+            }
+        }
+
+        function resetOnboarding() {
+            if (confirm('Reset onboarding? This will clear your progress and restart the setup.')) {
+                appState.hasCompletedOnboarding = false;
+                appState.personalityType = null;
+                appState.completedTutorials = [];
+                appState.dismissedTooltips = [];
+
+                localStorage.removeItem('hasCompletedOnboarding');
+                localStorage.removeItem('personalityType');
+                localStorage.removeItem('completedTutorials');
+                localStorage.removeItem('dismissedTooltips');
+                localStorage.setItem('forceOnboarding', 'true');
+
+                location.reload();
+            }
+        }
+
+        // Feature Unlock System
+        function checkFeatureUnlocks() {
+            const features = [
+                { id: 'social', name: 'Social Features', icon: '👥', unlockAt: 3, type: 'level' },
+                { id: 'challenges', name: 'Challenges', icon: '🎯', unlockAt: 4, type: 'level' },
+                { id: 'premium', name: 'Premium Features', icon: '💎', unlockAt: 10, type: 'sessions' }
+            ];
+
+            features.forEach(feature => {
+                const isUnlocked = checkFeatureUnlocked(feature);
+                if (isUnlocked && !appState.unlockedFeatures.includes(feature.id)) {
+                    unlockFeature(feature);
+                }
+            });
+
+            updateFeatureVisibility();
+            updateComingSoonSection();
+        }
+
+        function checkFeatureUnlocked(feature) {
+            switch (feature.type) {
+                case 'sessions':
+                    return appState.totalSessions >= feature.unlockAt;
+                case 'level':
+                    return appState.level >= feature.unlockAt;
+                default:
+                    return false;
+            }
+        }
+
+        function unlockFeature(feature) {
+            appState.unlockedFeatures.push(feature.id);
+            localStorage.setItem('unlockedFeatures', JSON.stringify(appState.unlockedFeatures));
+
+            // Show unlock notification
+            showFeatureUnlockTooltip(feature);
+        }
+
+        function updateFeatureVisibility() {
+            const featureButtons = {
+                social: 'socialBtn',
+                challenges: 'challengesBtn',
+                premium: 'premiumBtn'
+            };
+
+            // Core features (achievements, analytics) are always visible
+            // Only hide advanced features until unlocked
+            Object.entries(featureButtons).forEach(([feature, buttonId]) => {
+                const button = document.getElementById(buttonId);
+                if (button) {
+                    button.style.display = appState.unlockedFeatures.includes(feature) ? 'block' : 'none';
+                }
+            });
+        }
+
+        function updateComingSoonSection() {
+            const features = [
+                { id: 'social', name: 'Social Features', icon: '👥', unlockAt: 3, type: 'level', description: 'Connect with the community' },
+                { id: 'challenges', name: 'Community Challenges', icon: '🎯', unlockAt: 4, type: 'level', description: 'Participate in group challenges' },
+                { id: 'premium', name: 'Premium Features', icon: '💎', unlockAt: 10, type: 'sessions', description: 'Advanced analytics and features' }
+            ];
+
+            const lockedFeatures = features.filter(f => !appState.unlockedFeatures.includes(f.id));
+            const section = document.getElementById('comingSoonSection');
+            const container = document.getElementById('comingSoonFeatures');
+
+            if (lockedFeatures.length > 0) {
+                section.style.display = 'block';
+                container.innerHTML = lockedFeatures.slice(0, 3).map(feature => `
+                    <div class="bg-gray-50 rounded-lg p-3 flex items-center">
+                        <span class="text-2xl mr-3">${feature.icon}</span>
+                        <div class="flex-1">
+                            <div class="font-semibold text-gray-800">${feature.name}</div>
+                            <div class="text-sm text-gray-600">${feature.description}</div>
+                            <div class="text-xs text-blue-600 mt-1">
+                                ${feature.type === 'sessions' ? `Complete ${feature.unlockAt} sessions` : `Reach level ${feature.unlockAt}`}
+                            </div>
+                        </div>
+                        <span class="text-gray-400">🔒</span>
+                    </div>
+                `).join('');
+            } else {
+                section.style.display = 'none';
+            }
+        }
+
+        // Tooltip System
+        function showFeatureUnlockTooltip(feature) {
+            showTooltip(
+                `${feature.icon} ${feature.name} Unlocked!`,
+                `You've unlocked ${feature.name}! Tap to explore this new feature.`,
+                'Explore',
+                () => {
+                    hideTooltip();
+                    // Navigate to feature (simplified)
+                    alert(`Opening ${feature.name}...`);
+                }
+            );
+        }
+
+        function showTestTooltip() {
+            showTooltip(
+                '🧪 Test Feature!',
+                'This is a test tooltip to demonstrate the tooltip system. You can dismiss it or take action.',
+                'Cool!',
+                () => {
+                    hideTooltip();
+                    alert('Tooltip action triggered!');
+                }
+            );
+        }
+
+        function showTooltip(title, message, actionText, actionCallback) {
+            const tooltip = document.getElementById('featureTooltip');
+            document.getElementById('tooltipTitle').textContent = title;
+            document.getElementById('tooltipMessage').textContent = message;
+            document.getElementById('tooltipAction').textContent = actionText;
+
+            // Store callback for later use
+            window.currentTooltipCallback = actionCallback;
+
+            // Position tooltip (simplified - center of screen)
+            tooltip.style.top = '50%';
+            tooltip.style.left = '50%';
+            tooltip.style.transform = 'translate(-50%, -50%)';
+
+            tooltip.classList.remove('hidden');
+            appState.showingTooltip = true;
+        }
+
+        function hideTooltip() {
+            document.getElementById('featureTooltip').classList.add('hidden');
+            appState.showingTooltip = false;
+        }
+
+        function handleTooltipAction() {
+            if (window.currentTooltipCallback) {
+                window.currentTooltipCallback();
+            }
+        }
+
+        // Enhanced session completion
+        function endSession() {
+            if (!appState.isSessionActive) return;
+
+            clearInterval(sessionTimer);
+            appState.isSessionActive = false;
+
+            const sessionMinutes = appState.sessionDuration;
+
+            if (sessionMinutes >= 5) {
+                appState.todayOfflineMinutes += sessionMinutes;
+                appState.totalXP += sessionMinutes;
+                appState.totalSessions += 1;
+
+                console.log(`Session completed: ${sessionMinutes} minutes, Total sessions: ${appState.totalSessions}`);
+
+                checkAchievements();
+                saveData();
+
+                // Check for feature unlocks after session
+                setTimeout(() => {
+                    checkFeatureUnlocks();
+                }, 2000);
+            }
+
+            document.getElementById('activeSession').classList.add('hidden');
+            document.getElementById('inactiveSession').classList.remove('hidden');
+
+            updateDisplay();
+        }
+
+        // Enhanced save data
+        function saveData() {
+            localStorage.setItem('totalXP', appState.totalXP.toString());
+            localStorage.setItem('todayOfflineMinutes', appState.todayOfflineMinutes.toString());
+            localStorage.setItem('currentStreak', appState.currentStreak.toString());
+            localStorage.setItem('longestStreak', appState.longestStreak.toString());
+            localStorage.setItem('achievements', JSON.stringify(appState.achievements));
+            localStorage.setItem('totalSessions', appState.totalSessions.toString());
+            localStorage.setItem('unlockedFeatures', JSON.stringify(appState.unlockedFeatures));
+        }
+
+        // Placeholder functions for new features
+        function showSocialFeatures() {
+            // Enhanced Social Features
+            const modal = createModal('Social Features', `
+                <div class="space-y-6">
+                    <!-- Social Overview -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gradient-to-r from-green-500 to-blue-500 text-white p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold">3</div>
+                            <div class="text-sm opacity-90">Circles Joined</div>
+                        </div>
+                        <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold">#12</div>
+                            <div class="text-sm opacity-90">Leaderboard Rank</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="showCommunityFeed()" class="bg-blue-50 hover:bg-blue-100 p-4 rounded-lg text-center transition-colors">
+                            <div class="text-2xl mb-2">📰</div>
+                            <div class="text-sm font-semibold text-blue-700">Community Feed</div>
+                        </button>
+                        <button onclick="showLeaderboards()" class="bg-green-50 hover:bg-green-100 p-4 rounded-lg text-center transition-colors">
+                            <div class="text-2xl mb-2">🏆</div>
+                            <div class="text-sm font-semibold text-green-700">Leaderboards</div>
+                        </button>
+                        <button onclick="showCircles()" class="bg-purple-50 hover:bg-purple-100 p-4 rounded-lg text-center transition-colors">
+                            <div class="text-2xl mb-2">👥</div>
+                            <div class="text-sm font-semibold text-purple-700">My Circles</div>
+                        </button>
+                        <button onclick="shareAchievement()" class="bg-orange-50 hover:bg-orange-100 p-4 rounded-lg text-center transition-colors">
+                            <div class="text-2xl mb-2">🎉</div>
+                            <div class="text-sm font-semibold text-orange-700">Share Achievement</div>
+                        </button>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-semibold mb-3">Recent Community Activity</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">S</div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium">Sarah completed a 2-hour session! 🎉</div>
+                                    <div class="text-xs text-gray-500">2 hours ago</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">A</div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium">Alex reached a 7-day streak! 🔥</div>
+                                    <div class="text-xs text-gray-500">4 hours ago</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm">M</div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium">Maya started a weekend challenge 💪</div>
+                                    <div class="text-xs text-gray-500">6 hours ago</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Join Challenge -->
+                    <div class="bg-gradient-to-r from-orange-400 to-red-500 text-white p-4 rounded-lg">
+                        <h4 class="font-bold mb-2">🎯 Weekend Warrior Challenge</h4>
+                        <p class="text-sm opacity-90 mb-3">Stay offline for 4+ hours this weekend</p>
+                        <button class="bg-white text-orange-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-100 transition-colors">
+                            Join Challenge
+                        </button>
+                    </div>
+                </div>
+            `);
+
+            document.body.appendChild(modal);
+        }
+
+        function showCommunityFeed() {
+            const modal = createModal('Community Feed', `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-semibold">Latest Posts</h3>
+                        <button class="bg-blue-500 text-white px-3 py-1 rounded text-sm">+ New Post</button>
+                    </div>
+
+                    <!-- Feed Posts -->
+                    <div class="space-y-4 max-h-96 overflow-y-auto">
+                        <div class="border rounded-lg p-4">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">S</div>
+                                <div>
+                                    <div class="font-medium text-sm">Sarah M.</div>
+                                    <div class="text-xs text-gray-500">2 hours ago</div>
+                                </div>
+                            </div>
+                            <div class="text-sm mb-3">Just completed my first week of digital wellness! 7 days, 420 minutes offline. Feeling amazing! 🎉</div>
+                            <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                <span>❤️ 24</span>
+                                <span>💬 8</span>
+                                <span>🔄 3</span>
+                            </div>
+                        </div>
+
+                        <div class="border rounded-lg p-4">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">A</div>
+                                <div>
+                                    <div class="font-medium text-sm">Alex K.</div>
+                                    <div class="text-xs text-gray-500">4 hours ago</div>
+                                </div>
+                            </div>
+                            <div class="text-sm mb-3">Morning routine game-changer: airplane mode for the first hour after waking up! ☀️</div>
+                            <div class="flex items-center space-x-4 text-xs text-gray-500">
+                                <span>❤️ 67</span>
+                                <span>💬 15</span>
+                                <span>🔄 12</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+
+        function showLeaderboards() {
+            const modal = createModal('Leaderboards', `
+                <div class="space-y-4">
+                    <!-- Leaderboard Tabs -->
+                    <div class="flex space-x-2 bg-gray-100 p-1 rounded-lg">
+                        <button class="flex-1 py-2 px-3 bg-white rounded text-sm font-medium">Weekly</button>
+                        <button class="flex-1 py-2 px-3 text-gray-600 text-sm">Monthly</button>
+                        <button class="flex-1 py-2 px-3 text-gray-600 text-sm">All Time</button>
+                    </div>
+
+                    <!-- Leaderboard List -->
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3 p-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-lg">
+                            <div class="text-lg font-bold">🥇</div>
+                            <div class="flex-1">
+                                <div class="font-semibold">Maya L.</div>
+                                <div class="text-sm opacity-90">2,340 minutes</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-bold">Level 8</div>
+                                <div class="text-sm opacity-90">1,250 XP</div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-3 p-3 bg-gradient-to-r from-gray-300 to-gray-400 text-white rounded-lg">
+                            <div class="text-lg font-bold">🥈</div>
+                            <div class="flex-1">
+                                <div class="font-semibold">Jordan P.</div>
+                                <div class="text-sm opacity-90">2,180 minutes</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-bold">Level 7</div>
+                                <div class="text-sm opacity-90">1,180 XP</div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-3 p-3 bg-gradient-to-r from-orange-400 to-red-500 text-white rounded-lg">
+                            <div class="text-lg font-bold">🥉</div>
+                            <div class="flex-1">
+                                <div class="font-semibold">Chris R.</div>
+                                <div class="text-sm opacity-90">1,950 minutes</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-bold">Level 6</div>
+                                <div class="text-sm opacity-90">950 XP</div>
+                            </div>
+                        </div>
+
+                        <!-- Your Position -->
+                        <div class="border-2 border-blue-300 bg-blue-50 rounded-lg p-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="text-lg font-bold text-blue-600">#12</div>
+                                <div class="flex-1">
+                                    <div class="font-semibold text-blue-800">You</div>
+                                    <div class="text-sm text-blue-600">${appState.totalOfflineMinutes} minutes</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-bold text-blue-800">Level ${appState.level}</div>
+                                    <div class="text-sm text-blue-600">${appState.totalXP} XP</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+
+        function showCircles() {
+            const modal = createModal('My Circles', `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-semibold">Joined Circles</h3>
+                        <button class="bg-green-500 text-white px-3 py-1 rounded text-sm">+ Join Circle</button>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="border rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold">Digital Minimalists</h4>
+                                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Active</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">A community focused on mindful technology use</p>
+                            <div class="flex items-center justify-between text-xs text-gray-500">
+                                <span>👥 24 members</span>
+                                <span>🎯 Weekly challenge active</span>
+                            </div>
+                        </div>
+
+                        <div class="border rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold">Morning Warriors</h4>
+                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Active</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">Early risers committed to phone-free mornings</p>
+                            <div class="flex items-center justify-between text-xs text-gray-500">
+                                <span>👥 18 members</span>
+                                <span>🌅 Daily check-ins</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+
+        function shareAchievement() {
+            const modal = createModal('Share Achievement', `
+                <div class="space-y-4">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto mb-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+                            <span class="text-3xl">🏆</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Level ${appState.level} Achieved!</h3>
+                        <p class="text-gray-600">You've reached level ${appState.level} with ${appState.totalXP} XP!</p>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <label class="block text-sm font-medium mb-2">Add a message (optional)</label>
+                        <textarea class="w-full p-3 border rounded-lg text-sm" rows="3" placeholder="Share your thoughts about this achievement..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <button class="bg-blue-500 text-white py-2 px-4 rounded-lg text-sm font-medium">
+                            🌟 Community Feed
+                        </button>
+                        <button class="bg-green-500 text-white py-2 px-4 rounded-lg text-sm font-medium">
+                            👥 My Circles
+                        </button>
+                    </div>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+
+        function showChallenges() {
+            const modal = createModal('Community Challenges', `
+                <div class="space-y-4">
+                    <!-- Active Challenges -->
+                    <div>
+                        <h3 class="font-semibold mb-3">🔥 Active Challenges</h3>
+                        <div class="space-y-3">
+                            <div class="border-2 border-orange-300 bg-orange-50 rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-semibold text-orange-800">Weekend Warrior</h4>
+                                    <span class="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded">2 days left</span>
+                                </div>
+                                <p class="text-sm text-orange-700 mb-3">Stay offline for 4+ hours this weekend</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="text-xs text-orange-600">👥 156 participants</div>
+                                    <button class="bg-orange-500 text-white px-3 py-1 rounded text-xs">Joined</button>
+                                </div>
+                            </div>
+
+                            <div class="border rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h4 class="font-semibold">Morning Mindfulness</h4>
+                                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">5 days left</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-3">Phone-free first hour every morning</p>
+                                <div class="flex items-center justify-between">
+                                    <div class="text-xs text-gray-500">👥 89 participants</div>
+                                    <button class="bg-blue-500 text-white px-3 py-1 rounded text-xs">Join</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Create Challenge -->
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-lg">
+                        <h4 class="font-bold mb-2">Create Your Own Challenge</h4>
+                        <p class="text-sm opacity-90 mb-3">Start a custom challenge for your circle</p>
+                        <button class="bg-white text-purple-600 px-4 py-2 rounded-lg text-sm font-semibold">
+                            + Create Challenge
+                        </button>
+                    </div>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+
+        // Enhanced helper functions
+        function calculateQualityScore() {
+            const baseScore = 60;
+            const streakBonus = Math.min(appState.currentStreak * 2, 30);
+            const consistencyBonus = appState.totalSessions > 5 ? 10 : 0;
+            return Math.min(baseScore + streakBonus + consistencyBonus, 100);
+        }
+
+        function createModal(title, content) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+                    <div class="sticky top-0 bg-white border-b p-4 flex items-center justify-between">
+                        <h2 class="text-xl font-bold">${title}</h2>
+                        <button onclick="this.closest('.fixed').remove()" class="text-gray-400 hover:text-gray-600">
+                            <span class="text-xl">×</span>
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        ${content}
+                    </div>
+                </div>
+            `;
+
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+
+            return modal;
+        }
+
+        // Enhanced session quality functions
+        function getSessionQuality(minutes) {
+            if (minutes >= 60) return 'excellent';
+            if (minutes >= 30) return 'good';
+            if (minutes >= 15) return 'fair';
+            return 'short';
+        }
+
+        function showEnhancedSessionCelebration(minutes, quality, xpEarned, leveledUp) {
+            const qualityMessages = {
+                excellent: "🌟 Outstanding session! You're mastering mindfulness.",
+                good: "👏 Great session! Your dedication is inspiring.",
+                fair: "✨ Good progress! Every step counts.",
+                short: "🌱 Nice start! Building habits takes time."
+            };
+
+            const message = qualityMessages[quality] || qualityMessages.fair;
+
+            let celebrationContent = `
+                <div class="text-center">
+                    <div class="text-6xl mb-4">🎉</div>
+                    <h3 class="text-2xl font-bold mb-2">Session Complete!</h3>
+                    <p class="text-gray-600 mb-4">${message}</p>
+
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div>
+                                <div class="text-2xl font-bold text-blue-600">${minutes}m</div>
+                                <div class="text-sm text-gray-600">Duration</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-green-600">+${xpEarned}</div>
+                                <div class="text-sm text-gray-600">XP Earned</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 text-center">
+                            <div class="text-sm text-gray-600">Quality: <span class="font-semibold capitalize text-${quality === 'excellent' ? 'green' : quality === 'good' ? 'blue' : 'orange'}-600">${quality}</span></div>
+                        </div>
+                    </div>
+            `;
+
+            if (leveledUp) {
+                celebrationContent += `
+                    <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-4 rounded-lg mb-4">
+                        <div class="text-center">
+                            <div class="text-3xl mb-2">🏆</div>
+                            <div class="font-bold">Level Up!</div>
+                            <div class="text-sm opacity-90">You reached level ${appState.level}!</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            celebrationContent += `
+                    <button onclick="this.closest('.fixed').remove()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                        Continue
+                    </button>
+                </div>
+            `;
+
+            const modal = createModal('🎉 Session Complete!', celebrationContent);
+            document.body.appendChild(modal);
+        }
+
+        // Make all tutorial and onboarding functions globally accessible
+        window.showTutorialMenu = showTutorialMenu;
+        window.startTutorial = startTutorial;
+        window.nextTutorialStep = nextTutorialStep;
+        window.previousTutorialStep = previousTutorialStep;
+        window.skipTutorial = skipTutorial;
+        window.resetOnboarding = resetOnboarding;
+        window.showTestTooltip = showTestTooltip;
+        window.checkFeatureUnlocks = checkFeatureUnlocks;
+
+        // Make new functions globally accessible
+        window.showCommunityFeed = showCommunityFeed;
+        window.showLeaderboards = showLeaderboards;
+        window.showCircles = showCircles;
+        window.shareAchievement = shareAchievement;
+        window.hideTooltip = hideTooltip;
+        window.handleTooltipAction = handleTooltipAction;
+
+        // Initialize the app when page loads
+        initializeDarkMode();
+        initApp();
+    </script>
+</body>
+</html>

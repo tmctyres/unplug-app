@@ -1,0 +1,228 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="📊 Analytics Dashboard" class="action-bar">
+        <NavigationButton text="← Back" tap="{{ onBack }}" />
+        <ActionItem text="📊" tap="{{ onQuickExport, 'image' }}" ios.position="right" android.position="actionBar" />
+        <ActionItem text="📤" tap="{{ onExportReport }}" ios.position="right" android.position="actionBar" />
+        <ActionItem text="🔄" tap="{{ onRefreshData }}" ios.position="right" android.position="actionBar" />
+    </ActionBar>
+
+    <GridLayout rows="auto, *" class="bg-gray-50">
+        
+        <!-- Loading State -->
+        <StackLayout row="0" rowSpan="2" class="loading-overlay bg-white flex justify-center items-center" 
+                     visibility="{{ isLoading ? 'visible' : 'collapsed' }}">
+            <ActivityIndicator busy="true" class="activity-indicator" />
+            <Label text="Analyzing your data..." class="text-gray-600 mt-4" />
+        </StackLayout>
+
+        <!-- Error State -->
+        <StackLayout row="0" rowSpan="2" class="error-state bg-white flex justify-center items-center p-8" 
+                     visibility="{{ hasError ? 'visible' : 'collapsed' }}">
+            <Label text="📊" class="text-6xl mb-4" />
+            <Label text="Unable to Load Analytics" class="text-xl font-bold text-gray-800 mb-2" />
+            <Label text="{{ errorMessage }}" class="text-base text-gray-600 text-center mb-4" textWrap="true" />
+            <Button text="Try Again" tap="{{ onRefreshData }}" class="btn btn-primary" />
+        </StackLayout>
+
+        <!-- Time Range Selector -->
+        <StackLayout row="0" class="time-range-selector bg-white border-b border-gray-200 p-4" 
+                     visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            <GridLayout rows="auto" columns="*, *, *, *" class="gap-2">
+                <Repeater items="{{ timeRangeOptions }}">
+                    <Repeater.itemTemplate>
+                        <Button text="{{ icon }} {{ name }}" 
+                                tap="{{ $parents['Page'].bindingContext.onTimeRangeChange, id }}"
+                                class="{{ $parents['Page'].bindingContext.currentTimeRange === id ? 'btn btn-primary text-xs' : 'btn btn-outline-secondary text-xs' }}" />
+                    </Repeater.itemTemplate>
+                </Repeater>
+            </GridLayout>
+        </StackLayout>
+
+        <!-- Main Content -->
+        <ScrollView row="1" visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            <StackLayout class="p-4 space-y-6">
+                
+                <!-- Overview Stats -->
+                <StackLayout class="overview-stats">
+                    <GridLayout rows="auto" columns="*, auto" class="mb-4">
+                        <Label col="0" text="📈 {{ currentTimeRangeDisplay }} Overview" class="text-lg font-bold text-gray-800" />
+                        <Button col="1" text="📤 Share" tap="{{ onShareProgress }}" class="btn btn-outline-primary text-sm" />
+                    </GridLayout>
+
+                    <GridLayout rows="auto, auto" columns="*, *" class="gap-4">
+                        <!-- Total Minutes -->
+                        <StackLayout row="0" col="0" class="stat-card bg-white rounded-xl p-4 shadow-sm">
+                            <Label text="⏱️" class="stat-icon text-2xl mb-2" />
+                            <Label text="{{ formatDuration(overviewStats.totalMinutes) }}" 
+                                   class="stat-value text-xl font-bold text-blue-600" />
+                            <Label text="Total Time" class="stat-label text-sm text-gray-600" />
+                            <Label text="{{ formatChange(overviewStats.changes.totalMinutes) }}" 
+                                   class="stat-change text-xs font-semibold mt-1"
+                                   color="{{ getChangeColor(overviewStats.changes.totalMinutes) }}" />
+                        </StackLayout>
+                        
+                        <!-- Total Sessions -->
+                        <StackLayout row="0" col="1" class="stat-card bg-white rounded-xl p-4 shadow-sm">
+                            <Label text="🎯" class="stat-icon text-2xl mb-2" />
+                            <Label text="{{ overviewStats.totalSessions }}" 
+                                   class="stat-value text-xl font-bold text-green-600" />
+                            <Label text="Sessions" class="stat-label text-sm text-gray-600" />
+                            <Label text="{{ formatChange(overviewStats.changes.sessionCount) }}" 
+                                   class="stat-change text-xs font-semibold mt-1"
+                                   color="{{ getChangeColor(overviewStats.changes.sessionCount) }}" />
+                        </StackLayout>
+                        
+                        <!-- Average Length -->
+                        <StackLayout row="1" col="0" class="stat-card bg-white rounded-xl p-4 shadow-sm">
+                            <Label text="📊" class="stat-icon text-2xl mb-2" />
+                            <Label text="{{ formatDuration(overviewStats.averageSessionLength) }}" 
+                                   class="stat-value text-xl font-bold text-purple-600" />
+                            <Label text="Avg Length" class="stat-label text-sm text-gray-600" />
+                            <Label text="{{ formatChange(overviewStats.changes.averageSessionLength) }}" 
+                                   class="stat-change text-xs font-semibold mt-1"
+                                   color="{{ getChangeColor(overviewStats.changes.averageSessionLength) }}" />
+                        </StackLayout>
+                        
+                        <!-- Goal Completions -->
+                        <StackLayout row="1" col="1" class="stat-card bg-white rounded-xl p-4 shadow-sm">
+                            <Label text="🏆" class="stat-icon text-2xl mb-2" />
+                            <Label text="{{ overviewStats.goalCompletions }}" 
+                                   class="stat-value text-xl font-bold text-orange-600" />
+                            <Label text="Goals Met" class="stat-label text-sm text-gray-600" />
+                        </StackLayout>
+                    </GridLayout>
+                </StackLayout>
+
+                <!-- Progress Rings -->
+                <StackLayout class="progress-section">
+                    <Label text="🎯 Progress Overview" class="text-lg font-bold text-gray-800 mb-4" />
+                    
+                    <GridLayout rows="auto, auto" columns="*, *" class="gap-4">
+                        <Repeater items="{{ progressRings }}">
+                            <Repeater.itemTemplate>
+                                <StackLayout class="progress-ring-container bg-white rounded-xl p-4 shadow-sm text-center">
+                                    <!-- Progress ring would be rendered here -->
+                                    <Label text="📊" class="text-4xl mb-2" />
+                                    <Label text="{{ title }}" class="text-sm font-semibold text-gray-800" />
+                                </StackLayout>
+                            </Repeater.itemTemplate>
+                        </Repeater>
+                    </GridLayout>
+                </StackLayout>
+
+                <!-- Charts -->
+                <StackLayout class="charts-section" visibility="{{ charts && charts.length > 0 ? 'visible' : 'collapsed' }}">
+                    <Label text="📈 Detailed Analytics" class="text-lg font-bold text-gray-800 mb-4" />
+                    
+                    <Repeater items="{{ charts }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="chart-container bg-white rounded-xl p-4 shadow-sm mb-4"
+                                         tap="{{ $parents['Page'].bindingContext.onNavigateToDetailedView, id }}">
+                                <Label text="{{ title }}" class="chart-title text-base font-semibold text-gray-800 mb-2" />
+                                <Label text="{{ description }}" class="chart-description text-sm text-gray-600 mb-4" textWrap="true" />
+                                
+                                <!-- Chart placeholder -->
+                                <StackLayout class="chart-placeholder bg-gray-100 rounded-lg p-8 text-center">
+                                    <Label text="📊" class="text-4xl mb-2" />
+                                    <Label text="{{ type }} Chart" class="text-sm text-gray-600" />
+                                    <Label text="Tap to view details" class="text-xs text-blue-600 mt-2" />
+                                </StackLayout>
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                </StackLayout>
+
+                <!-- Smart Insights -->
+                <StackLayout class="insights-section" visibility="{{ hasInsights ? 'visible' : 'collapsed' }}">
+                    <Label text="💡 Smart Insights" class="text-lg font-bold text-gray-800 mb-4" />
+                    
+                    <Repeater items="{{ insights }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="insight-card bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-4 shadow-sm mb-3">
+                                <GridLayout rows="auto, auto, auto" columns="*, auto">
+                                    <!-- Insight Content -->
+                                    <Label row="0" col="0" text="{{ title }}" 
+                                           class="insight-title text-base font-bold text-white mb-2" />
+                                    <Label row="1" col="0" text="{{ description }}" 
+                                           class="insight-description text-sm text-white opacity-90 mb-3" 
+                                           textWrap="true" />
+                                    <Label row="2" col="0" text="{{ recommendation }}" 
+                                           class="insight-recommendation text-sm text-white font-semibold bg-white bg-opacity-20 rounded-lg p-2" 
+                                           textWrap="true"
+                                           visibility="{{ actionable ? 'visible' : 'collapsed' }}" />
+                                    
+                                    <!-- Confidence & Share -->
+                                    <StackLayout row="0" col="1" rowSpan="3" class="text-center">
+                                        <Label text="{{ Math.round(confidence * 100) }}%" 
+                                               class="confidence-score text-lg font-bold text-white" />
+                                        <Label text="confidence" class="text-xs text-white opacity-75" />
+                                        <Button text="📤" 
+                                                tap="{{ $parents['Page'].bindingContext.onShareInsight, $value }}" 
+                                                class="btn btn-ghost text-white text-sm mt-2" />
+                                    </StackLayout>
+                                </GridLayout>
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                </StackLayout>
+
+                <!-- Recent Achievements -->
+                <StackLayout class="achievements-section" visibility="{{ hasRecentAchievements ? 'visible' : 'collapsed' }}">
+                    <Label text="🏆 Recent Achievements" class="text-lg font-bold text-gray-800 mb-4" />
+
+                    <Repeater items="{{ recentAchievements }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="achievement-card bg-white rounded-xl p-4 shadow-sm mb-3 border-l-4 border-yellow-500">
+                                <GridLayout rows="auto, auto, auto" columns="auto, *, auto">
+                                    <Label row="0" col="0" text="{{ icon }}" class="achievement-icon text-2xl mr-3" />
+                                    <Label row="0" col="1" text="{{ title }}"
+                                           class="achievement-title text-base font-semibold text-gray-800" />
+                                    <Label row="0" col="2" text="+{{ xpReward }} XP"
+                                           class="achievement-xp text-sm font-bold text-yellow-600" />
+                                    <Label row="1" col="1" colSpan="2" text="{{ description }}"
+                                           class="achievement-description text-sm text-gray-600 mt-1"
+                                           textWrap="true" />
+                                    <Button row="2" col="2" text="📤"
+                                            tap="{{ $parents['Page'].bindingContext.onShareAchievement, $value }}"
+                                            class="btn btn-ghost text-sm mt-2" />
+                                </GridLayout>
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                </StackLayout>
+
+                <!-- Export Section -->
+                <StackLayout class="export-section bg-white rounded-xl p-6 shadow-sm text-center">
+                    <Label text="📄" class="text-4xl mb-3" />
+                    <Label text="Export & Share" class="text-lg font-semibold text-gray-800 mb-2" />
+                    <Label text="Export detailed reports or share your progress with friends"
+                           class="text-sm text-gray-600 mb-4" textWrap="true" />
+
+                    <!-- Export Progress -->
+                    <StackLayout class="export-progress mb-4" visibility="{{ isExporting ? 'visible' : 'collapsed' }}">
+                        <Label text="{{ exportStatus || 'Generating report...' }}" class="text-sm text-blue-600 mb-2" />
+                        <StackLayout class="progress-bar bg-gray-200 rounded-full h-2">
+                            <StackLayout class="progress-fill bg-blue-500 rounded-full h-2"
+                                         width="{{ exportProgress || 0 }}%" />
+                        </StackLayout>
+                    </StackLayout>
+
+                    <!-- Quick Export Options -->
+                    <GridLayout rows="auto, auto" columns="*, *, *" class="gap-2 mb-4"
+                                visibility="{{ !isExporting ? 'visible' : 'collapsed' }}">
+                        <Button row="0" col="0" text="📊 Image" tap="{{ onQuickExport, 'image' }}"
+                                class="btn btn-outline-secondary text-xs" />
+                        <Button row="0" col="1" text="📄 PDF" tap="{{ onQuickExport, 'pdf' }}"
+                                class="btn btn-outline-secondary text-xs" />
+                        <Button row="0" col="2" text="📋 Data" tap="{{ onQuickExport, 'json' }}"
+                                class="btn btn-outline-secondary text-xs" />
+                        <Button row="1" col="0" colSpan="3" text="📤 Custom Export" tap="{{ onExportReport }}"
+                                class="btn btn-primary" />
+                    </GridLayout>
+                </StackLayout>
+
+            </StackLayout>
+        </ScrollView>
+
+    </GridLayout>
+</Page>

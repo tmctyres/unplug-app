@@ -1,0 +1,7 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <StackLayout class="bg-gradient-to-b from-blue-500 to-purple-600 flex justify-center items-center">
+        <Label text="🌟" class="text-6xl mb-4" />
+        <Label text="Unplug" class="text-3xl font-bold text-white mb-2" />
+        <Label text="Loading..." class="text-lg text-white opacity-75" />
+    </StackLayout>
+</Page>

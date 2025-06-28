@@ -1,0 +1,51 @@
+// iOS Build Configuration for Unplug App
+
+// Deployment Target
+IPHONEOS_DEPLOYMENT_TARGET = 12.0
+
+// Code Signing
+CODE_SIGN_IDENTITY = iPhone Developer
+DEVELOPMENT_TEAM = 
+
+// Bundle Configuration
+PRODUCT_BUNDLE_IDENTIFIER = com.unplug.screentime
+PRODUCT_NAME = Unplug
+
+// Build Settings
+ENABLE_BITCODE = NO
+SWIFT_VERSION = 5.0
+
+// Capabilities
+ENTITLEMENTS_FILE = App_Resources/iOS/Unplug.entitlements
+
+// Other Linker Flags
+OTHER_LDFLAGS = $(inherited) -ObjC
+
+// Header Search Paths
+HEADER_SEARCH_PATHS = $(inherited)
+
+// Framework Search Paths
+FRAMEWORK_SEARCH_PATHS = $(inherited)
+
+// Library Search Paths
+LIBRARY_SEARCH_PATHS = $(inherited)
+
+// Preprocessor Macros
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited)
+
+// Warning Flags
+WARNING_CFLAGS = $(inherited)
+
+// Optimization
+GCC_OPTIMIZATION_LEVEL = s
+SWIFT_OPTIMIZATION_LEVEL = -O
+
+// Debug Information
+DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
+
+// Architectures
+ARCHS = arm64
+VALID_ARCHS = arm64
+
+// Excluded Architectures for Simulator
+EXCLUDED_ARCHS[sdk=iphonesimulator*] = arm64

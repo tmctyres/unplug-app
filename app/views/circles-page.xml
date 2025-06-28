@@ -1,0 +1,266 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="page">
+    <ActionBar title="👥 Circles" class="action-bar">
+        <NavigationButton text="← Back" tap="{{ onBack }}" />
+        <ActionItem text="➕" tap="{{ onCreateCircle }}" ios.position="right" android.position="actionBar" />
+        <ActionItem text="🔄" tap="{{ onRefresh }}" ios.position="right" android.position="actionBar" />
+    </ActionBar>
+
+    <GridLayout rows="auto, auto, *" class="bg-gray-50">
+        
+        <!-- Loading State -->
+        <StackLayout row="0" rowSpan="3" class="loading-overlay bg-white flex justify-center items-center" 
+                     visibility="{{ isLoading ? 'visible' : 'collapsed' }}">
+            <ActivityIndicator busy="true" class="activity-indicator" />
+            <Label text="Loading circles..." class="text-gray-600 mt-4" />
+        </StackLayout>
+
+        <!-- Error State -->
+        <StackLayout row="0" rowSpan="3" class="error-state bg-white flex justify-center items-center p-8" 
+                     visibility="{{ hasError ? 'visible' : 'collapsed' }}">
+            <Label text="👥" class="text-6xl mb-4" />
+            <Label text="Unable to Load Circles" class="text-xl font-bold text-gray-800 mb-2" />
+            <Label text="{{ errorMessage }}" class="text-base text-gray-600 text-center mb-4" textWrap="true" />
+            <Button text="Try Again" tap="{{ onRefresh }}" class="btn btn-primary" />
+        </StackLayout>
+
+        <!-- Circle Stats -->
+        <StackLayout row="0" class="stats-section bg-white border-b border-gray-200 p-4" 
+                     visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            <GridLayout rows="auto" columns="*, *, *, *" class="gap-4">
+                <StackLayout col="0" class="stat-item text-center">
+                    <Label text="{{ circleStats.totalCircles }}" class="stat-value text-lg font-bold text-blue-600" />
+                    <Label text="Total" class="stat-label text-xs text-gray-500" />
+                </StackLayout>
+                <StackLayout col="1" class="stat-item text-center">
+                    <Label text="{{ circleStats.activeCircles }}" class="stat-value text-lg font-bold text-green-600" />
+                    <Label text="Active" class="stat-label text-xs text-gray-500" />
+                </StackLayout>
+                <StackLayout col="2" class="stat-item text-center">
+                    <Label text="{{ circleStats.adminCircles }}" class="stat-value text-lg font-bold text-purple-600" />
+                    <Label text="Admin" class="stat-label text-xs text-gray-500" />
+                </StackLayout>
+                <StackLayout col="3" class="stat-item text-center">
+                    <Label text="{{ circleStats.pendingInvites }}" class="stat-value text-lg font-bold text-orange-600" />
+                    <Label text="Invites" class="stat-label text-xs text-gray-500" />
+                </StackLayout>
+            </GridLayout>
+        </StackLayout>
+
+        <!-- Tab Navigation -->
+        <StackLayout row="1" class="tab-navigation bg-white border-b border-gray-200 p-4" 
+                     visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            <GridLayout rows="auto" columns="*, *, *" class="gap-2">
+                <Repeater items="{{ tabOptions }}">
+                    <Repeater.itemTemplate>
+                        <Button text="{{ icon }} {{ name }}" 
+                                tap="{{ $parents['Page'].bindingContext.onTabChange, id }}"
+                                class="{{ $parents['Page'].bindingContext.selectedTab === id ? 'btn btn-primary text-sm' : 'btn btn-outline-secondary text-sm' }}" />
+                    </Repeater.itemTemplate>
+                </Repeater>
+            </GridLayout>
+            
+            <!-- Tab Description -->
+            <Label text="{{ tabTitle }}" class="text-lg font-bold text-gray-800 mt-4 mb-1" />
+            <Label text="{{ tabDescription }}" class="text-sm text-gray-600" textWrap="true" />
+        </StackLayout>
+
+        <!-- Tab Content -->
+        <ScrollView row="2" visibility="{{ !isLoading && !hasError ? 'visible' : 'collapsed' }}">
+            <StackLayout class="p-4">
+                
+                <!-- My Circles Tab -->
+                <StackLayout class="my-circles-tab" visibility="{{ selectedTab === 'my_circles' ? 'visible' : 'collapsed' }}">
+                    <Repeater items="{{ userCircles }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="circle-card bg-white rounded-xl p-4 shadow-sm mb-4"
+                                         tap="{{ $parents['Page'].bindingContext.onViewCircle, id }}">
+                                
+                                <!-- Circle Header -->
+                                <GridLayout rows="auto, auto" columns="auto, *, auto" class="mb-3">
+                                    <!-- Circle Avatar -->
+                                    <StackLayout row="0" col="0" class="circle-avatar rounded-full w-12 h-12 flex justify-center items-center mr-3"
+                                                 backgroundColor="{{ color }}">
+                                        <Label text="{{ emoji }}" class="text-2xl" />
+                                    </StackLayout>
+                                    
+                                    <!-- Circle Info -->
+                                    <StackLayout row="0" col="1">
+                                        <Label text="{{ name }}" class="circle-name text-lg font-bold text-gray-800" />
+                                        <Label text="{{ memberText }}" class="circle-members text-sm text-gray-500" />
+                                    </StackLayout>
+                                    
+                                    <!-- Role Badge -->
+                                    <Label row="0" col="2" text="{{ userRole }}" 
+                                           class="role-badge text-xs font-bold px-2 py-1 rounded text-white"
+                                           backgroundColor="{{ userRole === 'admin' ? '#10B981' : userRole === 'moderator' ? '#F59E0B' : '#6B7280' }}" />
+                                    
+                                    <!-- Recent Activity -->
+                                    <Label row="1" col="1" colSpan="2" text="📱 {{ recentActivity }}" 
+                                           class="recent-activity text-sm text-blue-600 mt-1" />
+                                </GridLayout>
+                                
+                                <!-- Circle Description -->
+                                <Label text="{{ description }}" class="circle-description text-sm text-gray-600 mb-3" 
+                                       textWrap="true" visibility="{{ description ? 'visible' : 'collapsed' }}" />
+                                
+                                <!-- Circle Type & Created -->
+                                <StackLayout class="circle-meta bg-gray-50 rounded-lg p-3 mb-3">
+                                    <GridLayout rows="auto" columns="*, *">
+                                        <Label col="0" text="Type: {{ type }}" class="text-sm text-gray-600" />
+                                        <Label col="1" text="Created {{ timeAgo }}" class="text-sm text-gray-600 text-right" />
+                                    </GridLayout>
+                                </StackLayout>
+                                
+                                <!-- Action Buttons -->
+                                <GridLayout rows="auto" columns="*, auto, auto, auto" class="gap-2">
+                                    <Button col="0" text="📊 View" 
+                                            tap="{{ $parents['Page'].bindingContext.onViewCircle, id }}"
+                                            class="btn btn-primary text-sm" />
+                                    <Button col="1" text="👥" 
+                                            tap="{{ $parents['Page'].bindingContext.onInviteFriends, id }}"
+                                            class="btn btn-outline-secondary text-sm"
+                                            visibility="{{ canInvite ? 'visible' : 'collapsed' }}" />
+                                    <Button col="2" text="📤" 
+                                            tap="{{ $parents['Page'].bindingContext.onShareCircle, id }}"
+                                            class="btn btn-outline-secondary text-sm" />
+                                    <Button col="3" text="❌" 
+                                            tap="{{ $parents['Page'].bindingContext.onLeaveCircle, id }}"
+                                            class="btn btn-outline-danger text-sm"
+                                            visibility="{{ userRole !== 'admin' ? 'visible' : 'collapsed' }}" />
+                                </GridLayout>
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                    
+                    <!-- Empty State -->
+                    <StackLayout class="empty-state text-center p-8" visibility="{{ !hasCircles ? 'visible' : 'collapsed' }}">
+                        <Label text="👥" class="text-6xl mb-4" />
+                        <Label text="No Circles Yet" class="text-xl font-bold text-gray-800 mb-2" />
+                        <Label text="Create or join circles to connect with others on your digital wellness journey!" 
+                               class="text-base text-gray-600 text-center mb-4" textWrap="true" />
+                        <Button text="➕ Create Circle" tap="{{ onCreateCircle }}" class="btn btn-primary" />
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Invites Tab -->
+                <StackLayout class="invites-tab" visibility="{{ selectedTab === 'invites' ? 'visible' : 'collapsed' }}">
+                    <Repeater items="{{ pendingInvites }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="invite-card bg-white rounded-xl p-4 shadow-sm mb-4 border-l-4 border-blue-500">
+                                
+                                <!-- Invite Header -->
+                                <GridLayout rows="auto, auto" columns="auto, *, auto">
+                                    <Label row="0" col="0" text="📨" class="invite-icon text-2xl mr-3" />
+                                    <StackLayout row="0" col="1">
+                                        <Label text="{{ circleName }}" class="circle-name text-lg font-bold text-gray-800" />
+                                        <Label text="From {{ inviterName }}" class="inviter-name text-sm text-gray-500" />
+                                    </StackLayout>
+                                    <Label row="0" col="2" text="{{ timeAgo }}" class="invite-time text-xs text-gray-500" />
+                                    
+                                    <Label row="1" col="1" colSpan="2" text="⏰ {{ expiresIn }}" 
+                                           class="expires-in text-sm text-orange-600 mt-1" />
+                                </GridLayout>
+                                
+                                <!-- Circle Description -->
+                                <Label text="{{ circleDescription }}" class="circle-description text-sm text-gray-600 mt-3 mb-3" 
+                                       textWrap="true" />
+                                
+                                <!-- Invite Message -->
+                                <StackLayout class="invite-message bg-blue-50 rounded-lg p-3 mb-3" 
+                                             visibility="{{ message ? 'visible' : 'collapsed' }}">
+                                    <Label text="💬 {{ message }}" class="text-sm text-blue-700" textWrap="true" />
+                                </StackLayout>
+                                
+                                <!-- Action Buttons -->
+                                <GridLayout rows="auto" columns="*, *" class="gap-3">
+                                    <Button col="0" text="✅ Accept" 
+                                            tap="{{ $parents['Page'].bindingContext.onAcceptInvite, id }}"
+                                            class="btn btn-success text-sm"
+                                            isEnabled="{{ processingInvite !== id && !isExpired }}" />
+                                    <Button col="1" text="❌ Decline" 
+                                            tap="{{ $parents['Page'].bindingContext.onDeclineInvite, id }}"
+                                            class="btn btn-outline-danger text-sm"
+                                            isEnabled="{{ processingInvite !== id && !isExpired }}" />
+                                </GridLayout>
+                                
+                                <!-- Expired Notice -->
+                                <Label text="⚠️ This invitation has expired" 
+                                       class="expired-notice text-sm text-red-600 text-center mt-3 font-semibold"
+                                       visibility="{{ isExpired ? 'visible' : 'collapsed' }}" />
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                    
+                    <!-- Empty State -->
+                    <StackLayout class="empty-state text-center p-8" visibility="{{ !hasPendingInvites ? 'visible' : 'collapsed' }}">
+                        <Label text="📨" class="text-6xl mb-4" />
+                        <Label text="No Pending Invitations" class="text-xl font-bold text-gray-800 mb-2" />
+                        <Label text="When friends invite you to circles, they'll appear here!" 
+                               class="text-base text-gray-600 text-center" textWrap="true" />
+                    </StackLayout>
+                </StackLayout>
+
+                <!-- Discover Tab -->
+                <StackLayout class="discover-tab" visibility="{{ selectedTab === 'discover' ? 'visible' : 'collapsed' }}">
+                    
+                    <!-- Create Custom Circle -->
+                    <StackLayout class="create-custom-card bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 shadow-sm mb-6">
+                        <Label text="✨ Create Your Own Circle" class="text-xl font-bold text-white mb-2" />
+                        <Label text="Start a custom circle with your own name, description, and settings" 
+                               class="text-sm text-white opacity-90 mb-4" textWrap="true" />
+                        <Button text="➕ Create Custom Circle" tap="{{ onCreateCircle }}" 
+                                class="btn btn-white text-blue-600 font-semibold" />
+                    </StackLayout>
+                    
+                    <!-- Circle Templates -->
+                    <Label text="🎯 Quick Start Templates" class="text-lg font-bold text-gray-800 mb-4" />
+                    
+                    <Repeater items="{{ discoverSuggestions }}">
+                        <Repeater.itemTemplate>
+                            <StackLayout class="template-card bg-white rounded-xl p-4 shadow-sm mb-4"
+                                         tap="{{ $parents['Page'].bindingContext.onCreateFromTemplate, id }}">
+                                
+                                <!-- Template Header -->
+                                <GridLayout rows="auto, auto" columns="auto, *, auto">
+                                    <StackLayout row="0" col="0" class="template-avatar rounded-full w-12 h-12 flex justify-center items-center mr-3"
+                                                 backgroundColor="{{ color }}">
+                                        <Label text="{{ emoji }}" class="text-2xl" />
+                                    </StackLayout>
+                                    
+                                    <StackLayout row="0" col="1">
+                                        <Label text="{{ name }}" class="template-name text-lg font-bold text-gray-800" />
+                                        <Label text="{{ type }}" class="template-type text-sm text-gray-500" />
+                                    </StackLayout>
+                                    
+                                    <Label row="0" col="2" text="Template" 
+                                           class="template-badge text-xs font-bold px-2 py-1 rounded text-white bg-blue-500" />
+                                    
+                                    <Label row="1" col="1" colSpan="2" text="{{ description }}" 
+                                           class="template-description text-sm text-gray-600 mt-2" textWrap="true" />
+                                </GridLayout>
+                                
+                                <!-- Create Button -->
+                                <Button text="🚀 Create from Template" 
+                                        tap="{{ $parents['Page'].bindingContext.onCreateFromTemplate, id }}"
+                                        class="btn btn-primary text-sm mt-4" />
+                            </StackLayout>
+                        </Repeater.itemTemplate>
+                    </Repeater>
+                    
+                    <!-- Join by Code Section -->
+                    <StackLayout class="join-by-code-card bg-gray-100 rounded-xl p-6 mt-6">
+                        <Label text="🔗 Join by Invite Code" class="text-lg font-bold text-gray-800 mb-2" />
+                        <Label text="Have an invite code? Enter it here to join a private circle" 
+                               class="text-sm text-gray-600 mb-4" textWrap="true" />
+                        <GridLayout rows="auto" columns="*, auto" class="gap-3">
+                            <TextField col="0" hint="Enter invite code..." class="text-field" />
+                            <Button col="1" text="Join" class="btn btn-primary text-sm" />
+                        </GridLayout>
+                    </StackLayout>
+                </StackLayout>
+
+            </StackLayout>
+        </ScrollView>
+
+    </GridLayout>
+</Page>

@@ -1,0 +1,356 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Celebration Overlay Styles */
+.celebration-overlay {
+  z-index: 1000;
+}
+
+.celebration-content {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20;
+  margin: 20;
+}
+
+.celebration-icon {
+  text-align: center;
+}
+
+.celebration-title {
+  text-align: center;
+  color: white;
+  font-weight: bold;
+}
+
+.celebration-message {
+  text-align: center;
+  color: white;
+  opacity: 0.9;
+}
+
+.confetti-container {
+  height: 100;
+  position: relative;
+}
+
+.confetti-particle {
+  position: absolute;
+  font-size: 20;
+  opacity: 0.8;
+}
+
+/* Achievement specific styling */
+.achievement-celebration {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+/* Level up specific styling */
+.levelup-celebration {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+/* Streak specific styling */
+.streak-celebration {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+/* Session feedback styles */
+.session-feedback {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  border-radius: 15;
+  padding: 15;
+  margin: 10;
+  text-align: center;
+}
+
+.feedback-icon {
+  font-size: 30;
+  margin-bottom: 10;
+}
+
+.feedback-text {
+  font-size: 16;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Theme Selection Styles */
+.theme-card {
+  transition: transform 0.2s ease;
+}
+
+.theme-card:active {
+  transform: scale(0.98);
+}
+
+.theme-preview {
+  min-height: 40;
+  border-radius: 8;
+}
+
+.theme-card[borderColor="#3B82F6"] {
+  background: #EBF8FF;
+  border-width: 2;
+}
+
+/* Seasonal theme glow effect */
+.seasonal-theme {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+}
+
+/* Session Notes Styles */
+.textarea {
+  font-size: 16;
+  line-height: 1.4;
+  text-align-vertical: top;
+}
+
+.note-card {
+  border-left: 4px solid #3B82F6;
+  transition: transform 0.2s ease;
+}
+
+.note-card:active {
+  transform: scale(0.98);
+}
+
+.mood-great { border-left-color: #10B981; }
+.mood-good { border-left-color: #3B82F6; }
+.mood-okay { border-left-color: #F59E0B; }
+.mood-challenging { border-left-color: #EF4444; }
+
+.activity-chip {
+  background: #EBF8FF;
+  color: #1E40AF;
+  border-radius: 12;
+  padding: 4 8;
+  font-size: 12;
+  margin: 2;
+}
+
+.character-count {
+  font-size: 12;
+  opacity: 0.7;
+}
+
+.character-count.warning {
+  color: #F59E0B;
+}
+
+.character-count.error {
+  color: #EF4444;
+}
+
+/* Session Goals Styles */
+.goal-card {
+  transition: transform 0.2s ease;
+  border-left-width: 4;
+}
+
+.goal-card:active {
+  transform: scale(0.98);
+}
+
+.goal-card.selected {
+  border-left-color: #3B82F6;
+  background: #EBF8FF;
+}
+
+.goal-progress-bar {
+  height: 8;
+  border-radius: 4;
+  background: #E5E7EB;
+}
+
+.goal-progress-fill {
+  height: 8;
+  border-radius: 4;
+  background: linear-gradient(90deg, #10B981, #059669);
+}
+
+.goal-category-focus { border-left-color: #3B82F6; }
+.goal-category-relaxation { border-left-color: #10B981; }
+.goal-category-creativity { border-left-color: #F59E0B; }
+.goal-category-exercise { border-left-color: #EF4444; }
+.goal-category-social { border-left-color: #8B5CF6; }
+.goal-category-learning { border-left-color: #06B6D4; }
+.goal-category-custom { border-left-color: #6B7280; }
+
+.recommended-goal {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.goal-form {
+  max-height: 400;
+}
+
+.category-selector {
+  flex-wrap: wrap;
+}
+
+.category-option {
+  min-width: 80;
+  margin: 2;
+}
+
+/* Personal Best Celebration Styles */
+.personal-best-overlay {
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.personal-best-card {
+  max-width: 350;
+  transform: scale(0.3);
+  animation: bounceIn 0.6s ease-out forwards;
+}
+
+.personal-best-icon {
+  animation: pulse 2s infinite;
+}
+
+.personal-best-title {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.personal-best-details {
+  border: 1px solid #E5E7EB;
+}
+
+.confetti-piece {
+  pointer-events: none;
+  z-index: 1001;
+}
+
+/* Analytics Dashboard Styles */
+.analytics-dashboard {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-card {
+  transition: transform 0.2s ease;
+  border-left: 4px solid transparent;
+}
+
+.stat-card:active {
+  transform: scale(0.98);
+}
+
+.stat-card .stat-icon {
+  margin-bottom: 8;
+}
+
+.stat-card .stat-value {
+  font-size: 20;
+  font-weight: bold;
+  margin-bottom: 4;
+}
+
+.stat-card .stat-label {
+  font-size: 12;
+  color: #6B7280;
+  margin-bottom: 4;
+}
+
+.stat-card .stat-change {
+  font-size: 11;
+  font-weight: 600;
+}
+
+.chart-container {
+  transition: transform 0.2s ease;
+}
+
+.chart-container:active {
+  transform: scale(0.98);
+}
+
+.chart-placeholder {
+  min-height: 120;
+  border: 2px dashed #D1D5DB;
+}
+
+.insight-card {
+  background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.confidence-score {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20;
+  padding: 4 8;
+  margin-bottom: 4;
+}
+
+.progress-ring-container {
+  min-height: 120;
+}
+
+.achievement-card {
+  border-left-width: 4;
+  border-left-color: #F59E0B;
+}
+
+.time-range-selector {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Comparison Analytics Styles */
+.comparison-card {
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: white;
+}
+
+.comparison-metric {
+  text-align: center;
+  padding: 16;
+}
+
+.comparison-change.positive {
+  color: #10B981;
+}
+
+.comparison-change.negative {
+  color: #EF4444;
+}
+
+.comparison-change.neutral {
+  color: #6B7280;
+}
+
+.trend-indicator {
+  font-size: 24;
+  margin-bottom: 8;
+}
+
+.trend-indicator.up {
+  color: #10B981;
+}
+
+.trend-indicator.down {
+  color: #EF4444;
+}
+
+.trend-indicator.stable {
+  color: #6B7280;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}

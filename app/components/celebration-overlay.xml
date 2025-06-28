@@ -1,0 +1,56 @@
+<GridLayout xmlns="http://schemas.nativescript.org/tns.xsd" 
+            class="celebration-overlay" 
+            visibility="{{ isVisible ? 'visible' : 'collapsed' }}"
+            opacity="{{ opacity }}"
+            rows="*, auto, *" 
+            columns="*">
+    
+    <!-- Background overlay -->
+    <StackLayout row="0" rowSpan="3" col="0" class="bg-black opacity-50" />
+    
+    <!-- Celebration content -->
+    <StackLayout row="1" col="0" class="celebration-content text-center p-8">
+        
+        <!-- Main icon with animation -->
+        <Label text="{{ celebrationIcon }}" 
+               class="celebration-icon text-8xl mb-4" 
+               scaleX="{{ iconScale }}" 
+               scaleY="{{ iconScale }}" />
+        
+        <!-- Title -->
+        <Label text="{{ celebrationTitle }}" 
+               class="celebration-title text-3xl font-bold text-white mb-2" 
+               textWrap="true" />
+        
+        <!-- Message -->
+        <Label text="{{ celebrationMessage }}" 
+               class="celebration-message text-lg text-white opacity-90 mb-6" 
+               textWrap="true" />
+        
+        <!-- Reward info (for achievements/level ups) -->
+        <StackLayout visibility="{{ showReward ? 'visible' : 'collapsed' }}" 
+                     class="bg-white bg-opacity-20 rounded-xl p-4 mb-4">
+            <Label text="{{ rewardText }}" 
+                   class="text-white text-center font-semibold" 
+                   textWrap="true" />
+        </StackLayout>
+        
+        <!-- Confetti/particles effect placeholder -->
+        <GridLayout class="confetti-container" rows="auto" columns="*">
+            <Label text="✨" class="confetti-particle confetti-1" />
+            <Label text="🎉" class="confetti-particle confetti-2" />
+            <Label text="⭐" class="confetti-particle confetti-3" />
+            <Label text="🌟" class="confetti-particle confetti-4" />
+            <Label text="✨" class="confetti-particle confetti-5" />
+            <Label text="🎊" class="confetti-particle confetti-6" />
+        </GridLayout>
+        
+        <!-- Continue button -->
+        <Button text="Continue" 
+                tap="{{ onContinue }}" 
+                class="btn btn-primary mt-4" 
+                visibility="{{ showContinueButton ? 'visible' : 'collapsed' }}" />
+                
+    </StackLayout>
+    
+</GridLayout>
