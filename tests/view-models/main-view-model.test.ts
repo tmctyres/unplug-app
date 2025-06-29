@@ -29,7 +29,8 @@ import {
   mockNotificationService,
   mockTutorialService,
   mockTutorialOverlay,
-  mockFeatureUnlockService
+  mockFeatureUnlockService,
+  cleanupTimers
 } from '../setup';
 
 // Mock all the services that MainViewModel depends on
@@ -158,6 +159,7 @@ describe('MainViewModel', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    cleanupTimers();
 
     // Create comprehensive mock instances with all required methods
     mockUserDataService = {
@@ -385,17 +387,38 @@ describe('MainViewModel', () => {
     await new Promise(resolve => setTimeout(resolve, 50));
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     // Clean up the view model if it exists
     if (mainViewModel) {
       // Clear any event listeners
       try {
         // Clear all property change listeners
         mainViewModel.off('propertyChange');
+
+        // Stop any running sessions
+        if ((mainViewModel as any).isSessionActive) {
+          await mainViewModel.onEndSession();
+        }
+
+        // Clear any timers or intervals
+        if ((mainViewModel as any).sessionTimer) {
+          clearInterval((mainViewModel as any).sessionTimer);
+        }
+
+        // Clear any pending timeouts
+        if ((mainViewModel as any).updateTimeout) {
+          clearTimeout((mainViewModel as any).updateTimeout);
+        }
       } catch (e) {
         // Ignore cleanup errors
       }
     }
+
+    // Clean up global timers
+    cleanupTimers();
+
+    // Clear all mocks
+    jest.clearAllMocks();
   });
 
   describe('Initialization', () => {

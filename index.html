@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unplug - Digital Wellness</title>
+    <meta http-equiv="refresh" content="0; url=./pwa/">
+    <link rel="canonical" href="./pwa/">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            text-align: center;
+        }
+        .container {
+            max-width: 400px;
+            padding: 2rem;
+        }
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .message {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        .link {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .link:hover {
+            background: white;
+            color: #10B981;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🔌</div>
+        <h1>Unplug</h1>
+        <p class="message">Redirecting to the Digital Wellness PWA...</p>
+        <a href="./pwa/" class="link">Launch App</a>
+    </div>
+    
+    <script>
+        // Redirect after a short delay
+        setTimeout(() => {
+            window.location.href = './pwa/';
+        }, 2000);
+    </script>
+</body>
+</html>

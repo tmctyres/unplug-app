@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unplug - Screen-Time Tracker (Web Demo)</title>
+    <title>Unplug - Digital Wellness Tracker (Web Demo v2.0)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="description" content="Experience the complete Unplug app with social features, analytics, and gamification">
+    <meta name="keywords" content="digital wellness, screen time, mindfulness, social features, analytics">
     <style>
         :root {
             /* Digital Wellness Color Palette */
@@ -299,6 +301,183 @@
             0% { left: -100%; }
             100% { left: 100%; }
         }
+
+        /* New Features Styling */
+        .notification-badge {
+            animation: pulse 2s infinite;
+        }
+
+        .feature-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            min-height: 44px; /* Improved touch target */
+            min-width: 44px;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary-300);
+            transform: translateY(-2px);
+        }
+
+        .feature-card.locked {
+            opacity: 0.7;
+            cursor: pointer;
+            position: relative;
+            background: linear-gradient(135deg, rgba(156, 163, 175, 0.1) 0%, rgba(209, 213, 219, 0.1) 100%);
+        }
+
+        .feature-card.locked:hover {
+            transform: translateY(-1px);
+            border-color: var(--gray-300);
+            opacity: 0.8;
+        }
+
+        .feature-card.locked::after {
+            content: '🔒';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /* Collapsible sections */
+        .collapsible-section {
+            transition: all 0.3s ease;
+        }
+
+        .collapsible-header {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 44px; /* Touch target */
+            display: flex;
+            align-items: center;
+        }
+
+        .collapsible-header:hover {
+            background-color: var(--gray-50);
+        }
+
+        .dark .collapsible-header:hover {
+            background-color: var(--gray-700);
+        }
+
+        .collapsible-content {
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            overflow: hidden;
+        }
+
+        .collapsible-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+        }
+
+        .collapsible-content.expanded {
+            max-height: 1000px;
+            opacity: 1;
+        }
+
+        /* Improved touch targets */
+        .btn, button {
+            min-height: 44px;
+            min-width: 44px;
+            touch-action: manipulation;
+        }
+
+        /* Micro-interactions */
+        .micro-bounce {
+            animation: microBounce 0.3s ease;
+        }
+
+        @keyframes microBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .success-pulse {
+            animation: successPulse 0.6s ease;
+        }
+
+        @keyframes successPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        /* Feature preview tooltips */
+        .feature-preview {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gray-800);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 10;
+        }
+
+        .feature-preview::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: var(--gray-800);
+        }
+
+        .feature-card.locked:hover .feature-preview {
+            opacity: 1;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.8s ease-in-out;
+        }
+
+        .social-post {
+            transition: all 0.2s ease;
+        }
+
+        .social-post:hover {
+            background-color: var(--gray-50);
+        }
+
+        .dark .social-post:hover {
+            background-color: var(--gray-700);
+        }
+
+        .modal-backdrop {
+            backdrop-filter: blur(8px);
+        }
+
+        .celebration-animation {
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .slide-in-up {
+            animation: slideInUp 0.4s ease-out;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -340,10 +519,17 @@
     <div class="gradient-primary text-white p-6 shadow-xl">
         <div class="flex justify-between items-center max-w-md mx-auto">
             <div>
-                <h1 class="text-2xl font-bold tracking-tight">Unplug</h1>
+                <h1 class="text-2xl font-bold tracking-tight">
+                    Unplug
+                    <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full ml-2">v2.0</span>
+                </h1>
                 <p class="text-sm opacity-90 font-medium">Digital Wellness Tracker</p>
             </div>
             <div class="flex items-center space-x-3">
+                <button onclick="showNotifications()" class="p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-all duration-200 relative" title="Notifications">
+                    <span class="text-xl">🔔</span>
+                    <span id="notification-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" style="display: none;">3</span>
+                </button>
                 <button onclick="showTutorialMenu()" class="p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-all duration-200" title="Tutorial & Help">
                     <span class="text-xl">🎓</span>
                 </button>
@@ -358,148 +544,171 @@
     </div>
 
     <!-- Main Page -->
-    <div id="main-page" class="page max-w-md mx-auto p-6 space-y-6 animate-fadeInUp">
+    <div id="main-page" class="page max-w-md mx-auto p-4 space-y-4 animate-fadeInUp">
         <!-- Welcome Section -->
-        <div class="card p-8 text-center">
+        <div class="card p-6 text-center">
             <div class="mb-4">
                 <div class="w-16 h-16 mx-auto mb-4 rounded-full gradient-primary flex items-center justify-center">
                     <span class="text-2xl">🧘‍♂️</span>
                 </div>
-                <h2 id="welcomeMessage" class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-2"></h2>
-                <p id="motivationalMessage" class="text-base text-gray-600 dark:text-gray-400 leading-relaxed"></p>
+                <h2 id="welcomeMessage" class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2"></h2>
+                <p id="motivationalMessage" class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed"></p>
             </div>
         </div>
 
         <!-- Current Session -->
-        <div id="sessionCard" class="card p-8">
-            <div class="text-center mb-6">
-                <div class="inline-flex items-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm font-medium mb-4">
+        <div id="sessionCard" class="card p-6">
+            <div class="text-center mb-4">
+                <div class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-xs font-medium mb-3">
                     <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                     Manual Tracking Mode
                 </div>
             </div>
 
             <div id="activeSession" class="text-center hidden">
-                <div class="mb-6">
-                    <div class="w-24 h-24 mx-auto mb-4 rounded-full gradient-success flex items-center justify-center animate-pulse">
-                        <span class="text-3xl">⏱️</span>
+                <div class="mb-4">
+                    <div class="w-20 h-20 mx-auto mb-3 rounded-full gradient-success flex items-center justify-center animate-pulse">
+                        <span class="text-2xl">⏱️</span>
                     </div>
-                    <p class="text-lg text-gray-600 dark:text-gray-400 mb-2">Current Session</p>
-                    <p id="sessionDuration" class="text-4xl font-bold gradient-primary bg-clip-text text-transparent mb-6">0m</p>
+                    <p class="text-base text-gray-600 dark:text-gray-400 mb-2">Current Session</p>
+                    <p id="sessionDuration" class="text-3xl font-bold gradient-primary bg-clip-text text-transparent mb-4">0m</p>
                 </div>
-                <button onclick="endSession()" class="btn btn-secondary w-full text-lg py-4">
-                    <span class="text-xl mr-2">⏹️</span>
+                <button onclick="endSession()" class="btn btn-secondary w-full text-base py-3 micro-bounce-on-click">
+                    <span class="text-lg mr-2">⏹️</span>
                     End Session
                 </button>
             </div>
 
             <div id="inactiveSession" class="text-center">
-                <div class="mb-6">
-                    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                        <span class="text-2xl">📱</span>
+                <div class="mb-4">
+                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                        <span class="text-xl">📱</span>
                     </div>
-                    <p class="text-lg text-gray-600 dark:text-gray-400 mb-6">Ready to start your offline time?</p>
+                    <p class="text-base text-gray-600 dark:text-gray-400 mb-4">Ready to start your offline time?</p>
                 </div>
-                <div class="space-y-3">
-                    <button onclick="startSession()" class="btn btn-primary w-full text-lg py-4">
-                        <span class="text-xl mr-2">🚀</span>
+                <div class="space-y-2">
+                    <button onclick="startSession()" class="btn btn-primary w-full text-base py-3 micro-bounce-on-click">
+                        <span class="text-lg mr-2">🚀</span>
                         Start Offline Session
                     </button>
-                    <button onclick="startDemoSession()" class="btn btn-outline w-full">
-                        <span class="text-lg mr-2">⚡</span>
+                    <button onclick="startDemoSession()" class="btn btn-outline w-full py-2">
+                        <span class="text-base mr-2">⚡</span>
                         Demo Mode (Fast)
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Today's Progress -->
-        <div class="card p-8">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">Today's Progress</h3>
-                <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center">
-                    <span class="text-sm">📊</span>
+        <!-- Today's Progress - Collapsible -->
+        <div class="card collapsible-section">
+            <div class="collapsible-header p-4 rounded-t-xl" onclick="toggleSection('todayProgress')">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full gradient-primary flex items-center justify-center">
+                            <span class="text-sm">📊</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">Today's Progress</h3>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span id="todayProgressSummary" class="text-sm text-gray-600 dark:text-gray-400">0m • 0 XP</span>
+                        <span id="todayProgressChevron" class="text-gray-400 transition-transform duration-200">▼</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Progress Stats Grid -->
-            <div class="grid grid-cols-2 gap-6 mb-8">
-                <div class="text-center">
-                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-blue-50 dark:bg-blue-900 flex items-center justify-center">
-                        <span class="text-2xl">⏰</span>
+            <div id="todayProgressContent" class="collapsible-content expanded p-4 pt-0">
+                <!-- Progress Stats Grid -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="text-center">
+                        <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-blue-50 dark:bg-blue-900 flex items-center justify-center">
+                            <span class="text-lg">⏰</span>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Offline Time</p>
+                        <p id="todayOfflineTime" class="text-xl font-bold text-blue-600 dark:text-blue-400">0m</p>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Offline Time</p>
-                    <p id="todayOfflineTime" class="text-2xl font-bold text-blue-600 dark:text-blue-400">0m</p>
-                </div>
-                <div class="text-center">
-                    <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-purple-50 dark:bg-purple-900 flex items-center justify-center">
-                        <span class="text-2xl">⭐</span>
+                    <div class="text-center">
+                        <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-purple-50 dark:bg-purple-900 flex items-center justify-center">
+                            <span class="text-lg">⭐</span>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">XP Earned</p>
+                        <p id="todayXP" class="text-xl font-bold text-purple-600 dark:text-purple-400">0</p>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">XP Earned</p>
-                    <p id="todayXP" class="text-2xl font-bold text-purple-600 dark:text-purple-400">0</p>
-                </div>
-            </div>
-
-            <!-- Daily Goal Progress -->
-            <div class="bg-gray-50 dark:bg-gray-700 rounded-2xl p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Daily Goal</span>
-                    <span id="dailyGoal" class="text-sm font-bold text-gray-800 dark:text-gray-200">3h</span>
                 </div>
 
-                <div class="relative">
-                    <div class="bg-gray-200 dark:bg-gray-600 rounded-full h-4 mb-3 overflow-hidden">
-                        <div id="dailyProgressBar" class="gradient-success rounded-full h-4 progress-bar transition-all duration-1000 ease-out" style="width: 0%"></div>
+                <!-- Daily Goal Progress -->
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Daily Goal</span>
+                        <span id="dailyGoal" class="text-sm font-bold text-gray-800 dark:text-gray-200">3h</span>
                     </div>
-                    <p id="dailyProgressText" class="text-center text-sm font-medium text-gray-600 dark:text-gray-400">0% Complete</p>
+
+                    <div class="relative">
+                        <div class="bg-gray-200 dark:bg-gray-600 rounded-full h-3 mb-2 overflow-hidden">
+                            <div id="dailyProgressBar" class="gradient-success rounded-full h-3 progress-bar transition-all duration-1000 ease-out" style="width: 0%"></div>
+                        </div>
+                        <p id="dailyProgressText" class="text-center text-xs font-medium text-gray-600 dark:text-gray-400">0% Complete</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Level & XP -->
-        <div class="card p-8">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100">Your Level</h3>
-                <div class="w-8 h-8 rounded-full gradient-warning flex items-center justify-center">
-                    <span class="text-sm">🏆</span>
-                </div>
-            </div>
-
-            <!-- Level Display -->
-            <div class="text-center mb-8">
-                <div class="relative inline-block">
-                    <div class="w-24 h-24 mx-auto rounded-full gradient-warning flex items-center justify-center mb-4 shadow-lg">
-                        <span id="userBadge" class="text-4xl">🌱</span>
+        <!-- Level & XP - Collapsible -->
+        <div class="card collapsible-section">
+            <div class="collapsible-header p-4 rounded-t-xl" onclick="toggleSection('levelProgress')">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-full gradient-warning flex items-center justify-center">
+                            <span class="text-sm">🏆</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-100">Your Level</h3>
                     </div>
-                    <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 px-3 py-1 rounded-full shadow-md">
-                        <span class="text-xs font-bold text-gray-600 dark:text-gray-400">LEVEL <span id="userLevel">1</span></span>
+                    <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-1">
+                            <span id="userBadgeSmall" class="text-lg">🌱</span>
+                            <span id="levelSummary" class="text-sm text-gray-600 dark:text-gray-400">Level 1</span>
+                        </div>
+                        <span id="levelProgressChevron" class="text-gray-400 transition-transform duration-200">▼</span>
                     </div>
                 </div>
-                <div class="mt-4">
-                    <h4 id="userTitle" class="text-lg font-bold text-blue-600 dark:text-blue-400">Digital Novice</h4>
-                </div>
             </div>
 
-            <!-- XP Stats -->
-            <div class="grid grid-cols-3 gap-4 mb-6">
-                <div class="text-center">
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Total XP</p>
-                    <p id="totalXP" class="text-lg font-bold text-purple-600 dark:text-purple-400">0</p>
+            <div id="levelProgressContent" class="collapsible-content expanded p-4 pt-0">
+                <!-- Level Display -->
+                <div class="text-center mb-6">
+                    <div class="relative inline-block">
+                        <div class="w-20 h-20 mx-auto rounded-full gradient-warning flex items-center justify-center mb-3 shadow-lg">
+                            <span id="userBadge" class="text-3xl">🌱</span>
+                        </div>
+                        <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 px-2 py-1 rounded-full shadow-md">
+                            <span class="text-xs font-bold text-gray-600 dark:text-gray-400">LEVEL <span id="userLevel">1</span></span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <h4 id="userTitle" class="text-base font-bold text-blue-600 dark:text-blue-400">Digital Novice</h4>
+                    </div>
                 </div>
-                <div class="text-center">
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">XP Multiplier</p>
-                    <p id="xpMultiplier" class="text-lg font-bold text-green-600 dark:text-green-400">1.0x</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">To Next Level</p>
-                    <p id="xpToNextLevel" class="text-lg font-bold text-orange-600 dark:text-orange-400">50</p>
-                </div>
-            </div>
 
-            <!-- Level Progress -->
-            <div class="bg-gray-50 dark:bg-gray-700 rounded-2xl p-4">
-                <div class="bg-gray-200 dark:bg-gray-600 rounded-full h-3 overflow-hidden">
-                    <div id="levelProgressBar" class="gradient-warning rounded-full h-3 progress-bar transition-all duration-1000 ease-out" style="width: 0%"></div>
+                <!-- XP Stats -->
+                <div class="grid grid-cols-3 gap-3 mb-4">
+                    <div class="text-center">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">Total XP</p>
+                        <p id="totalXP" class="text-base font-bold text-purple-600 dark:text-purple-400">0</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">XP Multiplier</p>
+                        <p id="xpMultiplier" class="text-base font-bold text-green-600 dark:text-green-400">1.0x</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">To Next Level</p>
+                        <p id="xpToNextLevel" class="text-base font-bold text-orange-600 dark:text-orange-400">50</p>
+                    </div>
+                </div>
+
+                <!-- Level Progress -->
+                <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-3">
+                    <div class="bg-gray-200 dark:bg-gray-600 rounded-full h-3 overflow-hidden">
+                        <div id="levelProgressBar" class="gradient-warning rounded-full h-3 progress-bar transition-all duration-1000 ease-out" style="width: 0%"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -545,53 +754,105 @@
         </div>
 
         <!-- Quick Actions -->
-        <div id="quickActions" class="space-y-4">
+        <div id="quickActions" class="space-y-3">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100">Quick Actions</h3>
+                <span class="text-xs text-gray-500 dark:text-gray-400">Tap to explore</span>
+            </div>
+
             <!-- Row 1 -->
-            <div class="grid grid-cols-2 gap-4">
-                <button id="achievementsBtn" onclick="showAchievements()" class="card p-6 text-center hover:scale-105 transition-transform duration-200 border-2 border-blue-200 hover:border-blue-400">
-                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-blue-500 flex items-center justify-center">
-                        <span class="text-xl">🏆</span>
+            <div class="grid grid-cols-2 gap-3">
+                <button id="achievementsBtn" onclick="showAchievements()" class="feature-card card p-4 text-center transition-all duration-200 border-2 border-blue-200 hover:border-blue-400 micro-bounce-on-click">
+                    <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-blue-500 flex items-center justify-center">
+                        <span class="text-lg">🏆</span>
                     </div>
                     <div class="text-sm font-semibold text-blue-600 dark:text-blue-400">Achievements</div>
+                    <div class="text-xs text-gray-500 mt-1">View milestones</div>
                 </button>
-                <button id="analyticsBtn" onclick="showStats()" class="card p-6 text-center hover:scale-105 transition-transform duration-200 border-2 border-gray-200 hover:border-gray-400">
-                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-500 flex items-center justify-center">
-                        <span class="text-xl">📊</span>
+                <button id="analyticsBtn" onclick="showStats()" class="feature-card card p-4 text-center transition-all duration-200 border-2 border-gray-200 hover:border-gray-400 micro-bounce-on-click">
+                    <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-gray-500 flex items-center justify-center">
+                        <span class="text-lg">📊</span>
                     </div>
-                    <div class="text-sm font-semibold text-gray-600 dark:text-gray-400">Statistics</div>
+                    <div class="text-sm font-semibold text-gray-600 dark:text-gray-400">Analytics</div>
+                    <div class="text-xs text-gray-500 mt-1">Detailed insights</div>
                 </button>
             </div>
 
             <!-- Row 2 -->
-            <div class="grid grid-cols-2 gap-4">
-                <button id="socialBtn" onclick="showSocialFeatures()" class="card p-6 text-center hover:scale-105 transition-transform duration-200 border-2 border-green-200 hover:border-green-400" style="display: none;">
-                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-green-500 flex items-center justify-center">
-                        <span class="text-xl">👥</span>
+            <div class="grid grid-cols-2 gap-3">
+                <button id="socialBtn" onclick="showSocialFeatures()" class="feature-card card p-4 text-center transition-all duration-200 border-2 border-green-200 hover:border-green-400 micro-bounce-on-click">
+                    <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-green-500 flex items-center justify-center">
+                        <span class="text-lg">👥</span>
                     </div>
                     <div class="text-sm font-semibold text-green-600 dark:text-green-400">Social</div>
+                    <div class="text-xs text-gray-500 mt-1">Connect & share</div>
                 </button>
-                <button id="challengesBtn" onclick="showChallenges()" class="card p-6 text-center hover:scale-105 transition-transform duration-200 border-2 border-orange-200 hover:border-orange-400" style="display: none;">
-                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-orange-500 flex items-center justify-center">
-                        <span class="text-xl">🎯</span>
+                <button id="challengesBtn" onclick="showChallenges()" class="feature-card card p-4 text-center transition-all duration-200 border-2 border-orange-200 hover:border-orange-400 micro-bounce-on-click">
+                    <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-orange-500 flex items-center justify-center">
+                        <span class="text-lg">🎯</span>
                     </div>
                     <div class="text-sm font-semibold text-orange-600 dark:text-orange-400">Challenges</div>
+                    <div class="text-xs text-gray-500 mt-1">Join community</div>
                 </button>
             </div>
 
             <!-- Row 3 -->
-            <div class="grid grid-cols-2 gap-4">
-                <button id="premiumBtn" onclick="showSubscription()" class="card p-6 text-center hover:scale-105 transition-transform duration-200 border-2 border-purple-200 hover:border-purple-400" style="display: none;">
-                    <div class="w-12 h-12 mx-auto mb-3 rounded-full gradient-premium flex items-center justify-center">
-                        <span class="text-xl">💎</span>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="showSessionGoals()" class="feature-card card p-4 text-center transition-all duration-200 border-2 border-indigo-200 hover:border-indigo-400 micro-bounce-on-click">
+                    <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-indigo-500 flex items-center justify-center">
+                        <span class="text-lg">🎯</span>
                     </div>
-                    <div class="text-sm font-semibold text-purple-600 dark:text-purple-400">Upgrade Pro</div>
+                    <div class="text-sm font-semibold text-indigo-600 dark:text-indigo-400">Session Goals</div>
+                    <div class="text-xs text-gray-500 mt-1">Set targets</div>
                 </button>
-                <button onclick="showSettings()" class="card p-6 text-center hover:scale-105 transition-transform duration-200 border-2 border-gray-200 hover:border-gray-400">
-                    <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-500 flex items-center justify-center">
-                        <span class="text-xl">⚙️</span>
+                <button onclick="showWeeklyReport()" class="feature-card card p-4 text-center transition-all duration-200 border-2 border-teal-200 hover:border-teal-400 micro-bounce-on-click">
+                    <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-teal-500 flex items-center justify-center">
+                        <span class="text-lg">📈</span>
+                    </div>
+                    <div class="text-sm font-semibold text-teal-600 dark:text-teal-400">Weekly Report</div>
+                    <div class="text-xs text-gray-500 mt-1">Progress summary</div>
+                </button>
+            </div>
+
+            <!-- Row 4 - Settings & Premium -->
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="showSettings()" class="feature-card card p-4 text-center transition-all duration-200 border-2 border-gray-200 hover:border-gray-400 micro-bounce-on-click">
+                    <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-gray-500 flex items-center justify-center">
+                        <span class="text-lg">⚙️</span>
                     </div>
                     <div class="text-sm font-semibold text-gray-600 dark:text-gray-400">Settings</div>
+                    <div class="text-xs text-gray-500 mt-1">Customize app</div>
                 </button>
+                <button id="premiumBtn" onclick="showSubscription()" class="feature-card card p-4 text-center transition-all duration-200 border-2 border-purple-200 hover:border-purple-400 micro-bounce-on-click">
+                    <div class="w-10 h-10 mx-auto mb-2 rounded-full gradient-premium flex items-center justify-center">
+                        <span class="text-lg">💎</span>
+                    </div>
+                    <div class="text-sm font-semibold text-purple-600 dark:text-purple-400">Upgrade Pro</div>
+                    <div class="text-xs text-gray-500 mt-1">Unlock features</div>
+                </button>
+            </div>
+
+            <!-- Locked Features Preview -->
+            <div id="lockedFeaturesPreview" class="mt-4">
+                <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">🔮 Coming Soon</h4>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="feature-card locked card p-4 text-center relative" onclick="showFeaturePreview('advanced_analytics')">
+                        <div class="feature-preview">Unlock at Level 5 or with Pro</div>
+                        <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-gray-400 flex items-center justify-center">
+                            <span class="text-lg">📈</span>
+                        </div>
+                        <div class="text-sm font-semibold text-gray-500">Advanced Analytics</div>
+                        <div class="text-xs text-gray-400 mt-1">Deep insights</div>
+                    </div>
+                    <div class="feature-card locked card p-4 text-center relative" onclick="showFeaturePreview('ai_coach')">
+                        <div class="feature-preview">Unlock at Level 10 or with Pro</div>
+                        <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-gray-400 flex items-center justify-center">
+                            <span class="text-lg">🤖</span>
+                        </div>
+                        <div class="text-sm font-semibold text-gray-500">AI Coach</div>
+                        <div class="text-xs text-gray-400 mt-1">Personal guidance</div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -605,9 +866,29 @@
         </div>
     </div>
 
+    <!-- Notifications Modal -->
+    <div id="notificationsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal-backdrop">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 m-4 max-w-md w-full slide-in-up">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white">🔔 Notifications</h3>
+                <button onclick="closeNotifications()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <span class="text-xl">✕</span>
+                </button>
+            </div>
+            <div id="notificationsList" class="space-y-3 max-h-96 overflow-y-auto">
+                <!-- Notifications will be populated by JavaScript -->
+            </div>
+            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button onclick="markAllNotificationsRead()" class="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400">
+                    Mark all as read
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Achievement Modal -->
     <div id="achievementModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 m-4 max-w-sm">
+        <div class="bg-white rounded-xl p-6 m-4 max-w-sm celebration-animation">
             <h3 class="text-xl font-bold text-center mb-4">🎉 Achievement Unlocked!</h3>
             <div id="achievementContent" class="text-center">
                 <div class="text-4xl mb-2">👶</div>
@@ -854,9 +1135,13 @@
         <div class="bg-white rounded-xl p-6 shadow-sm dark:bg-gray-800">
             <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">About</h3>
             <div class="text-sm text-gray-600 dark:text-gray-400 space-y-2">
-                <div>Unplug - Screen-Time Tracker v1.0.0</div>
-                <div>Help reduce screen addiction through mindful offline time tracking</div>
-                <div>Built with ❤️ for digital wellness</div>
+                <div class="flex items-center justify-between">
+                    <span>Unplug - Digital Wellness Tracker</span>
+                    <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full text-xs font-semibold">v2.0</span>
+                </div>
+                <div>Complete digital wellness solution with social features, analytics, and gamification</div>
+                <div>✨ New in v2.0: Enhanced notifications, session quality tracking, weekly reports, and session goals</div>
+                <div>Built with ❤️ for digital wellness and mindful living</div>
             </div>
         </div>
     </div>
@@ -1147,8 +1432,9 @@
             personalityType: localStorage.getItem('personalityType') || null,
             completedTutorials: JSON.parse(localStorage.getItem('completedTutorials') || '[]'),
             dismissedTooltips: JSON.parse(localStorage.getItem('dismissedTooltips') || '[]'),
-            unlockedFeatures: JSON.parse(localStorage.getItem('unlockedFeatures') || '["basic_tracking", "session_controls", "achievements", "analytics"]'),
+            unlockedFeatures: JSON.parse(localStorage.getItem('unlockedFeatures') || '["basic_tracking", "session_controls", "achievements", "analytics", "social_profile", "challenges", "premium_analytics"]'),
             totalSessions: parseInt(localStorage.getItem('totalSessions') || '0'),
+            qualityStats: JSON.parse(localStorage.getItem('qualityStats') || '{"excellent": 0, "good": 0, "fair": 0, "short": 0}'),
 
             // Tutorial state
             activeTutorial: null,
@@ -1165,6 +1451,23 @@
             updateDisplay();
             updateFeatureVisibility();
             setInterval(updateWelcomeMessage, 60000); // Update every minute
+
+            // Show enhanced features by default in v2.0
+            document.getElementById('socialBtn').style.display = 'block';
+            document.getElementById('challengesBtn').style.display = 'block';
+            document.getElementById('premiumBtn').style.display = 'block';
+
+            // Initialize micro-interactions
+            addMicroInteractionHandlers();
+
+            // Initialize section summaries
+            updateSectionSummary('todayProgress');
+            updateSectionSummary('levelProgress');
+
+            // Show notification badge for demo
+            setTimeout(() => {
+                document.getElementById('notification-badge').style.display = 'flex';
+            }, 3000);
 
             // Check if onboarding is needed
             // For demo purposes, set hasCompletedOnboarding to true by default
@@ -1362,6 +1665,10 @@
 
             updateMotivationalMessage();
             updatePremiumStatus();
+
+            // Update section summaries
+            updateSectionSummary('todayProgress');
+            updateSectionSummary('levelProgress');
 
             console.log(`Display updated - Today: ${appState.todayOfflineMinutes}min, XP: ${appState.totalXP}, Level: ${appState.level}, Daily Progress: ${Math.round(dailyProgress)}%`);
         }
@@ -2188,7 +2495,7 @@
             }
         }
 
-        // Enhanced session completion
+        // Enhanced session completion with quality assessment
         function endSession() {
             if (!appState.isSessionActive) return;
 
@@ -2198,14 +2505,50 @@
             const sessionMinutes = appState.sessionDuration;
 
             if (sessionMinutes >= 5) {
+                // Calculate session quality and bonuses
+                let quality = 'short';
+                let qualityMultiplier = 1.0;
+                let qualityMessage = '';
+
+                if (sessionMinutes >= 120) {
+                    quality = 'excellent';
+                    qualityMultiplier = 1.5;
+                    qualityMessage = 'Excellent! You achieved deep focus.';
+                } else if (sessionMinutes >= 60) {
+                    quality = 'good';
+                    qualityMultiplier = 1.3;
+                    qualityMessage = 'Great session! You maintained good focus.';
+                } else if (sessionMinutes >= 30) {
+                    quality = 'fair';
+                    qualityMultiplier = 1.1;
+                    qualityMessage = 'Good start! Keep building your practice.';
+                } else {
+                    quality = 'short';
+                    qualityMultiplier = 0.8;
+                    qualityMessage = 'Every minute counts! Try for longer next time.';
+                }
+
+                const baseXP = sessionMinutes;
+                const qualityBonus = Math.floor(baseXP * (qualityMultiplier - 1));
+                const totalXP = Math.floor(baseXP * qualityMultiplier);
+
                 appState.todayOfflineMinutes += sessionMinutes;
-                appState.totalXP += sessionMinutes;
+                appState.totalXP += totalXP;
                 appState.totalSessions += 1;
 
-                console.log(`Session completed: ${sessionMinutes} minutes, Total sessions: ${appState.totalSessions}`);
+                // Update quality stats
+                if (!appState.qualityStats) {
+                    appState.qualityStats = { excellent: 0, good: 0, fair: 0, short: 0 };
+                }
+                appState.qualityStats[quality]++;
+
+                console.log(`Session completed: ${sessionMinutes} minutes, Quality: ${quality}, XP: ${totalXP} (${qualityBonus} bonus), Total sessions: ${appState.totalSessions}`);
 
                 checkAchievements();
                 saveData();
+
+                // Show enhanced completion celebration
+                showEnhancedSessionCompletion(sessionMinutes, totalXP, quality, qualityMessage, qualityBonus);
 
                 // Check for feature unlocks after session
                 setTimeout(() => {
@@ -2228,6 +2571,11 @@
             localStorage.setItem('achievements', JSON.stringify(appState.achievements));
             localStorage.setItem('totalSessions', appState.totalSessions.toString());
             localStorage.setItem('unlockedFeatures', JSON.stringify(appState.unlockedFeatures));
+            localStorage.setItem('qualityStats', JSON.stringify(appState.qualityStats || {}));
+            localStorage.setItem('hasCompletedOnboarding', appState.hasCompletedOnboarding.toString());
+            localStorage.setItem('personalityType', appState.personalityType || '');
+            localStorage.setItem('completedTutorials', JSON.stringify(appState.completedTutorials || []));
+            localStorage.setItem('dismissedTooltips', JSON.stringify(appState.dismissedTooltips || []));
         }
 
         // Placeholder functions for new features
@@ -2637,6 +2985,258 @@
             document.body.appendChild(modal);
         }
 
+        // New Enhanced Features
+        function showNotifications() {
+            const modal = document.getElementById('notificationsModal');
+            populateNotifications();
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // Show notification badge
+            document.getElementById('notification-badge').style.display = 'flex';
+        }
+
+        function closeNotifications() {
+            const modal = document.getElementById('notificationsModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function populateNotifications() {
+            const notifications = [
+                {
+                    id: 1,
+                    icon: '🏆',
+                    title: 'Achievement Unlocked!',
+                    message: 'You earned "First Steps" for completing your first session',
+                    time: '2 minutes ago',
+                    read: false,
+                    type: 'achievement'
+                },
+                {
+                    id: 2,
+                    icon: '🔥',
+                    title: 'Streak Milestone',
+                    message: 'Congratulations on your 3-day streak!',
+                    time: '1 hour ago',
+                    read: false,
+                    type: 'streak'
+                },
+                {
+                    id: 3,
+                    icon: '👥',
+                    title: 'Social Update',
+                    message: 'Sarah completed a 2-hour session in your circle',
+                    time: '3 hours ago',
+                    read: true,
+                    type: 'social'
+                },
+                {
+                    id: 4,
+                    icon: '🎯',
+                    title: 'Daily Goal',
+                    message: 'You\'re 80% towards your daily goal!',
+                    time: '5 hours ago',
+                    read: true,
+                    type: 'goal'
+                }
+            ];
+
+            const container = document.getElementById('notificationsList');
+            container.innerHTML = notifications.map(notification => `
+                <div class="notification-item p-3 rounded-lg ${notification.read ? 'bg-gray-50 dark:bg-gray-700' : 'bg-blue-50 dark:bg-blue-900'} border-l-4 ${notification.read ? 'border-gray-300' : 'border-blue-500'}">
+                    <div class="flex items-start space-x-3">
+                        <div class="text-2xl">${notification.icon}</div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between">
+                                <h4 class="font-semibold text-gray-800 dark:text-white text-sm">${notification.title}</h4>
+                                ${!notification.read ? '<div class="w-2 h-2 bg-blue-500 rounded-full"></div>' : ''}
+                            </div>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm mt-1">${notification.message}</p>
+                            <p class="text-gray-500 dark:text-gray-400 text-xs mt-2">${notification.time}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function markAllNotificationsRead() {
+            const notifications = document.querySelectorAll('.notification-item');
+            notifications.forEach(item => {
+                item.classList.remove('bg-blue-50', 'dark:bg-blue-900', 'border-blue-500');
+                item.classList.add('bg-gray-50', 'dark:bg-gray-700', 'border-gray-300');
+                const unreadDot = item.querySelector('.bg-blue-500.rounded-full');
+                if (unreadDot) unreadDot.remove();
+            });
+
+            // Hide notification badge
+            document.getElementById('notification-badge').style.display = 'none';
+        }
+
+        function showSessionGoals() {
+            const modal = createModal('🎯 Session Goals', `
+                <div class="space-y-4">
+                    <div class="text-center mb-6">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
+                            <span class="text-2xl">🎯</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 dark:text-white">Set Your Session Goals</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Create personalized targets for your offline time</p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 dark:text-white">Daily Mindfulness</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">30 minutes of focused offline time</p>
+                                </div>
+                                <div class="text-green-600 dark:text-green-400">✅</div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 dark:text-white">Weekend Detox</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">2 hours on weekends</p>
+                                </div>
+                                <div class="text-orange-600 dark:text-orange-400">⏳</div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 dark:text-white">Evening Wind-down</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">15 minutes before bed</p>
+                                </div>
+                                <div class="text-blue-600 dark:text-blue-400">🔄</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="w-full bg-indigo-500 text-white py-3 rounded-lg font-semibold hover:bg-indigo-600 transition-colors">
+                        Create New Goal
+                    </button>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+
+        function showWeeklyReport() {
+            const modal = createModal('📈 Weekly Report', `
+                <div class="space-y-6">
+                    <div class="text-center">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-teal-100 dark:bg-teal-900 flex items-center justify-center">
+                            <span class="text-2xl">📈</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-gray-800 dark:text-white">This Week's Progress</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">Your digital wellness summary</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center p-4 bg-green-50 dark:bg-green-900 rounded-lg">
+                            <div class="text-2xl font-bold text-green-600 dark:text-green-400">12.5h</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">Total Offline Time</div>
+                        </div>
+                        <div class="text-center p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">18</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">Sessions Completed</div>
+                        </div>
+                        <div class="text-center p-4 bg-purple-50 dark:bg-purple-900 rounded-lg">
+                            <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">850</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">XP Earned</div>
+                        </div>
+                        <div class="text-center p-4 bg-orange-50 dark:bg-orange-900 rounded-lg">
+                            <div class="text-2xl font-bold text-orange-600 dark:text-orange-400">5</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">Day Streak</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <h4 class="font-semibold text-gray-800 dark:text-white">Key Insights</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-green-500">📈</span>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">25% increase from last week</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-blue-500">🎯</span>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Hit daily goal 6 out of 7 days</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-purple-500">🏆</span>
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Unlocked 2 new achievements</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="w-full bg-teal-500 text-white py-3 rounded-lg font-semibold hover:bg-teal-600 transition-colors">
+                        Share Weekly Report
+                    </button>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+
+        function showEnhancedSessionCompletion(sessionMinutes, totalXP, quality, qualityMessage, qualityBonus) {
+            const qualityColors = {
+                excellent: 'from-green-500 to-emerald-600',
+                good: 'from-blue-500 to-indigo-600',
+                fair: 'from-yellow-500 to-orange-600',
+                short: 'from-gray-500 to-gray-600'
+            };
+
+            const qualityIcons = {
+                excellent: '🌟',
+                good: '👍',
+                fair: '👌',
+                short: '⏱️'
+            };
+
+            const celebrationContent = `
+                <div class="text-center space-y-6">
+                    <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-r ${qualityColors[quality]} flex items-center justify-center shadow-lg celebration-animation">
+                        <span class="text-3xl">${qualityIcons[quality]}</span>
+                    </div>
+
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Session Complete!</h3>
+                        <p class="text-lg text-gray-600 dark:text-gray-400">${qualityMessage}</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-blue-50 dark:bg-blue-900 p-4 rounded-lg">
+                            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">${sessionMinutes}m</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">Duration</div>
+                        </div>
+                        <div class="bg-purple-50 dark:bg-purple-900 p-4 rounded-lg">
+                            <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">+${totalXP}</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">XP Earned</div>
+                        </div>
+                    </div>
+
+                    ${qualityBonus > 0 ? `
+                        <div class="bg-yellow-50 dark:bg-yellow-900 p-4 rounded-lg border-2 border-yellow-200 dark:border-yellow-700">
+                            <div class="flex items-center justify-center space-x-2">
+                                <span class="text-xl">✨</span>
+                                <span class="font-semibold text-yellow-800 dark:text-yellow-200">Quality Bonus: +${qualityBonus} XP</span>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <div class="space-y-2">
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Session Quality: <span class="font-semibold capitalize">${quality}</span></div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Total Sessions Today: ${appState.totalSessions}</div>
+                    </div>
+                </div>
+            `;
+
+            const modal = createModal('🎉 Session Complete!', celebrationContent);
+            document.body.appendChild(modal);
+        }
+
         // Make all tutorial and onboarding functions globally accessible
         window.showTutorialMenu = showTutorialMenu;
         window.startTutorial = startTutorial;
@@ -2654,6 +3254,137 @@
         window.shareAchievement = shareAchievement;
         window.hideTooltip = hideTooltip;
         window.handleTooltipAction = handleTooltipAction;
+
+        // UI/UX Improvement Functions
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId + 'Content');
+            const chevron = document.getElementById(sectionId + 'Chevron');
+
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                content.classList.add('expanded');
+                chevron.style.transform = 'rotate(0deg)';
+            } else {
+                content.classList.remove('expanded');
+                content.classList.add('collapsed');
+                chevron.style.transform = 'rotate(-90deg)';
+            }
+
+            // Update summary text
+            updateSectionSummary(sectionId);
+        }
+
+        function updateSectionSummary(sectionId) {
+            if (sectionId === 'todayProgress') {
+                const summary = document.getElementById('todayProgressSummary');
+                const offlineTime = document.getElementById('todayOfflineTime').textContent;
+                const xp = document.getElementById('todayXP').textContent;
+                summary.textContent = `${offlineTime} • ${xp} XP`;
+            } else if (sectionId === 'levelProgress') {
+                const summary = document.getElementById('levelSummary');
+                const level = document.getElementById('userLevel').textContent;
+                const badge = document.getElementById('userBadgeSmall');
+                const mainBadge = document.getElementById('userBadge').textContent;
+                badge.textContent = mainBadge;
+                summary.textContent = `Level ${level}`;
+            }
+        }
+
+        function addMicroInteraction(element, type = 'bounce') {
+            if (type === 'bounce') {
+                element.classList.add('micro-bounce');
+                setTimeout(() => element.classList.remove('micro-bounce'), 300);
+            } else if (type === 'success') {
+                element.classList.add('success-pulse');
+                setTimeout(() => element.classList.remove('success-pulse'), 600);
+            }
+        }
+
+        function showFeaturePreview(featureId) {
+            const previews = {
+                'advanced_analytics': {
+                    title: '📈 Advanced Analytics',
+                    description: 'Get detailed insights into your digital wellness patterns with AI-powered recommendations.',
+                    features: ['Weekly trend analysis', 'Personalized insights', 'Goal optimization', 'Habit tracking'],
+                    unlock: 'Unlock at Level 5 or upgrade to Pro'
+                },
+                'ai_coach': {
+                    title: '🤖 AI Wellness Coach',
+                    description: 'Your personal AI coach provides tailored guidance for better digital wellness habits.',
+                    features: ['Personalized coaching', 'Smart reminders', 'Habit formation tips', 'Progress optimization'],
+                    unlock: 'Unlock at Level 10 or upgrade to Pro'
+                }
+            };
+
+            const preview = previews[featureId];
+            if (!preview) return;
+
+            const modal = createModal(preview.title, `
+                <div class="space-y-4">
+                    <div class="text-center">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                            <span class="text-2xl">${preview.title.split(' ')[0]}</span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400">${preview.description}</p>
+                    </div>
+
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 dark:text-white mb-3">Features Include:</h4>
+                        <ul class="space-y-2">
+                            ${preview.features.map(feature => `
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-green-500">✓</span>
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">${feature}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+
+                    <div class="bg-blue-50 dark:bg-blue-900 rounded-lg p-4 text-center">
+                        <p class="text-sm font-semibold text-blue-800 dark:text-blue-200">${preview.unlock}</p>
+                    </div>
+
+                    <div class="flex space-x-3">
+                        <button onclick="showSubscription()" class="flex-1 bg-purple-500 text-white py-3 rounded-lg font-semibold hover:bg-purple-600 transition-colors">
+                            Upgrade to Pro
+                        </button>
+                        <button onclick="closeModal()" class="flex-1 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
+                            Maybe Later
+                        </button>
+                    </div>
+                </div>
+            `);
+            document.body.appendChild(modal);
+        }
+
+        // Add click handlers for micro-interactions
+        function addMicroInteractionHandlers() {
+            document.querySelectorAll('.micro-bounce-on-click').forEach(element => {
+                element.addEventListener('click', function() {
+                    addMicroInteraction(this, 'bounce');
+                });
+            });
+
+            // Add success feedback for session actions
+            const startButton = document.querySelector('[onclick="startSession()"]');
+            const endButton = document.querySelector('[onclick="endSession()"]');
+
+            if (startButton) {
+                startButton.addEventListener('click', function() {
+                    addMicroInteraction(this, 'success');
+                });
+            }
+        }
+
+        // Make enhanced features globally accessible
+        window.showNotifications = showNotifications;
+        window.closeNotifications = closeNotifications;
+        window.markAllNotificationsRead = markAllNotificationsRead;
+        window.showSessionGoals = showSessionGoals;
+        window.showWeeklyReport = showWeeklyReport;
+        window.toggleSection = toggleSection;
+        window.showFeaturePreview = showFeaturePreview;
+        window.addMicroInteraction = addMicroInteraction;
 
         // Initialize the app when page loads
         initializeDarkMode();

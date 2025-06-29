@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#10B981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Unplug">
+
+    <!-- Base URL for GitHub Pages -->
+    <base href="/unplug-app/">
+
+    <title>Unplug - Digital Wellness</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16x16.png">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="js/app.js" as="script">
+    <link rel="preload" href="js/services/user-data.js" as="script">
+    <link rel="preload" href="js/services/tracking.js" as="script">
+</head>
+<body>
+    <!-- App Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="app-logo">🔌</div>
+            <h1>Unplug</h1>
+            <div class="loading-spinner"></div>
+            <p>Loading your digital wellness journey...</p>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app" class="app-container" style="display: none;">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="app-title">
+                    <span class="app-icon">🔌</span>
+                    Unplug
+                </h1>
+                <div class="header-actions">
+                    <button id="settings-btn" class="icon-btn" aria-label="Settings">
+                        <span>⚙️</span>
+                    </button>
+                    <button id="menu-btn" class="icon-btn" aria-label="Menu">
+                        <span>☰</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Welcome Section -->
+            <section class="welcome-section">
+                <div class="welcome-message">
+                    <h2 id="welcome-text">Good morning! 🌅</h2>
+                    <p id="motivational-text">Ready to start your digital wellness journey?</p>
+                </div>
+            </section>
+
+            <!-- Session Controls -->
+            <section class="session-section">
+                <div class="session-card">
+                    <div class="session-status">
+                        <div id="session-timer" class="session-timer">00:00:00</div>
+                        <div id="session-status-text" class="session-status-text">Ready to start</div>
+                    </div>
+                    
+                    <div class="session-controls">
+                        <button id="start-session-btn" class="primary-btn session-btn">
+                            <span class="btn-icon">▶️</span>
+                            Start Session
+                        </button>
+                        <button id="end-session-btn" class="secondary-btn session-btn" style="display: none;">
+                            <span class="btn-icon">⏹️</span>
+                            End Session
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Overview -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-value" id="total-xp">0</div>
+                        <div class="stat-label">Total XP</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-value" id="current-streak">0</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-value" id="today-minutes">0</div>
+                        <div class="stat-label">Today (min)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-value" id="daily-goal-progress">0%</div>
+                        <div class="stat-label">Daily Goal</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Level Progress -->
+            <section class="level-section">
+                <div class="level-card">
+                    <div class="level-info">
+                        <div class="level-badge" id="level-badge">🌱</div>
+                        <div class="level-details">
+                            <div class="level-title" id="level-title">Digital Seedling</div>
+                            <div class="level-number">Level <span id="level-number">1</span></div>
+                        </div>
+                    </div>
+                    <div class="level-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="level-progress-fill" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="current-level-xp">0</span> / <span id="next-level-xp">100</span> XP
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Actions -->
+            <section class="actions-section">
+                <div class="action-grid">
+                    <button class="action-card" id="achievements-btn">
+                        <div class="action-icon">🏆</div>
+                        <div class="action-label">Achievements</div>
+                        <div class="action-badge" id="achievements-count">0</div>
+                    </button>
+                    <button class="action-card" id="analytics-btn">
+                        <div class="action-icon">📊</div>
+                        <div class="action-label">Analytics</div>
+                    </button>
+                    <button class="action-card" id="social-btn">
+                        <div class="action-icon">👥</div>
+                        <div class="action-label">Social</div>
+                    </button>
+                    <button class="action-card" id="export-btn">
+                        <div class="action-icon">📤</div>
+                        <div class="action-label">Export</div>
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-page="home">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </button>
+            <button class="nav-item" data-page="achievements">
+                <span class="nav-icon">🏆</span>
+                <span class="nav-label">Achievements</span>
+            </button>
+            <button class="nav-item" data-page="analytics">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Analytics</span>
+            </button>
+            <button class="nav-item" data-page="social">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label">Social</span>
+            </button>
+            <button class="nav-item" data-page="settings">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Settings</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Modals and Overlays -->
+    <div id="modal-overlay" class="modal-overlay" style="display: none;"></div>
+    
+    <!-- Achievement Celebration -->
+    <div id="celebration-modal" class="celebration-modal" style="display: none;">
+        <div class="celebration-content">
+            <div class="celebration-animation">🎉</div>
+            <h3 id="celebration-title">Achievement Unlocked!</h3>
+            <p id="celebration-message">You've earned a new achievement!</p>
+            <button id="celebration-close" class="primary-btn">Awesome!</button>
+        </div>
+    </div>
+
+    <!-- Install Prompt -->
+    <div id="install-prompt" class="install-prompt" style="display: none;">
+        <div class="install-content">
+            <div class="install-icon">📱</div>
+            <h3>Install Unplug</h3>
+            <p>Add Unplug to your home screen for the best experience!</p>
+            <div class="install-actions">
+                <button id="install-btn" class="primary-btn">Install</button>
+                <button id="install-dismiss" class="secondary-btn">Maybe Later</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/services/storage.js"></script>
+    <script src="js/services/user-data.js"></script>
+    <script src="js/services/tracking.js"></script>
+    <script src="js/services/achievements.js"></script>
+    <script src="js/services/notifications.js"></script>
+    <script src="js/components/modal.js"></script>
+    <script src="js/components/celebration.js"></script>
+    <script src="js/app.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

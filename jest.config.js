@@ -24,5 +24,15 @@ module.exports = {
     '!app/app.ts'
   ],
   coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html']
+  coverageReporters: ['text', 'lcov', 'html'],
+  // Fix async leaks and improve test performance
+  testTimeout: 10000,
+  detectOpenHandles: true,
+  forceExit: true,
+  clearMocks: true,
+  restoreMocks: true,
+  // Reduce console noise
+  silent: false,
+  verbose: false,
+  setupFiles: ['<rootDir>/tests/jest-console-setup.ts']
 };

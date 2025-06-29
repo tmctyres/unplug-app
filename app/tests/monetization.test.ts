@@ -3,6 +3,18 @@
  * Tests for real iOS and Android in-app purchase integration
  */
 
+// Suppress console noise during tests
+const originalConsole = {
+  log: console.log,
+  error: console.error,
+  warn: console.warn
+};
+
+// Mock console methods to reduce noise
+console.log = jest.fn();
+console.error = jest.fn();
+console.warn = jest.fn();
+
 // Mock SecurityUtils before any imports - complete mock
 jest.mock('../utils/security-utils', () => ({
   SecurityUtils: {
@@ -437,6 +449,13 @@ describe('Real Monetization Service', () => {
       expect(successfulResults.length).toBe(20);
     });
   });
+});
+
+// Restore console methods after all tests
+afterAll(() => {
+  console.log = originalConsole.log;
+  console.error = originalConsole.error;
+  console.warn = originalConsole.warn;
 });
 
 /**

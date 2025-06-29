@@ -1,0 +1,59 @@
+{
+  "name": "unplug-pwa",
+  "version": "1.0.0",
+  "description": "Unplug - Digital Wellness Progressive Web App",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "build": "echo 'No build step needed for vanilla PWA'",
+    "test": "echo 'Tests coming soon'",
+    "serve": "node server.js",
+    "deploy": "echo 'Deploy to your preferred hosting service'",
+    "lighthouse": "lighthouse http://localhost:3000 --output html --output-path ./lighthouse-report.html",
+    "pwa-audit": "pwa-builder-cli audit http://localhost:3000"
+  },
+  "keywords": [
+    "pwa",
+    "progressive-web-app",
+    "digital-wellness",
+    "screen-time",
+    "mindfulness",
+    "offline",
+    "mobile-app"
+  ],
+  "author": "Unplug Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/unplug-pwa.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/unplug-pwa/issues"
+  },
+  "homepage": "https://yourusername.github.io/unplug-pwa/",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "devDependencies": {
+    "lighthouse": "^10.0.0"
+  },
+  "pwa": {
+    "name": "Unplug",
+    "short_name": "Unplug",
+    "description": "Take control of your digital wellness with mindful screen time tracking",
+    "theme_color": "#10B981",
+    "background_color": "#ffffff",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "start_url": "/",
+    "scope": "/"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "iOS >= 12",
+    "Android >= 8"
+  ]
+}

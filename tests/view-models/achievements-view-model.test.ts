@@ -1,6 +1,7 @@
 import { AchievementsViewModel } from '../../app/view-models/achievements-view-model';
 import { UserDataService, AchievementCategory, AchievementRarity } from '../../app/models/user-data';
 import { TrackingService } from '../../app/services/tracking-service';
+import { cleanupTimers } from '../setup';
 
 // Mock the dependencies
 jest.mock('../../app/models/user-data');
@@ -12,6 +13,8 @@ describe('AchievementsViewModel', () => {
   let mockTrackingService: jest.Mocked<TrackingService>;
 
   beforeEach(() => {
+    jest.clearAllMocks();
+    cleanupTimers();
     // Create mock instances
     mockUserDataService = {
       getUserProfile: jest.fn(),
@@ -176,5 +179,13 @@ describe('AchievementsViewModel', () => {
     
     expect(chainedAchievement.chainInfo).toContain('Test Chain');
     expect(chainedAchievement.chainInfo).toContain('1/1');
+  });
+
+  afterEach(() => {
+    // Clean up timers
+    cleanupTimers();
+
+    // Clear all mocks
+    jest.clearAllMocks();
   });
 });

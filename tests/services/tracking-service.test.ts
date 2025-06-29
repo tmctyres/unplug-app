@@ -1,14 +1,28 @@
 import { TrackingService } from '../../app/services/tracking-service';
-import { mockApplicationSettings, mockDevice } from '../setup';
+import { mockApplicationSettings, mockDevice, cleanupTimers } from '../setup';
 
 describe('TrackingService', () => {
   let trackingService: TrackingService;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    cleanupTimers();
     // Reset singleton instance
     (TrackingService as any).instance = null;
     trackingService = TrackingService.getInstance();
+  });
+
+  afterEach(() => {
+    // Clean up any active sessions
+    if (trackingService && trackingService.isSessionActive()) {
+      trackingService.endManualSession();
+    }
+
+    // Clean up timers
+    cleanupTimers();
+
+    // Reset singleton
+    (TrackingService as any).instance = null;
   });
 
   describe('Singleton Pattern', () => {

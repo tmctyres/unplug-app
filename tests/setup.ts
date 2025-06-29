@@ -298,6 +298,78 @@ jest.mock('../app/services/social-onboarding-service', () => ({
   SocialOnboardingService: mockSocialOnboardingService
 }));
 
+// Global test cleanup to prevent memory leaks
+let activeTimers: NodeJS.Timeout[] = [];
+let activeIntervals: NodeJS.Timeout[] = [];
+
+// Override setTimeout and setInterval to track them
+const originalSetTimeout = global.setTimeout;
+const originalSetInterval = global.setInterval;
+const originalClearTimeout = global.clearTimeout;
+const originalClearInterval = global.clearInterval;
+
+global.setTimeout = ((callback: any, delay?: number, ...args: any[]) => {
+  const timer = originalSetTimeout(callback, delay, ...args);
+  activeTimers.push(timer);
+  return timer;
+}) as any;
+
+global.setInterval = ((callback: any, delay?: number, ...args: any[]) => {
+  const interval = originalSetInterval(callback, delay, ...args);
+  activeIntervals.push(interval);
+  return interval;
+}) as any;
+
+global.clearTimeout = (timer: any) => {
+  const index = activeTimers.indexOf(timer);
+  if (index > -1) {
+    activeTimers.splice(index, 1);
+  }
+  return originalClearTimeout(timer);
+};
+
+global.clearInterval = (interval: any) => {
+  const index = activeIntervals.indexOf(interval);
+  if (index > -1) {
+    activeIntervals.splice(index, 1);
+  }
+  return originalClearInterval(interval);
+};
+
+// Cleanup function to clear all active timers
+const cleanupTimers = () => {
+  activeTimers.forEach(timer => originalClearTimeout(timer));
+  activeIntervals.forEach(interval => originalClearInterval(interval));
+  activeTimers = [];
+  activeIntervals = [];
+};
+
+// Setup global test hooks
+beforeEach(() => {
+  // Clear all mocks before each test
+  jest.clearAllMocks();
+});
+
+afterEach(() => {
+  // Clean up timers after each test
+  cleanupTimers();
+
+  // Clear all mocks after each test
+  jest.clearAllMocks();
+  jest.restoreAllMocks();
+});
+
+afterAll(() => {
+  // Final cleanup
+  cleanupTimers();
+
+  // Restore original functions
+  global.setTimeout = originalSetTimeout;
+  global.setInterval = originalSetInterval;
+  global.clearTimeout = originalClearTimeout;
+  global.clearInterval = originalClearInterval;
+});
+
 // Export mocks for use in tests
 export {
   mockApplicationSettings,
@@ -315,5 +387,6 @@ export {
   mockTutorialOverlay,
   mockFeatureUnlockService,
   mockSecurityUtils,
-  mockSocialOnboardingService
+  mockSocialOnboardingService,
+  cleanupTimers
 };

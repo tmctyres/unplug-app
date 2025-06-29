@@ -1,18 +1,27 @@
 import { UserDataService } from '../../app/models/user-data';
-import { mockApplicationSettings } from '../setup';
+import { mockApplicationSettings, cleanupTimers } from '../setup';
 
 describe('UserDataService', () => {
   let userDataService: UserDataService;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    cleanupTimers();
     // Reset singleton instance
     (UserDataService as any).instance = null;
-    
+
     // Mock empty storage initially
     mockApplicationSettings.getString.mockReturnValue(null);
-    
+
     userDataService = UserDataService.getInstance();
+  });
+
+  afterEach(() => {
+    // Clean up timers
+    cleanupTimers();
+
+    // Reset singleton
+    (UserDataService as any).instance = null;
   });
 
   describe('Singleton Pattern', () => {

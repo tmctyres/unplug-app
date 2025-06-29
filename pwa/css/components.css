@@ -1,0 +1,423 @@
+/* Component-specific styles for Unplug PWA */
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    opacity: 0;
+    animation: fadeIn var(--transition-normal) forwards;
+}
+
+/* Celebration Modal */
+.celebration-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: var(--radius-2xl);
+    padding: var(--spacing-8);
+    max-width: 320px;
+    width: 90%;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    z-index: 1001;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+    animation: modalSlideIn var(--transition-normal) forwards;
+}
+
+.celebration-animation {
+    font-size: 4rem;
+    margin-bottom: var(--spacing-4);
+    animation: bounce 1s ease-in-out infinite alternate;
+}
+
+.celebration-modal h3 {
+    font-size: var(--font-size-xl);
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-3);
+}
+
+.celebration-modal p {
+    color: var(--gray-600);
+    margin-bottom: var(--spacing-6);
+    white-space: pre-line;
+    line-height: 1.6;
+}
+
+/* Install Prompt */
+.install-prompt {
+    position: fixed;
+    bottom: var(--spacing-6);
+    left: var(--spacing-4);
+    right: var(--spacing-4);
+    background: white;
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-6);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--gray-200);
+    z-index: 999;
+    transform: translateY(100%);
+    animation: slideUp var(--transition-normal) forwards;
+}
+
+.install-content {
+    text-align: center;
+}
+
+.install-icon {
+    font-size: var(--font-size-3xl);
+    margin-bottom: var(--spacing-3);
+}
+
+.install-prompt h3 {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-2);
+}
+
+.install-prompt p {
+    color: var(--gray-600);
+    margin-bottom: var(--spacing-4);
+    font-size: var(--font-size-sm);
+}
+
+.install-actions {
+    display: flex;
+    gap: var(--spacing-3);
+}
+
+.install-actions .primary-btn,
+.install-actions .secondary-btn {
+    flex: 1;
+    padding: var(--spacing-3) var(--spacing-4);
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.install-actions .primary-btn {
+    background: var(--primary-color);
+    color: white;
+}
+
+.install-actions .primary-btn:hover {
+    background: var(--primary-dark);
+}
+
+.install-actions .secondary-btn {
+    background: var(--gray-100);
+    color: var(--gray-700);
+}
+
+.install-actions .secondary-btn:hover {
+    background: var(--gray-200);
+}
+
+/* Notification Toast (for future enhancement) */
+.notification-toast {
+    position: fixed;
+    top: var(--spacing-6);
+    right: var(--spacing-4);
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-lg);
+    border-left: 4px solid var(--primary-color);
+    max-width: 320px;
+    z-index: 1002;
+    transform: translateX(100%);
+    animation: slideInRight var(--transition-normal) forwards;
+}
+
+.notification-toast.success {
+    border-left-color: var(--success-color);
+}
+
+.notification-toast.warning {
+    border-left-color: var(--warning-color);
+}
+
+.notification-toast.error {
+    border-left-color: var(--error-color);
+}
+
+.notification-content {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+}
+
+.notification-icon {
+    font-size: var(--font-size-lg);
+    margin-top: var(--spacing-1);
+}
+
+.notification-text h4 {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin-bottom: var(--spacing-1);
+}
+
+.notification-text p {
+    font-size: var(--font-size-xs);
+    color: var(--gray-600);
+    line-height: 1.4;
+}
+
+/* Progress Ring (for circular progress indicators) */
+.progress-ring {
+    width: 120px;
+    height: 120px;
+    transform: rotate(-90deg);
+}
+
+.progress-ring-circle {
+    fill: none;
+    stroke: var(--gray-200);
+    stroke-width: 8;
+}
+
+.progress-ring-progress {
+    fill: none;
+    stroke: var(--primary-color);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 0 100;
+    transition: stroke-dasharray var(--transition-normal);
+}
+
+/* Achievement Badge */
+.achievement-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: var(--spacing-2) var(--spacing-4);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    box-shadow: var(--shadow);
+}
+
+.achievement-badge.rare {
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+}
+
+.achievement-badge.epic {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+}
+
+.achievement-badge.legendary {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+}
+
+/* Level Badge */
+.level-badge-large {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-3xl);
+    color: white;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+}
+
+.level-badge-large::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+    border-radius: var(--radius-full);
+    z-index: -1;
+    opacity: 0.3;
+}
+
+/* Session Quality Indicator */
+.session-quality {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.session-quality.excellent {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-color);
+}
+
+.session-quality.great {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--secondary-color);
+}
+
+.session-quality.good {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--warning-color);
+}
+
+.session-quality.fair {
+    background: rgba(156, 163, 175, 0.1);
+    color: var(--gray-500);
+}
+
+.session-quality.needs_improvement {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--error-color);
+}
+
+/* Streak Flame Animation */
+.streak-flame {
+    display: inline-block;
+    animation: flicker 2s ease-in-out infinite alternate;
+}
+
+/* XP Gain Animation */
+.xp-gain {
+    position: absolute;
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: var(--font-size-lg);
+    pointer-events: none;
+    animation: xpFloat 2s ease-out forwards;
+}
+
+/* Loading States */
+.loading-skeleton {
+    background: linear-gradient(90deg, var(--gray-200) 25%, var(--gray-100) 50%, var(--gray-200) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius);
+}
+
+.loading-skeleton.text {
+    height: 1em;
+    margin-bottom: var(--spacing-2);
+}
+
+.loading-skeleton.text.short {
+    width: 60%;
+}
+
+.loading-skeleton.text.medium {
+    width: 80%;
+}
+
+.loading-skeleton.text.long {
+    width: 100%;
+}
+
+.loading-skeleton.circle {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+}
+
+.loading-skeleton.button {
+    height: 40px;
+    width: 120px;
+}
+
+/* Responsive Utilities */
+@media (max-width: 480px) {
+    .celebration-modal {
+        max-width: 280px;
+        padding: var(--spacing-6);
+    }
+    
+    .install-prompt {
+        left: var(--spacing-2);
+        right: var(--spacing-2);
+        bottom: var(--spacing-4);
+    }
+    
+    .notification-toast {
+        right: var(--spacing-2);
+        max-width: calc(100vw - var(--spacing-4));
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .celebration-modal,
+    .install-prompt,
+    .notification-toast {
+        background: var(--gray-800);
+        border-color: var(--gray-700);
+    }
+    
+    .celebration-modal h3,
+    .install-prompt h3,
+    .notification-text h4 {
+        color: var(--gray-100);
+    }
+    
+    .celebration-modal p,
+    .install-prompt p,
+    .notification-text p {
+        color: var(--gray-300);
+    }
+    
+    .install-actions .secondary-btn {
+        background: var(--gray-700);
+        color: var(--gray-200);
+    }
+    
+    .install-actions .secondary-btn:hover {
+        background: var(--gray-600);
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .celebration-animation,
+    .streak-flame,
+    .loading-skeleton {
+        animation: none;
+    }
+    
+    .modal-overlay,
+    .celebration-modal,
+    .install-prompt,
+    .notification-toast {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .celebration-modal,
+    .install-prompt,
+    .notification-toast {
+        border: 2px solid var(--gray-900);
+    }
+    
+    .achievement-badge,
+    .level-badge-large {
+        border: 2px solid var(--gray-900);
+    }
+}

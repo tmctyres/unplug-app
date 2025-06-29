@@ -11,7 +11,7 @@ import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 import simpleRoutes from './routes/simple-routes';
 
 export class SimpleServer {
-  private app: express.Application;
+  public app: express.Application;
   private server: http.Server;
   private io!: SocketIOServer;
   private port: number;
@@ -156,6 +156,12 @@ export class SimpleServer {
       process.exit(0);
     });
   }
+}
+
+// Export function for testing
+export function createSimpleServer(): express.Application {
+  const server = new SimpleServer();
+  return server.app;
 }
 
 // Start server if this file is run directly
