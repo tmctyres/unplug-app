@@ -124,6 +124,31 @@ class UnplugApp {
         }, 500); // Reduced delay for better responsiveness
     }
 
+    // Helper function to safely update DOM elements - prevents iOS Safari errors
+    safeUpdateElement(id, content, property = 'textContent') {
+        try {
+            const element = document.getElementById(id);
+            if (element) {
+                if (property === 'style.width') {
+                    element.style.width = content;
+                } else if (property === 'style.display') {
+                    element.style.display = content;
+                } else if (property === 'innerHTML') {
+                    element.innerHTML = content;
+                } else {
+                    element[property] = content;
+                }
+                return true;
+            } else {
+                console.warn(`Element with id '${id}' not found`);
+                return false;
+            }
+        } catch (error) {
+            console.error(`Error updating element '${id}':`, error);
+            return false;
+        }
+    }
+
     async initializeServices() {
         // Services are already initialized via their getInstance() methods
         
