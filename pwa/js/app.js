@@ -95,19 +95,7 @@ class UnplugApp {
             });
         });
 
-        // Action cards
-        document.getElementById('achievements-btn').addEventListener('click', () => {
-            this.navigateToPage('achievements');
-        });
-
-        document.getElementById('analytics-btn').addEventListener('click', () => {
-            this.navigateToPage('analytics');
-        });
-
-        document.getElementById('social-btn').addEventListener('click', () => {
-            this.navigateToPage('social');
-        });
-
+        // Action cards (only export button remains)
         document.getElementById('export-btn').addEventListener('click', () => {
             this.exportData();
         });
@@ -364,64 +352,83 @@ class UnplugApp {
             }
         });
 
-        this.currentPage = page;
+        // Hide all pages
+        document.querySelectorAll('.page').forEach(pageEl => {
+            pageEl.style.display = 'none';
+        });
 
-        // Handle different pages
+        // Show main content or specific page
+        const mainContent = document.querySelector('main');
+
+        if (page === 'home') {
+            mainContent.style.display = 'block';
+        } else {
+            mainContent.style.display = 'none';
+            const targetPage = document.getElementById(`${page}-page`);
+            if (targetPage) {
+                targetPage.style.display = 'block';
+                this.updatePageContent(page);
+            }
+        }
+
+        this.currentPage = page;
+    }
+
+    updatePageContent(page) {
+        const profile = this.userDataService.getUserProfile();
+
         switch(page) {
             case 'achievements':
-                this.showAchievementsInfo();
+                this.updateAchievementsPage(profile);
                 break;
             case 'analytics':
-                this.showAnalyticsInfo();
-                break;
-            case 'social':
-                this.showSocialInfo();
+                this.updateAnalyticsPage(profile);
                 break;
             case 'settings':
-                this.showSettingsInfo();
-                break;
-            case 'home':
-            default:
-                // Already on home, no action needed
+                this.updateSettingsPage(profile);
                 break;
         }
     }
 
-    showAchievementsInfo() {
-        const profile = this.userDataService.getUserProfile();
+    updateAchievementsPage(profile) {
         const unlockedCount = profile.achievements.filter(a => a.unlocked).length;
         const totalCount = profile.achievements.length;
 
-        this.showNotification(
-            `🏆 Achievements (${unlockedCount}/${totalCount})`,
-            `You've unlocked ${unlockedCount} achievements! Level ${profile.level} • ${profile.totalXP} XP`
-        );
+        document.getElementById('achievements-unlocked').textContent = unlockedCount;
+        document.getElementById('total-achievements').textContent = totalCount;
+
+        // Update achievements list
+        const achievementsList = document.getElementById('achievements-list');
+        achievementsList.innerHTML = '';
+
+        profile.achievements.forEach(achievement => {
+            const achievementEl = document.createElement('div');
+            achievementEl.className = `achievement-item ${achievement.unlocked ? 'unlocked' : 'locked'}`;
+            achievementEl.innerHTML = `
+                <div class="achievement-icon">${achievement.unlocked ? '🏆' : '🔒'}</div>
+                <div class="achievement-info">
+                    <div class="achievement-title">${achievement.title}</div>
+                    <div class="achievement-desc">${achievement.description}</div>
+                </div>
+                <div class="achievement-xp">${achievement.xp} XP</div>
+            `;
+            achievementsList.appendChild(achievementEl);
+        });
     }
 
-    showAnalyticsInfo() {
-        const profile = this.userDataService.getUserProfile();
+    updateAnalyticsPage(profile) {
         const todayStats = this.userDataService.getTodayStats();
         const totalMinutes = Math.floor(profile.totalOfflineTime / 60);
 
-        this.showNotification(
-            `📊 Your Analytics`,
-            `Total offline time: ${totalMinutes} minutes • Today: ${todayStats?.offlineTime || 0} minutes • Sessions: ${profile.totalSessions}`
-        );
+        document.getElementById('total-time').textContent = `${totalMinutes}m`;
+        document.getElementById('today-time').textContent = `${todayStats?.offlineTime || 0}m`;
+        document.getElementById('total-sessions').textContent = profile.totalSessions;
+        document.getElementById('current-streak').textContent = `${profile.currentStreak}d`;
     }
 
-    showSocialInfo() {
-        this.showNotification(
-            `👥 Social Features`,
-            `Connect with friends, join challenges, and share your progress! (Coming in future update)`
-        );
-    }
-
-    showSettingsInfo() {
-        const profile = this.userDataService.getUserProfile();
-        this.showNotification(
-            `⚙️ Settings`,
-            `Daily goal: ${profile.settings.dailyGoal} minutes • Notifications: ${profile.settings.notificationsEnabled ? 'On' : 'Off'}`
-        );
+    updateSettingsPage(profile) {
+        document.getElementById('daily-goal-display').textContent = `${profile.settings.dailyGoal} min`;
+        document.getElementById('notifications-toggle').textContent = profile.settings.notificationsEnabled ? 'ON' : 'OFF';
     }
 
     exportData() {

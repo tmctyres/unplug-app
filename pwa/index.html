@@ -31,7 +31,7 @@
     <link rel="preload" href="js/services/user-data.js" as="script">
     <link rel="preload" href="js/services/tracking.js" as="script">
 </head>
-<body>
+<body class="dark">
     <!-- App Loading Screen -->
     <div id="loading-screen" class="loading-screen">
         <div class="loading-content">
@@ -143,26 +143,117 @@
             <!-- Quick Actions -->
             <section class="actions-section">
                 <div class="action-grid">
-                    <button class="action-card" id="achievements-btn">
-                        <div class="action-icon">🏆</div>
-                        <div class="action-label">Achievements</div>
-                        <div class="action-badge" id="achievements-count">0</div>
-                    </button>
-                    <button class="action-card" id="analytics-btn">
-                        <div class="action-icon">📊</div>
-                        <div class="action-label">Analytics</div>
-                    </button>
-                    <button class="action-card" id="social-btn">
-                        <div class="action-icon">👥</div>
-                        <div class="action-label">Social</div>
-                    </button>
                     <button class="action-card" id="export-btn">
                         <div class="action-icon">📤</div>
-                        <div class="action-label">Export</div>
+                        <div class="action-label">Export Data</div>
+                    </button>
+                    <button class="action-card" id="install-btn" style="display: none;">
+                        <div class="action-icon">📱</div>
+                        <div class="action-label">Install App</div>
                     </button>
                 </div>
             </section>
         </main>
+
+        <!-- Achievements Page -->
+        <div id="achievements-page" class="page" style="display: none;">
+            <div class="page-header">
+                <button class="back-btn" onclick="app.navigateToPage('home')">←</button>
+                <h2>🏆 Achievements</h2>
+                <div></div>
+            </div>
+            <div class="page-content">
+                <div class="achievement-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="achievements-unlocked">0</span>
+                        <span class="stat-label">Unlocked</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="total-achievements">25</span>
+                        <span class="stat-label">Total</span>
+                    </div>
+                </div>
+                <div id="achievements-list" class="achievements-grid">
+                    <!-- Achievements will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Page -->
+        <div id="analytics-page" class="page" style="display: none;">
+            <div class="page-header">
+                <button class="back-btn" onclick="app.navigateToPage('home')">←</button>
+                <h2>📊 Analytics</h2>
+                <div></div>
+            </div>
+            <div class="page-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-value" id="total-time">0m</div>
+                        <div class="stat-label">Total Time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-value" id="today-time">0m</div>
+                        <div class="stat-label">Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-value" id="total-sessions">0</div>
+                        <div class="stat-label">Sessions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-value" id="current-streak">0</div>
+                        <div class="stat-label">Streak</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Social Page -->
+        <div id="social-page" class="page" style="display: none;">
+            <div class="page-header">
+                <button class="back-btn" onclick="app.navigateToPage('home')">←</button>
+                <h2>👥 Social</h2>
+                <div></div>
+            </div>
+            <div class="page-content">
+                <div class="coming-soon">
+                    <div class="coming-soon-icon">🚀</div>
+                    <h3>Social Features Coming Soon!</h3>
+                    <p>Connect with friends, join challenges, and share your progress.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div id="settings-page" class="page" style="display: none;">
+            <div class="page-header">
+                <button class="back-btn" onclick="app.navigateToPage('home')">←</button>
+                <h2>⚙️ Settings</h2>
+                <div></div>
+            </div>
+            <div class="page-content">
+                <div class="settings-list">
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-title">Daily Goal</div>
+                            <div class="setting-desc">Target offline time per day</div>
+                        </div>
+                        <div class="setting-value" id="daily-goal-display">60 min</div>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <div class="setting-title">Notifications</div>
+                            <div class="setting-desc">Achievement and reminder alerts</div>
+                        </div>
+                        <div class="setting-toggle" id="notifications-toggle">ON</div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
