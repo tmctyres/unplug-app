@@ -366,19 +366,62 @@ class UnplugApp {
 
         this.currentPage = page;
 
-        // For now, just show a notification
-        // In a full implementation, you'd show different page content
-        const pageNames = {
-            home: 'Home',
-            achievements: 'Achievements',
-            analytics: 'Analytics',
-            social: 'Social',
-            settings: 'Settings'
-        };
-
-        if (page !== 'home') {
-            this.showNotification(`${pageNames[page]} Page`, `${pageNames[page]} feature coming soon!`);
+        // Handle different pages
+        switch(page) {
+            case 'achievements':
+                this.showAchievementsInfo();
+                break;
+            case 'analytics':
+                this.showAnalyticsInfo();
+                break;
+            case 'social':
+                this.showSocialInfo();
+                break;
+            case 'settings':
+                this.showSettingsInfo();
+                break;
+            case 'home':
+            default:
+                // Already on home, no action needed
+                break;
         }
+    }
+
+    showAchievementsInfo() {
+        const profile = this.userDataService.getUserProfile();
+        const unlockedCount = profile.achievements.filter(a => a.unlocked).length;
+        const totalCount = profile.achievements.length;
+
+        this.showNotification(
+            `🏆 Achievements (${unlockedCount}/${totalCount})`,
+            `You've unlocked ${unlockedCount} achievements! Level ${profile.level} • ${profile.totalXP} XP`
+        );
+    }
+
+    showAnalyticsInfo() {
+        const profile = this.userDataService.getUserProfile();
+        const todayStats = this.userDataService.getTodayStats();
+        const totalMinutes = Math.floor(profile.totalOfflineTime / 60);
+
+        this.showNotification(
+            `📊 Your Analytics`,
+            `Total offline time: ${totalMinutes} minutes • Today: ${todayStats?.offlineTime || 0} minutes • Sessions: ${profile.totalSessions}`
+        );
+    }
+
+    showSocialInfo() {
+        this.showNotification(
+            `👥 Social Features`,
+            `Connect with friends, join challenges, and share your progress! (Coming in future update)`
+        );
+    }
+
+    showSettingsInfo() {
+        const profile = this.userDataService.getUserProfile();
+        this.showNotification(
+            `⚙️ Settings`,
+            `Daily goal: ${profile.settings.dailyGoal} minutes • Notifications: ${profile.settings.notificationsEnabled ? 'On' : 'Off'}`
+        );
     }
 
     exportData() {
@@ -403,16 +446,92 @@ class UnplugApp {
     }
 
     showNotification(title, message) {
-        // Simple notification system - could be enhanced with a proper notification component
+        // Show in-app notification that's always visible
+        this.showInAppNotification(title, message);
+
+        // Also try browser notification if permission granted
         if ('Notification' in window && Notification.permission === 'granted') {
             new Notification(title, {
                 body: message,
-                icon: '/icons/icon-192x192.png'
+                icon: '/unplug-app/icons/icon-192x192.png'
             });
-        } else {
-            // Fallback to console for now
-            console.log(`${title}: ${message}`);
         }
+    }
+
+    showInAppNotification(title, message) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = 'in-app-notification';
+        notification.innerHTML = `
+            <div class="notification-content">
+                <div class="notification-title">${title}</div>
+                <div class="notification-message">${message}</div>
+            </div>
+            <button class="notification-close">×</button>
+        `;
+
+        // Add styles
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #10B981;
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            max-width: 90%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideDown 0.3s ease-out;
+        `;
+
+        // Add animation styles to head if not already added
+        if (!document.querySelector('#notification-styles')) {
+            const style = document.createElement('style');
+            style.id = 'notification-styles';
+            style.textContent = `
+                @keyframes slideDown {
+                    from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+                .notification-content { flex: 1; }
+                .notification-title { font-weight: 600; margin-bottom: 4px; }
+                .notification-message { font-size: 14px; opacity: 0.9; }
+                .notification-close {
+                    background: none;
+                    border: none;
+                    color: white;
+                    font-size: 20px;
+                    cursor: pointer;
+                    padding: 0;
+                    width: 24px;
+                    height: 24px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Add to page
+        document.body.appendChild(notification);
+
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 4000);
+
+        // Close button functionality
+        notification.querySelector('.notification-close').addEventListener('click', () => {
+            notification.remove();
+        });
     }
 
     checkOnboarding() {
