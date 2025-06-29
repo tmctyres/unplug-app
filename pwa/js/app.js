@@ -284,31 +284,49 @@ class UnplugApp {
     }
 
     updateUI() {
-        const profile = this.userDataService.getUserProfile();
-        const todayStats = this.userDataService.getTodayStats();
-        const levelProgress = this.userDataService.getLevelProgress();
-        const unlockedAchievements = this.userDataService.getUnlockedAchievements();
+        try {
+            const profile = this.userDataService.getUserProfile();
+            const todayStats = this.userDataService.getTodayStats();
+            const levelProgress = this.userDataService.getLevelProgress();
+            const unlockedAchievements = this.userDataService.getUnlockedAchievements();
 
-        // Update stats
-        document.getElementById('total-xp').textContent = profile.totalXP.toLocaleString();
-        document.getElementById('current-streak').textContent = profile.currentStreak;
-        document.getElementById('today-minutes').textContent = todayStats.offlineMinutes;
-        document.getElementById('daily-goal-progress').textContent = `${this.userDataService.getDailyGoalProgress()}%`;
+            // Helper function to safely update element
+            const safeUpdateElement = (id, content, property = 'textContent') => {
+                const element = document.getElementById(id);
+                if (element) {
+                    if (property === 'style.width') {
+                        element.style.width = content;
+                    } else {
+                        element[property] = content;
+                    }
+                } else {
+                    console.warn(`Element with id '${id}' not found`);
+                }
+            };
 
-        // Update level info
-        document.getElementById('level-badge').textContent = profile.userBadge;
-        document.getElementById('level-title').textContent = profile.userTitle;
-        document.getElementById('level-number').textContent = profile.level;
-        document.getElementById('level-progress-fill').style.width = `${levelProgress.progress}%`;
-        document.getElementById('current-level-xp').textContent = levelProgress.currentXP;
-        document.getElementById('next-level-xp').textContent = levelProgress.nextLevelXP;
+            // Update stats
+            safeUpdateElement('total-xp', profile.totalXP.toLocaleString());
+            safeUpdateElement('current-streak', profile.currentStreak);
+            safeUpdateElement('today-minutes', todayStats.offlineMinutes);
+            safeUpdateElement('daily-goal-progress', `${this.userDataService.getDailyGoalProgress()}%`);
 
-        // Update achievements count
-        document.getElementById('achievements-count').textContent = unlockedAchievements.length;
+            // Update level info
+            safeUpdateElement('level-badge', profile.userBadge);
+            safeUpdateElement('level-title', profile.userTitle);
+            safeUpdateElement('level-number', profile.level);
+            safeUpdateElement('level-progress-fill', `${levelProgress.progress}%`, 'style.width');
+            safeUpdateElement('current-level-xp', levelProgress.currentXP);
+            safeUpdateElement('next-level-xp', levelProgress.nextLevelXP);
 
-        // Update session UI
-        this.updateSessionUI();
-        this.updateMotivationalMessage();
+            // Update achievements count
+            safeUpdateElement('achievements-count', unlockedAchievements.length);
+
+            // Update session UI
+            this.updateSessionUI();
+            this.updateMotivationalMessage();
+        } catch (error) {
+            console.error('Error updating UI:', error);
+        }
     }
 
     updateSessionUI() {
