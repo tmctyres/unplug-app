@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#10B981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Unplug Debug">
+    
+    <!-- Base URL for GitHub Pages -->
+    <base href="/unplug-app/">
+    
+    <title>Unplug Debug - iOS Safari Test</title>
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+        
+        .debug-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .debug-section {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #10B981;
+        }
+        
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        
+        .status.success {
+            background: #10B981;
+            color: white;
+        }
+        
+        .status.error {
+            background: #EF4444;
+            color: white;
+        }
+        
+        .status.warning {
+            background: #F59E0B;
+            color: white;
+        }
+        
+        .log {
+            background: #000;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin: 10px 0;
+        }
+        
+        button {
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        
+        button:hover {
+            background: #059669;
+        }
+        
+        .test-element {
+            background: #3a3a3a;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>🔌 Unplug iOS Safari Debug</h1>
+        <p>This page will help us identify exactly what's causing the iOS Safari issues.</p>
+        
+        <div class="debug-section">
+            <h2>📱 Device Information</h2>
+            <div id="device-info">Loading...</div>
+        </div>
+        
+        <div class="debug-section">
+            <h2>🧪 DOM Tests</h2>
+            <div id="dom-tests">
+                <div class="status" id="dom-status">Testing...</div>
+                <div id="test-element-1" class="test-element">Test Element 1</div>
+                <div id="test-element-2" class="test-element">Test Element 2</div>
+                <div id="achievements-count" class="test-element">0</div>
+                <div id="welcome-text" class="test-element">Welcome</div>
+                <div id="motivational-text" class="test-element">Motivational</div>
+            </div>
+        </div>
+        
+        <div class="debug-section">
+            <h2>📋 Console Log</h2>
+            <div id="console-log" class="log">Starting debug session...\n</div>
+            <button onclick="clearLog()">Clear Log</button>
+            <button onclick="runTests()">Run Tests</button>
+        </div>
+        
+        <div class="debug-section">
+            <h2>🔧 Manual Tests</h2>
+            <button onclick="testBasicDOM()">Test Basic DOM</button>
+            <button onclick="testSafeUpdate()">Test Safe Update</button>
+            <button onclick="testServiceWorker()">Test Service Worker</button>
+            <button onclick="testLocalStorage()">Test Local Storage</button>
+        </div>
+    </div>
+
+    <script>
+        // Capture console logs
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addToLog(message, type = 'log') {
+            const logElement = document.getElementById('console-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌ ERROR' : type === 'warn' ? '⚠️  WARN' : '📝 LOG';
+            logElement.textContent += `[${timestamp}] ${prefix}: ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToLog(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToLog(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToLog(args.join(' '), 'warn');
+        };
+        
+        // Capture unhandled errors
+        window.addEventListener('error', function(e) {
+            console.error(`Unhandled Error: ${e.message} at ${e.filename}:${e.lineno}:${e.colno}`);
+        });
+        
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error(`Unhandled Promise Rejection: ${e.reason}`);
+        });
+        
+        // Safe update element function
+        function safeUpdateElement(id, content, property = 'textContent') {
+            try {
+                console.log(`Attempting to update element '${id}' with content '${content}'`);
+                const element = document.getElementById(id);
+                if (element) {
+                    console.log(`Element '${id}' found successfully`);
+                    if (property === 'style.width') {
+                        element.style.width = content;
+                    } else if (property === 'style.display') {
+                        element.style.display = content;
+                    } else if (property === 'innerHTML') {
+                        element.innerHTML = content;
+                    } else {
+                        element[property] = content;
+                    }
+                    console.log(`Element '${id}' updated successfully`);
+                    return true;
+                } else {
+                    console.warn(`Element with id '${id}' not found`);
+                    return false;
+                }
+            } catch (error) {
+                console.error(`Error updating element '${id}': ${error.message}`);
+                return false;
+            }
+        }
+        
+        // Test functions
+        function clearLog() {
+            document.getElementById('console-log').textContent = 'Log cleared...\n';
+        }
+        
+        function testBasicDOM() {
+            console.log('=== Testing Basic DOM Access ===');
+            
+            // Test 1: Basic getElementById
+            try {
+                const testEl = document.getElementById('test-element-1');
+                if (testEl) {
+                    console.log('✅ Basic getElementById works');
+                    testEl.textContent = 'DOM Access Works!';
+                } else {
+                    console.error('❌ Basic getElementById failed');
+                }
+            } catch (e) {
+                console.error(`❌ Basic DOM test failed: ${e.message}`);
+            }
+            
+            // Test 2: The problematic element
+            try {
+                const achievementsEl = document.getElementById('achievements-count');
+                if (achievementsEl) {
+                    console.log('✅ achievements-count element found');
+                    achievementsEl.textContent = '42';
+                    console.log('✅ achievements-count updated successfully');
+                } else {
+                    console.error('❌ achievements-count element not found');
+                }
+            } catch (e) {
+                console.error(`❌ achievements-count test failed: ${e.message}`);
+            }
+        }
+        
+        function testSafeUpdate() {
+            console.log('=== Testing Safe Update Function ===');
+            
+            safeUpdateElement('test-element-2', 'Safe Update Works!');
+            safeUpdateElement('achievements-count', '99');
+            safeUpdateElement('welcome-text', 'Hello iOS Safari!');
+            safeUpdateElement('motivational-text', 'You can do this! 🚀');
+            safeUpdateElement('nonexistent-element', 'This should fail gracefully');
+        }
+        
+        function testServiceWorker() {
+            console.log('=== Testing Service Worker ===');
+            
+            if ('serviceWorker' in navigator) {
+                console.log('✅ Service Worker supported');
+            } else {
+                console.warn('⚠️  Service Worker not supported');
+            }
+        }
+        
+        function testLocalStorage() {
+            console.log('=== Testing Local Storage ===');
+            
+            try {
+                localStorage.setItem('test', 'value');
+                const value = localStorage.getItem('test');
+                if (value === 'value') {
+                    console.log('✅ Local Storage works');
+                } else {
+                    console.error('❌ Local Storage read failed');
+                }
+                localStorage.removeItem('test');
+            } catch (e) {
+                console.error(`❌ Local Storage failed: ${e.message}`);
+            }
+        }
+        
+        function runTests() {
+            console.log('🧪 Running all tests...');
+            testBasicDOM();
+            testSafeUpdate();
+            testServiceWorker();
+            testLocalStorage();
+            console.log('✅ All tests completed');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Debug page loaded');
+            
+            // Device info
+            const deviceInfo = document.getElementById('device-info');
+            deviceInfo.innerHTML = `
+                <strong>User Agent:</strong> ${navigator.userAgent}<br>
+                <strong>Platform:</strong> ${navigator.platform}<br>
+                <strong>Screen:</strong> ${screen.width}x${screen.height}<br>
+                <strong>Viewport:</strong> ${window.innerWidth}x${window.innerHeight}<br>
+                <strong>iOS:</strong> ${/iPad|iPhone|iPod/.test(navigator.userAgent) ? 'Yes' : 'No'}<br>
+                <strong>Safari:</strong> ${/Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent) ? 'Yes' : 'No'}
+            `;
+            
+            // Auto-run basic tests
+            setTimeout(() => {
+                console.log('Auto-running initial tests...');
+                runTests();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
