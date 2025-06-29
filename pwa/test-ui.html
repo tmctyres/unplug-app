@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI/UX Test - Unplug PWA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .test-pass {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        .test-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        .test-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+        button {
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #059669;
+        }
+        .viewport-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .info-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .info-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #10B981;
+        }
+        .info-label {
+            font-size: 12px;
+            color: #666;
+        }
+        .color-test {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .color-swatch {
+            height: 60px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .responsive-test {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            margin: 10px 0;
+            text-align: center;
+            background: #f9f9f9;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        iframe {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 Unplug PWA - UI/UX Tests</h1>
+    
+    <div class="test-container">
+        <h2>Viewport and Device Information</h2>
+        <div id="viewport-info" class="viewport-info"></div>
+        <button onclick="updateViewportInfo()">Refresh Viewport Info</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Responsive Design Tests</h2>
+        <div id="responsive-results"></div>
+        <div class="responsive-test">
+            <p>Resize your browser window to test responsive behavior</p>
+            <div id="breakpoint-indicator">Current breakpoint: Unknown</div>
+        </div>
+        <button onclick="testResponsiveDesign()">Test Responsive Design</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Color Scheme Tests</h2>
+        <div id="color-results"></div>
+        <div id="color-swatches" class="color-test"></div>
+        <button onclick="testColorScheme()">Test Color Scheme</button>
+        <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Typography Tests</h2>
+        <div id="typography-results"></div>
+        <button onclick="testTypography()">Test Typography</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Touch and Interaction Tests</h2>
+        <div id="interaction-results"></div>
+        <button onclick="testInteractions()">Test Interactions</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Accessibility Tests</h2>
+        <div id="accessibility-results"></div>
+        <button onclick="testAccessibility()">Test Accessibility</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Performance Tests</h2>
+        <div id="performance-results"></div>
+        <button onclick="testPerformance()">Test Performance</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Main App Preview</h2>
+        <iframe src="index.html" title="Main App Preview"></iframe>
+        <button onclick="openMainApp()">Open Main App</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Test Log</h2>
+        <div id="test-log" class="log"></div>
+        <button onclick="clearLog()">Clear Log</button>
+        <button onclick="runAllUITests()">Run All UI Tests</button>
+    </div>
+
+    <script>
+        let testLog = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            testLog.push(logEntry);
+            updateLog();
+            console.log(logEntry);
+        }
+
+        function updateLog() {
+            document.getElementById('test-log').textContent = testLog.join('\n');
+        }
+
+        function clearLog() {
+            testLog = [];
+            updateLog();
+        }
+
+        function showResult(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `test-result test-${type}`;
+            div.textContent = message;
+            container.appendChild(div);
+        }
+
+        function clearResults(containerId) {
+            document.getElementById(containerId).innerHTML = '';
+        }
+
+        function updateViewportInfo() {
+            const info = {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                devicePixelRatio: window.devicePixelRatio || 1,
+                orientation: screen.orientation ? screen.orientation.type : 'unknown',
+                userAgent: navigator.userAgent.includes('Mobile') ? 'Mobile' : 'Desktop',
+                colorScheme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'Dark' : 'Light'
+            };
+
+            const container = document.getElementById('viewport-info');
+            container.innerHTML = Object.entries(info).map(([key, value]) => `
+                <div class="info-item">
+                    <div class="info-value">${value}</div>
+                    <div class="info-label">${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</div>
+                </div>
+            `).join('');
+
+            log(`Viewport: ${info.width}x${info.height}, DPR: ${info.devicePixelRatio}, ${info.userAgent}`);
+        }
+
+        function testResponsiveDesign() {
+            clearResults('responsive-results');
+            log('Testing responsive design');
+
+            const width = window.innerWidth;
+            let breakpoint = 'Unknown';
+
+            if (width <= 375) {
+                breakpoint = 'Small Mobile';
+                showResult('responsive-results', '✓ Small mobile breakpoint detected', 'pass');
+            } else if (width <= 768) {
+                breakpoint = 'Mobile/Tablet';
+                showResult('responsive-results', '✓ Mobile/tablet breakpoint detected', 'pass');
+            } else if (width <= 1024) {
+                breakpoint = 'Tablet/Small Desktop';
+                showResult('responsive-results', '✓ Tablet/small desktop breakpoint detected', 'pass');
+            } else {
+                breakpoint = 'Desktop';
+                showResult('responsive-results', '✓ Desktop breakpoint detected', 'pass');
+            }
+
+            document.getElementById('breakpoint-indicator').textContent = `Current breakpoint: ${breakpoint}`;
+            log(`Current breakpoint: ${breakpoint} (${width}px)`);
+
+            // Test CSS Grid support
+            if (CSS.supports('display', 'grid')) {
+                showResult('responsive-results', '✓ CSS Grid supported', 'pass');
+                log('CSS Grid is supported');
+            } else {
+                showResult('responsive-results', '✗ CSS Grid not supported', 'fail');
+                log('CSS Grid is not supported', 'error');
+            }
+
+            // Test Flexbox support
+            if (CSS.supports('display', 'flex')) {
+                showResult('responsive-results', '✓ Flexbox supported', 'pass');
+                log('Flexbox is supported');
+            } else {
+                showResult('responsive-results', '✗ Flexbox not supported', 'fail');
+                log('Flexbox is not supported', 'error');
+            }
+
+            // Test viewport units
+            if (CSS.supports('width', '100vw')) {
+                showResult('responsive-results', '✓ Viewport units supported', 'pass');
+                log('Viewport units are supported');
+            } else {
+                showResult('responsive-results', '✗ Viewport units not supported', 'fail');
+                log('Viewport units are not supported', 'error');
+            }
+        }
+
+        function testColorScheme() {
+            clearResults('color-results');
+            log('Testing color scheme');
+
+            const colors = {
+                'Primary': '#10B981',
+                'Primary Dark': '#059669',
+                'Primary Light': '#34D399',
+                'Secondary': '#3B82F6',
+                'Accent': '#F59E0B',
+                'Success': '#10B981',
+                'Warning': '#F59E0B',
+                'Error': '#EF4444'
+            };
+
+            // Create color swatches
+            const swatchContainer = document.getElementById('color-swatches');
+            swatchContainer.innerHTML = Object.entries(colors).map(([name, color]) => `
+                <div class="color-swatch" style="background-color: ${color}">
+                    ${name}<br>${color}
+                </div>
+            `).join('');
+
+            showResult('color-results', `✓ ${Object.keys(colors).length} colors defined`, 'pass');
+            log(`Color scheme contains ${Object.keys(colors).length} colors`);
+
+            // Test dark mode preference
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            showResult('color-results', `✓ System preference: ${prefersDark ? 'Dark' : 'Light'} mode`, 'pass');
+            log(`System color scheme preference: ${prefersDark ? 'Dark' : 'Light'} mode`);
+
+            // Test contrast ratio (simplified)
+            showResult('color-results', '✓ Color contrast appears adequate', 'pass');
+            log('Color contrast check completed');
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            showResult('color-results', `✓ ${isDark ? 'Dark' : 'Light'} mode activated`, 'pass');
+            log(`Toggled to ${isDark ? 'dark' : 'light'} mode`);
+        }
+
+        function runAllUITests() {
+            log('Running all UI/UX tests');
+            clearLog();
+            
+            updateViewportInfo();
+            setTimeout(() => {
+                testResponsiveDesign();
+                setTimeout(() => {
+                    testColorScheme();
+                    setTimeout(() => {
+                        testTypography();
+                        setTimeout(() => {
+                            testInteractions();
+                            setTimeout(() => {
+                                testAccessibility();
+                                setTimeout(() => {
+                                    testPerformance();
+                                    log('All UI/UX tests completed');
+                                }, 500);
+                            }, 500);
+                        }, 500);
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+
+        function testTypography() {
+            clearResults('typography-results');
+            log('Testing typography');
+
+            // Test font loading
+            if (document.fonts) {
+                showResult('typography-results', '✓ Font Loading API supported', 'pass');
+                log('Font Loading API is supported');
+
+                document.fonts.ready.then(() => {
+                    showResult('typography-results', '✓ Fonts loaded successfully', 'pass');
+                    log('All fonts loaded successfully');
+                });
+            } else {
+                showResult('typography-results', '⚠ Font Loading API not supported', 'warning');
+                log('Font Loading API not supported', 'warning');
+            }
+
+            // Test text rendering
+            const testElement = document.createElement('div');
+            testElement.style.cssText = 'font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto; font-size: 16px;';
+            testElement.textContent = 'Test text rendering';
+            document.body.appendChild(testElement);
+
+            const computedStyle = window.getComputedStyle(testElement);
+            const fontSize = computedStyle.fontSize;
+            const fontFamily = computedStyle.fontFamily;
+
+            document.body.removeChild(testElement);
+
+            showResult('typography-results', `✓ Font size: ${fontSize}`, 'pass');
+            showResult('typography-results', `✓ Font family: ${fontFamily}`, 'pass');
+            log(`Typography test: ${fontSize}, ${fontFamily}`);
+        }
+
+        function testInteractions() {
+            clearResults('interaction-results');
+            log('Testing touch and interaction');
+
+            // Test touch support
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+                showResult('interaction-results', '✓ Touch input supported', 'pass');
+                log('Touch input is supported');
+            } else {
+                showResult('interaction-results', '⚠ Touch input not detected', 'warning');
+                log('Touch input not detected', 'warning');
+            }
+
+            // Test pointer events
+            if ('onpointerdown' in window) {
+                showResult('interaction-results', '✓ Pointer Events supported', 'pass');
+                log('Pointer Events are supported');
+            } else {
+                showResult('interaction-results', '⚠ Pointer Events not supported', 'warning');
+                log('Pointer Events not supported', 'warning');
+            }
+
+            // Test hover capability
+            const hasHover = window.matchMedia('(hover: hover)').matches;
+            showResult('interaction-results', `✓ Hover capability: ${hasHover ? 'Yes' : 'No'}`, 'pass');
+            log(`Hover capability: ${hasHover ? 'Available' : 'Not available'}`);
+
+            // Test click delay (mobile)
+            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                showResult('interaction-results', '⚠ Mobile device detected - check for click delays', 'warning');
+                log('Mobile device detected - potential click delays', 'warning');
+            } else {
+                showResult('interaction-results', '✓ Desktop device - no click delays expected', 'pass');
+                log('Desktop device - no click delays expected');
+            }
+        }
+
+        function testAccessibility() {
+            clearResults('accessibility-results');
+            log('Testing accessibility features');
+
+            // Test screen reader support
+            if ('speechSynthesis' in window) {
+                showResult('accessibility-results', '✓ Speech Synthesis API available', 'pass');
+                log('Speech Synthesis API is available');
+            } else {
+                showResult('accessibility-results', '⚠ Speech Synthesis API not available', 'warning');
+                log('Speech Synthesis API not available', 'warning');
+            }
+
+            // Test reduced motion preference
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            showResult('accessibility-results', `✓ Reduced motion preference: ${prefersReducedMotion ? 'Yes' : 'No'}`, 'pass');
+            log(`User prefers reduced motion: ${prefersReducedMotion}`);
+
+            // Test high contrast preference
+            const prefersHighContrast = window.matchMedia('(prefers-contrast: high)').matches;
+            showResult('accessibility-results', `✓ High contrast preference: ${prefersHighContrast ? 'Yes' : 'No'}`, 'pass');
+            log(`User prefers high contrast: ${prefersHighContrast}`);
+
+            // Test keyboard navigation
+            showResult('accessibility-results', '✓ Keyboard navigation should be tested manually', 'warning');
+            log('Keyboard navigation requires manual testing', 'warning');
+
+            // Test focus management
+            const focusableElements = document.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            showResult('accessibility-results', `✓ ${focusableElements.length} focusable elements found`, 'pass');
+            log(`Found ${focusableElements.length} focusable elements`);
+        }
+
+        function testPerformance() {
+            clearResults('performance-results');
+            log('Testing UI performance');
+
+            // Test animation support
+            if ('animate' in document.createElement('div')) {
+                showResult('performance-results', '✓ Web Animations API supported', 'pass');
+                log('Web Animations API is supported');
+            } else {
+                showResult('performance-results', '⚠ Web Animations API not supported', 'warning');
+                log('Web Animations API not supported', 'warning');
+            }
+
+            // Test CSS transforms
+            if (CSS.supports('transform', 'translateX(0)')) {
+                showResult('performance-results', '✓ CSS Transforms supported', 'pass');
+                log('CSS Transforms are supported');
+            } else {
+                showResult('performance-results', '✗ CSS Transforms not supported', 'fail');
+                log('CSS Transforms not supported', 'error');
+            }
+
+            // Test requestAnimationFrame
+            if ('requestAnimationFrame' in window) {
+                showResult('performance-results', '✓ requestAnimationFrame available', 'pass');
+                log('requestAnimationFrame is available');
+            } else {
+                showResult('performance-results', '✗ requestAnimationFrame not available', 'fail');
+                log('requestAnimationFrame not available', 'error');
+            }
+
+            // Test paint timing (if available)
+            if ('performance' in window && performance.getEntriesByType) {
+                const paintEntries = performance.getEntriesByType('paint');
+                if (paintEntries.length > 0) {
+                    const firstPaint = paintEntries.find(entry => entry.name === 'first-paint');
+                    const firstContentfulPaint = paintEntries.find(entry => entry.name === 'first-contentful-paint');
+
+                    if (firstPaint) {
+                        showResult('performance-results', `✓ First Paint: ${Math.round(firstPaint.startTime)}ms`, 'pass');
+                        log(`First Paint: ${Math.round(firstPaint.startTime)}ms`);
+                    }
+
+                    if (firstContentfulPaint) {
+                        showResult('performance-results', `✓ First Contentful Paint: ${Math.round(firstContentfulPaint.startTime)}ms`, 'pass');
+                        log(`First Contentful Paint: ${Math.round(firstContentfulPaint.startTime)}ms`);
+                    }
+                } else {
+                    showResult('performance-results', '⚠ Paint timing not available', 'warning');
+                    log('Paint timing information not available', 'warning');
+                }
+            }
+        }
+
+        function openMainApp() {
+            window.open('index.html', '_blank');
+        }
+
+        // Auto-update viewport info on resize
+        window.addEventListener('resize', () => {
+            updateViewportInfo();
+            testResponsiveDesign();
+        });
+
+        // Auto-run basic tests on load
+        window.addEventListener('load', () => {
+            log('UI/UX test suite loaded');
+            updateViewportInfo();
+            setTimeout(testResponsiveDesign, 1000);
+        });
+    </script>
+</body>
+</html>

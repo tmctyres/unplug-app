@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unplug - Digital Wellness PWA</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+    <link rel="apple-touch-icon" href="icons/icon.svg">
+    <meta name="theme-color" content="#10B981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Unplug">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="dark">
+    <!-- Simple Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="app-logo">🔌</div>
+            <h1>Unplug</h1>
+            <div class="loading-spinner"></div>
+            <p id="loading-text">Starting your digital wellness journey...</p>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="app" class="app-container" style="display: none;">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="app-title">
+                    <span class="app-icon">🔌</span>
+                    Unplug
+                </h1>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="level-display">1</span>
+                        <span class="stat-label">Level</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="xp-display">0</span>
+                        <span class="stat-label">XP</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Home Page -->
+            <div id="home-page" class="page active">
+                <div class="session-card">
+                    <div class="session-header">
+                        <h2>Ready for a Digital Break?</h2>
+                        <p>Take time to disconnect and recharge your mind</p>
+                    </div>
+                    
+                    <div class="session-timer">
+                        <div class="timer-display" id="timer-display">00:00:00</div>
+                        <div class="timer-controls">
+                            <button id="start-btn" class="primary-btn">Start Session</button>
+                            <button id="stop-btn" class="secondary-btn" style="display: none;">End Session</button>
+                        </div>
+                    </div>
+
+                    <div class="quick-stats">
+                        <div class="stat-card">
+                            <div class="stat-number" id="today-minutes">0</div>
+                            <div class="stat-label">Minutes Today</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="current-streak">0</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="total-sessions">0</div>
+                            <div class="stat-label">Total Sessions</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-page="home">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Home</span>
+            </button>
+            <button class="nav-item" data-page="achievements">
+                <span class="nav-icon">🏆</span>
+                <span class="nav-label">Achievements</span>
+            </button>
+            <button class="nav-item" data-page="analytics">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Analytics</span>
+            </button>
+            <button class="nav-item" data-page="settings">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Settings</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        console.log('Simple app starting...');
+        
+        // Simple app state
+        let appState = {
+            isSessionActive: false,
+            sessionStartTime: null,
+            sessionTimer: null,
+            userData: {
+                level: 1,
+                totalXP: 0,
+                currentStreak: 0,
+                totalSessions: 0,
+                todayMinutes: 0
+            }
+        };
+
+        // Load user data from localStorage
+        function loadUserData() {
+            try {
+                const saved = localStorage.getItem('unplug_simple_data');
+                if (saved) {
+                    appState.userData = { ...appState.userData, ...JSON.parse(saved) };
+                }
+            } catch (error) {
+                console.log('No saved data found, using defaults');
+            }
+        }
+
+        // Save user data to localStorage
+        function saveUserData() {
+            try {
+                localStorage.setItem('unplug_simple_data', JSON.stringify(appState.userData));
+            } catch (error) {
+                console.error('Failed to save data:', error);
+            }
+        }
+
+        // Update UI with current data
+        function updateUI() {
+            document.getElementById('level-display').textContent = appState.userData.level;
+            document.getElementById('xp-display').textContent = appState.userData.totalXP;
+            document.getElementById('current-streak').textContent = appState.userData.currentStreak;
+            document.getElementById('total-sessions').textContent = appState.userData.totalSessions;
+            document.getElementById('today-minutes').textContent = appState.userData.todayMinutes;
+        }
+
+        // Timer functions
+        function startSession() {
+            console.log('Starting session...');
+            appState.isSessionActive = true;
+            appState.sessionStartTime = Date.now();
+            
+            document.getElementById('start-btn').style.display = 'none';
+            document.getElementById('stop-btn').style.display = 'inline-block';
+            
+            // Start timer display
+            appState.sessionTimer = setInterval(updateTimerDisplay, 1000);
+            updateTimerDisplay();
+        }
+
+        function stopSession() {
+            console.log('Stopping session...');
+            if (!appState.isSessionActive) return;
+            
+            const duration = Date.now() - appState.sessionStartTime;
+            const minutes = Math.floor(duration / 60000);
+            
+            appState.isSessionActive = false;
+            clearInterval(appState.sessionTimer);
+            
+            // Update stats
+            appState.userData.totalSessions++;
+            appState.userData.todayMinutes += minutes;
+            appState.userData.totalXP += minutes;
+            
+            // Simple level calculation
+            appState.userData.level = Math.floor(appState.userData.totalXP / 100) + 1;
+            
+            document.getElementById('start-btn').style.display = 'inline-block';
+            document.getElementById('stop-btn').style.display = 'none';
+            document.getElementById('timer-display').textContent = '00:00:00';
+            
+            saveUserData();
+            updateUI();
+            
+            alert(`Session complete! You earned ${minutes} XP for ${minutes} minutes offline.`);
+        }
+
+        function updateTimerDisplay() {
+            if (!appState.isSessionActive) return;
+            
+            const elapsed = Date.now() - appState.sessionStartTime;
+            const seconds = Math.floor(elapsed / 1000) % 60;
+            const minutes = Math.floor(elapsed / 60000) % 60;
+            const hours = Math.floor(elapsed / 3600000);
+            
+            const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('timer-display').textContent = display;
+        }
+
+        // Initialize app
+        function initApp() {
+            console.log('Initializing simple app...');
+            
+            // Update loading text
+            document.getElementById('loading-text').textContent = 'Loading your data...';
+            
+            setTimeout(() => {
+                // Load data
+                loadUserData();
+                
+                // Set up event listeners
+                document.getElementById('start-btn').addEventListener('click', startSession);
+                document.getElementById('stop-btn').addEventListener('click', stopSession);
+                
+                // Update UI
+                updateUI();
+                
+                // Hide loading screen
+                document.getElementById('loading-text').textContent = 'Ready!';
+                
+                setTimeout(() => {
+                    document.getElementById('loading-screen').style.display = 'none';
+                    document.getElementById('app').style.display = 'flex';
+                    console.log('Simple app loaded successfully!');
+                }, 500);
+                
+            }, 1000);
+        }
+
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => console.log('SW registered:', registration))
+                .catch(error => console.log('SW registration failed:', error));
+        }
+
+        // Start the app
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Test - Unplug PWA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .test-pass {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        .test-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        .test-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+        button {
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #059669;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .metric-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #10B981;
+            margin-bottom: 5px;
+        }
+        .metric-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .metric-description {
+            font-size: 11px;
+            color: #888;
+            margin-top: 5px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10B981, #34D399);
+            transition: width 0.3s ease;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .benchmark-test {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>⚡ Unplug PWA - Performance Tests</h1>
+    
+    <div class="test-container">
+        <h2>Loading Performance</h2>
+        <div id="loading-results"></div>
+        <div id="loading-metrics" class="metrics-grid"></div>
+        <button onclick="testLoadingPerformance()">Test Loading Performance</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Runtime Performance</h2>
+        <div id="runtime-results"></div>
+        <div id="runtime-metrics" class="metrics-grid"></div>
+        <button onclick="testRuntimePerformance()">Test Runtime Performance</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Memory Usage</h2>
+        <div id="memory-results"></div>
+        <div id="memory-metrics" class="metrics-grid"></div>
+        <button onclick="testMemoryUsage()">Test Memory Usage</button>
+        <button onclick="runMemoryStressTest()">Memory Stress Test</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Network Performance</h2>
+        <div id="network-results"></div>
+        <div id="network-metrics" class="metrics-grid"></div>
+        <button onclick="testNetworkPerformance()">Test Network Performance</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Cache Performance</h2>
+        <div id="cache-results"></div>
+        <div id="cache-metrics" class="metrics-grid"></div>
+        <button onclick="testCachePerformance()">Test Cache Performance</button>
+    </div>
+
+    <div class="test-container">
+        <h2>JavaScript Benchmarks</h2>
+        <div id="benchmark-results"></div>
+        <div class="benchmark-test">
+            <h4>CPU Benchmark</h4>
+            <div class="progress-bar">
+                <div id="cpu-progress" class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div id="cpu-result">Ready to test</div>
+        </div>
+        <button onclick="runCPUBenchmark()">Run CPU Benchmark</button>
+        <button onclick="runJSPerformanceTests()">Run JS Performance Tests</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Lighthouse Audit</h2>
+        <div id="lighthouse-results"></div>
+        <p>For comprehensive performance analysis, run Lighthouse audit:</p>
+        <button onclick="openLighthouse()">Open Lighthouse</button>
+        <button onclick="runLighthouseCommand()">Show Lighthouse Command</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Test Log</h2>
+        <div id="test-log" class="log"></div>
+        <button onclick="clearLog()">Clear Log</button>
+        <button onclick="runAllPerformanceTests()">Run All Performance Tests</button>
+    </div>
+
+    <script>
+        let testLog = [];
+        let performanceData = {};
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            testLog.push(logEntry);
+            updateLog();
+            console.log(logEntry);
+        }
+
+        function updateLog() {
+            document.getElementById('test-log').textContent = testLog.join('\n');
+        }
+
+        function clearLog() {
+            testLog = [];
+            updateLog();
+        }
+
+        function showResult(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `test-result test-${type}`;
+            div.textContent = message;
+            container.appendChild(div);
+        }
+
+        function clearResults(containerId) {
+            document.getElementById(containerId).innerHTML = '';
+        }
+
+        function createMetricCard(value, label, description, unit = '') {
+            return `
+                <div class="metric-card">
+                    <div class="metric-value">${value}${unit}</div>
+                    <div class="metric-label">${label}</div>
+                    <div class="metric-description">${description}</div>
+                </div>
+            `;
+        }
+
+        function testLoadingPerformance() {
+            clearResults('loading-results');
+            log('Testing loading performance');
+
+            if (!performance.timing) {
+                showResult('loading-results', '✗ Performance Timing API not available', 'fail');
+                log('Performance Timing API not available', 'error');
+                return;
+            }
+
+            const timing = performance.timing;
+            const navigation = performance.getEntriesByType('navigation')[0];
+
+            // Calculate key metrics
+            const metrics = {
+                domContentLoaded: timing.domContentLoadedEventEnd - timing.navigationStart,
+                loadComplete: timing.loadEventEnd - timing.navigationStart,
+                firstByte: timing.responseStart - timing.navigationStart,
+                domInteractive: timing.domInteractive - timing.navigationStart,
+                resourcesLoaded: timing.loadEventStart - timing.domContentLoadedEventEnd
+            };
+
+            // Display metrics
+            const metricsContainer = document.getElementById('loading-metrics');
+            metricsContainer.innerHTML = [
+                createMetricCard(metrics.domContentLoaded, 'DOM Content Loaded', 'Time until DOM is ready', 'ms'),
+                createMetricCard(metrics.loadComplete, 'Load Complete', 'Total page load time', 'ms'),
+                createMetricCard(metrics.firstByte, 'Time to First Byte', 'Server response time', 'ms'),
+                createMetricCard(metrics.domInteractive, 'DOM Interactive', 'Time until DOM is interactive', 'ms')
+            ].join('');
+
+            // Evaluate performance
+            if (metrics.loadComplete < 3000) {
+                showResult('loading-results', '✓ Excellent loading performance (<3s)', 'pass');
+                log(`Excellent loading performance: ${metrics.loadComplete}ms`);
+            } else if (metrics.loadComplete < 5000) {
+                showResult('loading-results', '⚠ Good loading performance (3-5s)', 'warning');
+                log(`Good loading performance: ${metrics.loadComplete}ms`, 'warning');
+            } else {
+                showResult('loading-results', '✗ Poor loading performance (>5s)', 'fail');
+                log(`Poor loading performance: ${metrics.loadComplete}ms`, 'error');
+            }
+
+            if (navigation) {
+                showResult('loading-results', `✓ Navigation type: ${navigation.type}`, 'pass');
+                log(`Navigation type: ${navigation.type}`);
+            }
+
+            performanceData.loading = metrics;
+        }
+
+        function testRuntimePerformance() {
+            clearResults('runtime-results');
+            log('Testing runtime performance');
+
+            const startTime = performance.now();
+            
+            // Test DOM manipulation performance
+            const testContainer = document.createElement('div');
+            document.body.appendChild(testContainer);
+            
+            const domStartTime = performance.now();
+            for (let i = 0; i < 1000; i++) {
+                const element = document.createElement('div');
+                element.textContent = `Test element ${i}`;
+                testContainer.appendChild(element);
+            }
+            const domTime = performance.now() - domStartTime;
+            
+            document.body.removeChild(testContainer);
+            
+            // Test JavaScript execution performance
+            const jsStartTime = performance.now();
+            let result = 0;
+            for (let i = 0; i < 100000; i++) {
+                result += Math.sqrt(i) * Math.random();
+            }
+            const jsTime = performance.now() - jsStartTime;
+            
+            const totalTime = performance.now() - startTime;
+
+            // Display metrics
+            const metricsContainer = document.getElementById('runtime-metrics');
+            metricsContainer.innerHTML = [
+                createMetricCard(Math.round(domTime), 'DOM Manipulation', '1000 element creation', 'ms'),
+                createMetricCard(Math.round(jsTime), 'JS Execution', '100k math operations', 'ms'),
+                createMetricCard(Math.round(totalTime), 'Total Runtime', 'Combined test time', 'ms')
+            ].join('');
+
+            // Evaluate performance
+            if (domTime < 50) {
+                showResult('runtime-results', '✓ Excellent DOM performance', 'pass');
+                log(`Excellent DOM performance: ${Math.round(domTime)}ms`);
+            } else if (domTime < 100) {
+                showResult('runtime-results', '⚠ Good DOM performance', 'warning');
+                log(`Good DOM performance: ${Math.round(domTime)}ms`, 'warning');
+            } else {
+                showResult('runtime-results', '✗ Poor DOM performance', 'fail');
+                log(`Poor DOM performance: ${Math.round(domTime)}ms`, 'error');
+            }
+
+            if (jsTime < 20) {
+                showResult('runtime-results', '✓ Excellent JS performance', 'pass');
+                log(`Excellent JS performance: ${Math.round(jsTime)}ms`);
+            } else if (jsTime < 50) {
+                showResult('runtime-results', '⚠ Good JS performance', 'warning');
+                log(`Good JS performance: ${Math.round(jsTime)}ms`, 'warning');
+            } else {
+                showResult('runtime-results', '✗ Poor JS performance', 'fail');
+                log(`Poor JS performance: ${Math.round(jsTime)}ms`, 'error');
+            }
+
+            performanceData.runtime = { domTime, jsTime, totalTime };
+        }
+
+        function testMemoryUsage() {
+            clearResults('memory-results');
+            log('Testing memory usage');
+
+            if (performance.memory) {
+                const memory = performance.memory;
+                const usedMB = Math.round(memory.usedJSHeapSize / 1024 / 1024);
+                const totalMB = Math.round(memory.totalJSHeapSize / 1024 / 1024);
+                const limitMB = Math.round(memory.jsHeapSizeLimit / 1024 / 1024);
+
+                const metricsContainer = document.getElementById('memory-metrics');
+                metricsContainer.innerHTML = [
+                    createMetricCard(usedMB, 'Used Memory', 'Current JS heap usage', 'MB'),
+                    createMetricCard(totalMB, 'Total Memory', 'Total JS heap size', 'MB'),
+                    createMetricCard(limitMB, 'Memory Limit', 'JS heap size limit', 'MB'),
+                    createMetricCard(Math.round((usedMB / limitMB) * 100), 'Memory Usage', 'Percentage of limit used', '%')
+                ].join('');
+
+                if (usedMB < 50) {
+                    showResult('memory-results', '✓ Excellent memory usage', 'pass');
+                    log(`Excellent memory usage: ${usedMB}MB`);
+                } else if (usedMB < 100) {
+                    showResult('memory-results', '⚠ Good memory usage', 'warning');
+                    log(`Good memory usage: ${usedMB}MB`, 'warning');
+                } else {
+                    showResult('memory-results', '✗ High memory usage', 'fail');
+                    log(`High memory usage: ${usedMB}MB`, 'error');
+                }
+
+                performanceData.memory = { usedMB, totalMB, limitMB };
+            } else {
+                showResult('memory-results', '⚠ Memory API not available', 'warning');
+                log('Memory API not available', 'warning');
+            }
+        }
+
+        function runMemoryStressTest() {
+            log('Running memory stress test');
+            const arrays = [];
+            const startMemory = performance.memory ? performance.memory.usedJSHeapSize : 0;
+
+            // Create large arrays to test memory handling
+            for (let i = 0; i < 100; i++) {
+                arrays.push(new Array(10000).fill(Math.random()));
+            }
+
+            setTimeout(() => {
+                const endMemory = performance.memory ? performance.memory.usedJSHeapSize : 0;
+                const memoryIncrease = Math.round((endMemory - startMemory) / 1024 / 1024);
+
+                showResult('memory-results', `✓ Memory stress test: +${memoryIncrease}MB`, 'pass');
+                log(`Memory stress test completed: +${memoryIncrease}MB`);
+
+                // Clean up
+                arrays.length = 0;
+
+                // Force garbage collection if available
+                if (window.gc) {
+                    window.gc();
+                    showResult('memory-results', '✓ Garbage collection triggered', 'pass');
+                    log('Garbage collection triggered');
+                }
+            }, 1000);
+        }
+
+        function testNetworkPerformance() {
+            clearResults('network-results');
+            log('Testing network performance');
+
+            const testUrls = [
+                'css/styles.css',
+                'js/app.js',
+                'manifest.json'
+            ];
+
+            let completedTests = 0;
+            const results = [];
+
+            testUrls.forEach(url => {
+                const startTime = performance.now();
+
+                fetch(url, { cache: 'no-cache' })
+                    .then(response => {
+                        const endTime = performance.now();
+                        const loadTime = Math.round(endTime - startTime);
+
+                        results.push({
+                            url: url,
+                            time: loadTime,
+                            size: response.headers.get('content-length') || 'unknown',
+                            status: response.status
+                        });
+
+                        completedTests++;
+
+                        if (completedTests === testUrls.length) {
+                            displayNetworkResults(results);
+                        }
+                    })
+                    .catch(error => {
+                        log(`Network test error for ${url}: ${error.message}`, 'error');
+                        completedTests++;
+
+                        if (completedTests === testUrls.length) {
+                            displayNetworkResults(results);
+                        }
+                    });
+            });
+        }
+
+        function displayNetworkResults(results) {
+            const avgTime = Math.round(results.reduce((sum, r) => sum + r.time, 0) / results.length);
+            const totalSize = results.reduce((sum, r) => sum + (parseInt(r.size) || 0), 0);
+
+            const metricsContainer = document.getElementById('network-metrics');
+            metricsContainer.innerHTML = [
+                createMetricCard(avgTime, 'Avg Load Time', 'Average resource load time', 'ms'),
+                createMetricCard(results.length, 'Resources Tested', 'Number of test resources', ''),
+                createMetricCard(Math.round(totalSize / 1024), 'Total Size', 'Combined resource size', 'KB'),
+                createMetricCard(Math.round(totalSize / avgTime), 'Throughput', 'Bytes per millisecond', 'B/ms')
+            ].join('');
+
+            if (avgTime < 100) {
+                showResult('network-results', '✓ Excellent network performance', 'pass');
+                log(`Excellent network performance: ${avgTime}ms average`);
+            } else if (avgTime < 300) {
+                showResult('network-results', '⚠ Good network performance', 'warning');
+                log(`Good network performance: ${avgTime}ms average`, 'warning');
+            } else {
+                showResult('network-results', '✗ Poor network performance', 'fail');
+                log(`Poor network performance: ${avgTime}ms average`, 'error');
+            }
+
+            results.forEach(result => {
+                showResult('network-results', `✓ ${result.url}: ${result.time}ms`, 'pass');
+                log(`${result.url}: ${result.time}ms, ${result.size} bytes`);
+            });
+
+            performanceData.network = { avgTime, results };
+        }
+
+        function testCachePerformance() {
+            clearResults('cache-results');
+            log('Testing cache performance');
+
+            if (!('caches' in window)) {
+                showResult('cache-results', '✗ Cache API not available', 'fail');
+                log('Cache API not available', 'error');
+                return;
+            }
+
+            const testData = new Response('Test cache data');
+            const cacheKey = 'performance-test-cache';
+            const testUrl = '/test-cache-item';
+
+            // Test cache write performance
+            const writeStartTime = performance.now();
+
+            caches.open(cacheKey)
+                .then(cache => {
+                    return cache.put(testUrl, testData.clone());
+                })
+                .then(() => {
+                    const writeTime = Math.round(performance.now() - writeStartTime);
+
+                    // Test cache read performance
+                    const readStartTime = performance.now();
+
+                    return caches.open(cacheKey);
+                })
+                .then(cache => {
+                    return cache.match(testUrl);
+                })
+                .then(response => {
+                    const readTime = Math.round(performance.now() - writeStartTime);
+
+                    const metricsContainer = document.getElementById('cache-metrics');
+                    metricsContainer.innerHTML = [
+                        createMetricCard(writeTime, 'Cache Write', 'Time to write to cache', 'ms'),
+                        createMetricCard(readTime, 'Cache Read', 'Time to read from cache', 'ms'),
+                        createMetricCard('✓', 'Cache Available', 'Cache API working', ''),
+                        createMetricCard('Test', 'Cache Data', 'Test data cached', '')
+                    ].join('');
+
+                    showResult('cache-results', '✓ Cache performance test completed', 'pass');
+                    log(`Cache performance: Write ${writeTime}ms, Read ${readTime}ms`);
+
+                    // Clean up test cache
+                    return caches.delete(cacheKey);
+                })
+                .then(() => {
+                    showResult('cache-results', '✓ Test cache cleaned up', 'pass');
+                    log('Test cache cleaned up');
+                })
+                .catch(error => {
+                    showResult('cache-results', `✗ Cache test error: ${error.message}`, 'fail');
+                    log(`Cache test error: ${error.message}`, 'error');
+                });
+        }
+
+        function runCPUBenchmark() {
+            log('Running CPU benchmark');
+            const progressBar = document.getElementById('cpu-progress');
+            const resultDiv = document.getElementById('cpu-result');
+
+            progressBar.style.width = '0%';
+            resultDiv.textContent = 'Running benchmark...';
+
+            const startTime = performance.now();
+            let operations = 0;
+            const maxOperations = 1000000;
+
+            function runBenchmarkStep() {
+                const stepStart = performance.now();
+
+                // Perform CPU-intensive operations
+                for (let i = 0; i < 10000 && operations < maxOperations; i++) {
+                    Math.sqrt(Math.random() * 1000) * Math.sin(Math.random() * Math.PI);
+                    operations++;
+                }
+
+                const progress = (operations / maxOperations) * 100;
+                progressBar.style.width = progress + '%';
+
+                if (operations < maxOperations) {
+                    requestAnimationFrame(runBenchmarkStep);
+                } else {
+                    const totalTime = performance.now() - startTime;
+                    const opsPerSecond = Math.round(operations / (totalTime / 1000));
+
+                    resultDiv.textContent = `${opsPerSecond.toLocaleString()} ops/sec (${Math.round(totalTime)}ms)`;
+
+                    showResult('benchmark-results', `✓ CPU Benchmark: ${opsPerSecond.toLocaleString()} ops/sec`, 'pass');
+                    log(`CPU Benchmark completed: ${opsPerSecond.toLocaleString()} operations/second`);
+                }
+            }
+
+            requestAnimationFrame(runBenchmarkStep);
+        }
+
+        function runJSPerformanceTests() {
+            clearResults('benchmark-results');
+            log('Running JavaScript performance tests');
+
+            const tests = [
+                {
+                    name: 'Array Operations',
+                    test: () => {
+                        const arr = new Array(10000).fill(0).map((_, i) => i);
+                        return arr.filter(x => x % 2 === 0).map(x => x * 2).reduce((a, b) => a + b, 0);
+                    }
+                },
+                {
+                    name: 'Object Creation',
+                    test: () => {
+                        const objects = [];
+                        for (let i = 0; i < 10000; i++) {
+                            objects.push({ id: i, value: Math.random(), active: i % 2 === 0 });
+                        }
+                        return objects.length;
+                    }
+                },
+                {
+                    name: 'String Operations',
+                    test: () => {
+                        let result = '';
+                        for (let i = 0; i < 1000; i++) {
+                            result += `Item ${i} - ${Math.random().toString(36)} `;
+                        }
+                        return result.length;
+                    }
+                }
+            ];
+
+            tests.forEach(test => {
+                const startTime = performance.now();
+                const result = test.test();
+                const endTime = performance.now();
+                const duration = Math.round(endTime - startTime);
+
+                showResult('benchmark-results', `✓ ${test.name}: ${duration}ms`, 'pass');
+                log(`${test.name}: ${duration}ms (result: ${result})`);
+            });
+        }
+
+        function openLighthouse() {
+            const url = window.location.origin + '/unplug-app/';
+            const lighthouseUrl = `https://pagespeed.web.dev/report?url=${encodeURIComponent(url)}`;
+            window.open(lighthouseUrl, '_blank');
+            log('Opened PageSpeed Insights for Lighthouse audit');
+        }
+
+        function runLighthouseCommand() {
+            const command = `lighthouse ${window.location.origin}/unplug-app/ --output html --output-path ./lighthouse-report.html`;
+            showResult('lighthouse-results', `Command: ${command}`, 'pass');
+            log(`Lighthouse command: ${command}`);
+
+            // Copy to clipboard if available
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(command).then(() => {
+                    showResult('lighthouse-results', '✓ Command copied to clipboard', 'pass');
+                    log('Lighthouse command copied to clipboard');
+                });
+            }
+        }
+
+        function runAllPerformanceTests() {
+            log('Running all performance tests');
+            clearLog();
+
+            testLoadingPerformance();
+            setTimeout(() => {
+                testRuntimePerformance();
+                setTimeout(() => {
+                    testMemoryUsage();
+                    setTimeout(() => {
+                        testNetworkPerformance();
+                        setTimeout(() => {
+                            testCachePerformance();
+                            setTimeout(() => {
+                                runJSPerformanceTests();
+                                log('All performance tests completed');
+                            }, 1000);
+                        }, 1000);
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+        }
+
+        // Auto-run basic tests on load
+        window.addEventListener('load', () => {
+            log('Performance test suite loaded');
+            setTimeout(() => {
+                testLoadingPerformance();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

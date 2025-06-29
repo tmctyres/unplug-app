@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Functionality Test - Unplug PWA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .test-pass {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        .test-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        .test-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+        button {
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #059669;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .stats-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .stat-item {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #10B981;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔌 Unplug PWA - Functionality Tests</h1>
+    
+    <div class="test-container">
+        <h2>Service Initialization Tests</h2>
+        <div id="init-results"></div>
+        <button onclick="testServiceInitialization()">Test Service Initialization</button>
+    </div>
+
+    <div class="test-container">
+        <h2>User Data Service Tests</h2>
+        <div id="userdata-results"></div>
+        <div id="user-stats" class="stats-display"></div>
+        <button onclick="testUserDataService()">Test User Data</button>
+        <button onclick="resetUserData()">Reset User Data</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Session Tracking Tests</h2>
+        <div id="tracking-results"></div>
+        <div id="session-info" class="stats-display"></div>
+        <button onclick="testSessionTracking()">Test Session Tracking</button>
+        <button onclick="startTestSession()">Start Test Session</button>
+        <button onclick="endTestSession()">End Test Session</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Achievement System Tests</h2>
+        <div id="achievement-results"></div>
+        <div id="achievement-stats" class="stats-display"></div>
+        <button onclick="testAchievements()">Test Achievements</button>
+        <button onclick="triggerTestAchievement()">Trigger Test Achievement</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Storage Tests</h2>
+        <div id="storage-results"></div>
+        <button onclick="testStorage()">Test Storage</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Navigation Tests</h2>
+        <div id="navigation-results"></div>
+        <button onclick="testNavigation()">Test Navigation</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Test Log</h2>
+        <div id="test-log" class="log"></div>
+        <button onclick="clearLog()">Clear Log</button>
+        <button onclick="runAllTests()">Run All Tests</button>
+    </div>
+
+    <!-- Include all the service scripts -->
+    <script src="js/services/storage.js"></script>
+    <script src="js/services/user-data.js"></script>
+    <script src="js/services/tracking.js"></script>
+    <script src="js/services/achievements.js"></script>
+    <script src="js/services/notifications.js"></script>
+    <script src="js/components/modal.js"></script>
+    <script src="js/components/celebration.js"></script>
+
+    <script>
+        let testLog = [];
+        let services = {};
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            testLog.push(logEntry);
+            updateLog();
+            console.log(logEntry);
+        }
+
+        function updateLog() {
+            document.getElementById('test-log').textContent = testLog.join('\n');
+        }
+
+        function clearLog() {
+            testLog = [];
+            updateLog();
+        }
+
+        function showResult(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `test-result test-${type}`;
+            div.textContent = message;
+            container.appendChild(div);
+        }
+
+        function clearResults(containerId) {
+            document.getElementById(containerId).innerHTML = '';
+        }
+
+        function testServiceInitialization() {
+            clearResults('init-results');
+            log('Testing service initialization');
+
+            try {
+                // Test StorageService
+                services.storage = StorageService.getInstance();
+                if (services.storage) {
+                    showResult('init-results', '✓ StorageService initialized', 'pass');
+                    log('StorageService initialized successfully');
+                } else {
+                    showResult('init-results', '✗ StorageService failed to initialize', 'fail');
+                    log('StorageService failed to initialize', 'error');
+                }
+
+                // Test UserDataService
+                services.userData = UserDataService.getInstance();
+                if (services.userData) {
+                    showResult('init-results', '✓ UserDataService initialized', 'pass');
+                    log('UserDataService initialized successfully');
+                } else {
+                    showResult('init-results', '✗ UserDataService failed to initialize', 'fail');
+                    log('UserDataService failed to initialize', 'error');
+                }
+
+                // Test TrackingService
+                services.tracking = TrackingService.getInstance();
+                if (services.tracking) {
+                    showResult('init-results', '✓ TrackingService initialized', 'pass');
+                    log('TrackingService initialized successfully');
+                } else {
+                    showResult('init-results', '✗ TrackingService failed to initialize', 'fail');
+                    log('TrackingService failed to initialize', 'error');
+                }
+
+                // Test AchievementsService
+                services.achievements = AchievementsService.getInstance();
+                if (services.achievements) {
+                    showResult('init-results', '✓ AchievementsService initialized', 'pass');
+                    log('AchievementsService initialized successfully');
+                } else {
+                    showResult('init-results', '✗ AchievementsService failed to initialize', 'fail');
+                    log('AchievementsService failed to initialize', 'error');
+                }
+
+                // Test NotificationsService
+                services.notifications = NotificationsService.getInstance();
+                if (services.notifications) {
+                    showResult('init-results', '✓ NotificationsService initialized', 'pass');
+                    log('NotificationsService initialized successfully');
+                } else {
+                    showResult('init-results', '✗ NotificationsService failed to initialize', 'fail');
+                    log('NotificationsService failed to initialize', 'error');
+                }
+
+            } catch (error) {
+                showResult('init-results', `✗ Service initialization error: ${error.message}`, 'fail');
+                log(`Service initialization error: ${error.message}`, 'error');
+            }
+        }
+
+        function testUserDataService() {
+            clearResults('userdata-results');
+            log('Testing UserDataService functionality');
+
+            if (!services.userData) {
+                showResult('userdata-results', '✗ UserDataService not initialized', 'fail');
+                return;
+            }
+
+            try {
+                // Test getting user profile
+                const profile = services.userData.getUserProfile();
+                if (profile) {
+                    showResult('userdata-results', '✓ User profile retrieved', 'pass');
+                    log(`User profile: Level ${profile.level}, XP: ${profile.totalXP}`);
+                    
+                    // Update stats display
+                    updateUserStats(profile);
+                } else {
+                    showResult('userdata-results', '✗ Failed to get user profile', 'fail');
+                    log('Failed to get user profile', 'error');
+                }
+
+                // Test XP system
+                const initialXP = profile.totalXP;
+                services.userData.addXP(50, 'Test XP');
+                const newProfile = services.userData.getUserProfile();
+                
+                if (newProfile.totalXP === initialXP + 50) {
+                    showResult('userdata-results', '✓ XP system working', 'pass');
+                    log(`XP added successfully: ${initialXP} -> ${newProfile.totalXP}`);
+                } else {
+                    showResult('userdata-results', '✗ XP system not working', 'fail');
+                    log('XP system not working correctly', 'error');
+                }
+
+                // Test settings
+                const settings = services.userData.getSettings();
+                if (settings) {
+                    showResult('userdata-results', '✓ Settings retrieved', 'pass');
+                    log(`Settings: Daily goal ${settings.dailyGoalMinutes} minutes`);
+                } else {
+                    showResult('userdata-results', '✗ Failed to get settings', 'fail');
+                    log('Failed to get settings', 'error');
+                }
+
+            } catch (error) {
+                showResult('userdata-results', `✗ UserDataService error: ${error.message}`, 'fail');
+                log(`UserDataService error: ${error.message}`, 'error');
+            }
+        }
+
+        function updateUserStats(profile) {
+            const statsContainer = document.getElementById('user-stats');
+            statsContainer.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${profile.level}</div>
+                    <div class="stat-label">Level</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${profile.totalXP}</div>
+                    <div class="stat-label">Total XP</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${profile.currentStreak}</div>
+                    <div class="stat-label">Streak</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${Math.round(profile.totalMinutes)}</div>
+                    <div class="stat-label">Total Minutes</div>
+                </div>
+            `;
+        }
+
+        function resetUserData() {
+            if (services.userData) {
+                services.userData.resetUserData();
+                showResult('userdata-results', '✓ User data reset', 'pass');
+                log('User data reset successfully');
+                testUserDataService(); // Refresh the display
+            }
+        }
+
+        function testSessionTracking() {
+            clearResults('tracking-results');
+            log('Testing session tracking functionality');
+
+            if (!services.tracking) {
+                showResult('tracking-results', '✗ TrackingService not initialized', 'fail');
+                return;
+            }
+
+            try {
+                // Test session state
+                const isActive = services.tracking.isSessionActive();
+                showResult('tracking-results', `✓ Session state: ${isActive ? 'Active' : 'Inactive'}`, 'pass');
+                log(`Current session state: ${isActive ? 'Active' : 'Inactive'}`);
+
+                // Test session history
+                const history = services.tracking.getSessionHistory();
+                showResult('tracking-results', `✓ Session history: ${history.length} sessions`, 'pass');
+                log(`Session history contains ${history.length} sessions`);
+
+                // Test today's stats
+                const todayStats = services.tracking.getTodayStats();
+                showResult('tracking-results', `✓ Today's stats: ${todayStats.totalMinutes} minutes`, 'pass');
+                log(`Today's stats: ${todayStats.totalMinutes} minutes, ${todayStats.sessionCount} sessions`);
+
+                updateSessionInfo(todayStats, isActive);
+
+            } catch (error) {
+                showResult('tracking-results', `✗ Session tracking error: ${error.message}`, 'fail');
+                log(`Session tracking error: ${error.message}`, 'error');
+            }
+        }
+
+        function updateSessionInfo(stats, isActive) {
+            const infoContainer = document.getElementById('session-info');
+            infoContainer.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${isActive ? 'Active' : 'Inactive'}</div>
+                    <div class="stat-label">Session Status</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.totalMinutes}</div>
+                    <div class="stat-label">Today Minutes</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.sessionCount}</div>
+                    <div class="stat-label">Today Sessions</div>
+                </div>
+            `;
+        }
+
+        function startTestSession() {
+            if (services.tracking) {
+                try {
+                    services.tracking.startSession();
+                    showResult('tracking-results', '✓ Test session started', 'pass');
+                    log('Test session started');
+                    setTimeout(() => testSessionTracking(), 500);
+                } catch (error) {
+                    showResult('tracking-results', `✗ Failed to start session: ${error.message}`, 'fail');
+                    log(`Failed to start session: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        function endTestSession() {
+            if (services.tracking) {
+                try {
+                    const session = services.tracking.endSession();
+                    if (session) {
+                        showResult('tracking-results', `✓ Test session ended: ${session.duration} minutes`, 'pass');
+                        log(`Test session ended: ${session.duration} minutes`);
+                    } else {
+                        showResult('tracking-results', '⚠ No active session to end', 'warning');
+                        log('No active session to end', 'warning');
+                    }
+                    setTimeout(() => testSessionTracking(), 500);
+                } catch (error) {
+                    showResult('tracking-results', `✗ Failed to end session: ${error.message}`, 'fail');
+                    log(`Failed to end session: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        function runAllTests() {
+            log('Running all functionality tests');
+            clearLog();
+            
+            testServiceInitialization();
+            setTimeout(() => {
+                testUserDataService();
+                setTimeout(() => {
+                    testSessionTracking();
+                    setTimeout(() => {
+                        testAchievements();
+                        setTimeout(() => {
+                            testStorage();
+                            setTimeout(() => {
+                                testNavigation();
+                                log('All tests completed');
+                            }, 500);
+                        }, 500);
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+
+        function testAchievements() {
+            clearResults('achievement-results');
+            log('Testing achievement system');
+
+            if (!services.achievements) {
+                showResult('achievement-results', '✗ AchievementsService not initialized', 'fail');
+                return;
+            }
+
+            try {
+                // Test getting all achievements
+                const allAchievements = services.achievements.getAllAchievements();
+                const achievementCount = Object.keys(allAchievements).length;
+                showResult('achievement-results', `✓ ${achievementCount} achievements defined`, 'pass');
+                log(`Found ${achievementCount} achievement definitions`);
+
+                // Test achievement stats
+                const stats = services.achievements.getAchievementStats();
+                showResult('achievement-results', `✓ Achievement stats: ${stats.unlocked}/${stats.total} unlocked`, 'pass');
+                log(`Achievement stats: ${stats.unlocked}/${stats.total} unlocked (${stats.percentage}%)`);
+
+                // Test unlocked achievements
+                const unlocked = services.achievements.getUnlockedAchievements();
+                showResult('achievement-results', `✓ ${unlocked.length} achievements unlocked`, 'pass');
+                log(`${unlocked.length} achievements currently unlocked`);
+
+                updateAchievementStats(stats);
+
+            } catch (error) {
+                showResult('achievement-results', `✗ Achievement system error: ${error.message}`, 'fail');
+                log(`Achievement system error: ${error.message}`, 'error');
+            }
+        }
+
+        function updateAchievementStats(stats) {
+            const statsContainer = document.getElementById('achievement-stats');
+            statsContainer.innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${stats.unlocked}</div>
+                    <div class="stat-label">Unlocked</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.total}</div>
+                    <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${stats.percentage}%</div>
+                    <div class="stat-label">Progress</div>
+                </div>
+            `;
+        }
+
+        function triggerTestAchievement() {
+            if (services.achievements && services.userData) {
+                try {
+                    // Simulate completing first session achievement
+                    const userData = services.userData.getUserProfile();
+                    userData.totalSessions = 1;
+                    const newAchievements = services.achievements.checkAchievements(userData);
+
+                    if (newAchievements.length > 0) {
+                        showResult('achievement-results', `✓ ${newAchievements.length} new achievement(s) unlocked`, 'pass');
+                        log(`Unlocked achievements: ${newAchievements.map(a => a.name).join(', ')}`);
+                    } else {
+                        showResult('achievement-results', '⚠ No new achievements unlocked', 'warning');
+                        log('No new achievements unlocked', 'warning');
+                    }
+
+                    setTimeout(() => testAchievements(), 500);
+                } catch (error) {
+                    showResult('achievement-results', `✗ Failed to trigger achievement: ${error.message}`, 'fail');
+                    log(`Failed to trigger achievement: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        function testStorage() {
+            clearResults('storage-results');
+            log('Testing storage functionality');
+
+            if (!services.storage) {
+                showResult('storage-results', '✗ StorageService not initialized', 'fail');
+                return;
+            }
+
+            try {
+                // Test basic storage operations
+                const testKey = 'test_key';
+                const testValue = { test: 'data', timestamp: Date.now() };
+
+                // Test setItem
+                const setResult = services.storage.setItem(testKey, testValue);
+                if (setResult) {
+                    showResult('storage-results', '✓ Storage setItem working', 'pass');
+                    log('Storage setItem operation successful');
+                } else {
+                    showResult('storage-results', '✗ Storage setItem failed', 'fail');
+                    log('Storage setItem operation failed', 'error');
+                }
+
+                // Test getItem
+                const retrievedValue = services.storage.getItem(testKey);
+                if (retrievedValue && retrievedValue.test === testValue.test) {
+                    showResult('storage-results', '✓ Storage getItem working', 'pass');
+                    log('Storage getItem operation successful');
+                } else {
+                    showResult('storage-results', '✗ Storage getItem failed', 'fail');
+                    log('Storage getItem operation failed', 'error');
+                }
+
+                // Test removeItem
+                const removeResult = services.storage.removeItem(testKey);
+                if (removeResult) {
+                    showResult('storage-results', '✓ Storage removeItem working', 'pass');
+                    log('Storage removeItem operation successful');
+                } else {
+                    showResult('storage-results', '✗ Storage removeItem failed', 'fail');
+                    log('Storage removeItem operation failed', 'error');
+                }
+
+                // Test storage info
+                const info = services.storage.getStorageInfo();
+                showResult('storage-results', `✓ Storage type: ${info.storageType}`, 'pass');
+                log(`Storage info: ${info.storageType}, ${info.itemCount} items`);
+
+            } catch (error) {
+                showResult('storage-results', `✗ Storage error: ${error.message}`, 'fail');
+                log(`Storage error: ${error.message}`, 'error');
+            }
+        }
+
+        function testNavigation() {
+            clearResults('navigation-results');
+            log('Testing navigation functionality');
+
+            try {
+                // Test if navigation elements exist
+                const navItems = document.querySelectorAll('.nav-item');
+                if (navItems.length > 0) {
+                    showResult('navigation-results', `✓ ${navItems.length} navigation items found`, 'pass');
+                    log(`Found ${navItems.length} navigation items`);
+                } else {
+                    showResult('navigation-results', '⚠ No navigation items found (normal for test page)', 'warning');
+                    log('No navigation items found (normal for test page)', 'warning');
+                }
+
+                // Test page elements
+                const pages = ['home', 'achievements', 'analytics', 'social', 'settings'];
+                let foundPages = 0;
+
+                pages.forEach(pageId => {
+                    const pageElement = document.getElementById(`${pageId}-page`);
+                    if (pageElement) {
+                        foundPages++;
+                    }
+                });
+
+                if (foundPages > 0) {
+                    showResult('navigation-results', `✓ ${foundPages}/${pages.length} page elements found`, 'pass');
+                    log(`Found ${foundPages}/${pages.length} page elements`);
+                } else {
+                    showResult('navigation-results', '⚠ No page elements found (normal for test page)', 'warning');
+                    log('No page elements found (normal for test page)', 'warning');
+                }
+
+                // Test modal functionality
+                if (typeof modalComponent !== 'undefined') {
+                    showResult('navigation-results', '✓ Modal component available', 'pass');
+                    log('Modal component is available');
+                } else {
+                    showResult('navigation-results', '⚠ Modal component not available', 'warning');
+                    log('Modal component not available', 'warning');
+                }
+
+            } catch (error) {
+                showResult('navigation-results', `✗ Navigation error: ${error.message}`, 'fail');
+                log(`Navigation error: ${error.message}`, 'error');
+            }
+        }
+
+        // Auto-run initialization test on load
+        window.addEventListener('load', () => {
+            log('Functionality test suite loaded');
+            setTimeout(testServiceInitialization, 1000);
+        });
+    </script>
+</body>
+</html>

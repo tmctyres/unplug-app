@@ -1,0 +1,297 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '18'
+  CACHE_VERSION: v1
+
+jobs:
+  # Frontend Testing Job
+  frontend-test:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Remove compiled JS files
+      run: find app -name "*.js" -not -path "*/node_modules/*" -delete || true
+      
+    - name: Run frontend tests
+      run: npm test
+      
+    - name: Run tests with coverage
+      run: npm test -- --coverage --watchAll=false
+      
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage/lcov.info
+        flags: frontend
+        name: frontend-coverage
+        
+    - name: Archive test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: frontend-test-results
+        path: |
+          coverage/
+          jest-results.xml
+
+  # Backend Testing Job
+  backend-test:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+        
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: npm ci
+      
+    - name: Build backend
+      working-directory: ./backend
+      run: npx tsc -p tsconfig.simple.json
+      
+    - name: Run backend tests
+      working-directory: ./backend
+      run: |
+        npx jest tests/simple-server.test.ts --testTimeout=30000
+        npx jest tests/utils/logger.test.ts
+        
+    - name: Archive backend artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: backend-build
+        path: backend/dist/
+
+  # PWA Testing Job
+  pwa-test:
+    name: PWA Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        
+    - name: Install PWA dependencies
+      working-directory: ./pwa
+      run: npm install
+      
+    - name: Start PWA server
+      working-directory: ./pwa
+      run: |
+        npm start &
+        sleep 10
+        
+    - name: Install Lighthouse CI
+      run: npm install -g @lhci/cli
+      
+    - name: Run Lighthouse CI
+      run: |
+        lhci autorun --upload.target=temporary-public-storage || true
+        
+    - name: Test PWA endpoints
+      run: |
+        curl -f http://localhost:3000 || exit 1
+        curl -f http://localhost:3000/manifest.json || exit 1
+
+  # Code Quality Job
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: TypeScript Check
+      run: npx tsc --noEmit
+
+    - name: Backend TypeScript Check
+      working-directory: ./backend
+      run: |
+        npm ci
+        npx tsc --noEmit
+
+    - name: Check for security vulnerabilities
+      run: |
+        npm audit --audit-level=high
+        cd backend && npm audit --audit-level=high
+
+  # Build Job (only on main branch)
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: [frontend-test, backend-test, pwa-test, code-quality]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build backend
+      working-directory: ./backend
+      run: |
+        npm ci
+        npx tsc -p tsconfig.simple.json
+
+    - name: Prepare PWA for deployment
+      working-directory: ./pwa
+      run: |
+        npm install
+        # Copy files for GitHub Pages deployment
+        mkdir -p ../docs
+        cp -r * ../docs/
+
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: production-build
+        path: |
+          backend/dist/
+          docs/
+
+    - name: Create deployment package
+      run: |
+        tar -czf unplug-app-${{ github.sha }}.tar.gz \
+          backend/dist/ \
+          docs/ \
+          package.json \
+          README.md
+
+  # Deploy PWA to GitHub Pages
+  deploy-pwa:
+    name: Deploy PWA to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install PWA dependencies
+      working-directory: ./pwa
+      run: npm install
+
+    - name: Prepare PWA for GitHub Pages
+      working-directory: ./pwa
+      run: |
+        # Update service worker paths for GitHub Pages
+        sed -i 's|/unplug-app/|/unplug-app/|g' sw.js || true
+        # Update manifest paths
+        sed -i 's|"start_url": "/"|"start_url": "/unplug-app/"|g' manifest.json || true
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
+
+    - name: Upload to GitHub Pages
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: ./pwa
+
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v2
+
+  # Deploy Backend (example for Railway/Heroku)
+  deploy-backend:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download backend build
+      uses: actions/download-artifact@v3
+      with:
+        name: production-build
+
+    - name: Deploy to Railway (if configured)
+      if: ${{ secrets.RAILWAY_TOKEN != '' }}
+      run: |
+        echo "Railway deployment would go here"
+        echo "To enable: Set RAILWAY_TOKEN secret in repository settings"
+        # npx @railway/cli deploy --token ${{ secrets.RAILWAY_TOKEN }}
+
+    - name: Deploy to Heroku (if configured)
+      if: ${{ secrets.HEROKU_API_KEY != '' }}
+      uses: akhileshns/heroku-deploy@v3.12.14
+      with:
+        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+        heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+        heroku_email: ${{ secrets.HEROKU_EMAIL }}
+        appdir: backend
+
+    - name: Deployment Info
+      run: |
+        echo "✅ Build completed successfully!"
+        echo "📦 Artifacts available for download"
+        echo "🚀 PWA deployed to GitHub Pages (if enabled)"
+        echo "🔧 Backend ready for deployment (configure secrets for auto-deploy)"

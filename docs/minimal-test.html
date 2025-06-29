@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Test - Unplug PWA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .step {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            background: #333;
+        }
+        .success {
+            background: #2d5a2d;
+        }
+        .error {
+            background: #5a2d2d;
+        }
+        .loading {
+            background: #2d4a5a;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Minimal Test - Step by Step</h1>
+    <div id="test-results"></div>
+
+    <script>
+        let testResults = [];
+
+        function addResult(message, status = 'loading') {
+            testResults.push({ message, status, timestamp: new Date().toLocaleTimeString() });
+            updateDisplay();
+            console.log(`[${status.toUpperCase()}] ${message}`);
+        }
+
+        function updateDisplay() {
+            const container = document.getElementById('test-results');
+            container.innerHTML = testResults.map(result => 
+                `<div class="step ${result.status}">[${result.timestamp}] ${result.message}</div>`
+            ).join('');
+        }
+
+        function updateLastResult(status) {
+            if (testResults.length > 0) {
+                testResults[testResults.length - 1].status = status;
+                updateDisplay();
+            }
+        }
+
+        // Step 1: Test basic JavaScript
+        addResult('Testing basic JavaScript...');
+        try {
+            const test = { a: 1, b: 2 };
+            if (test.a === 1) {
+                updateLastResult('success');
+                addResult('✓ Basic JavaScript working');
+            }
+        } catch (error) {
+            updateLastResult('error');
+            addResult('✗ Basic JavaScript failed: ' + error.message);
+        }
+
+        // Step 2: Test DOM access
+        addResult('Testing DOM access...');
+        try {
+            const body = document.body;
+            if (body) {
+                updateLastResult('success');
+                addResult('✓ DOM access working');
+            }
+        } catch (error) {
+            updateLastResult('error');
+            addResult('✗ DOM access failed: ' + error.message);
+        }
+
+        // Step 3: Test localStorage
+        addResult('Testing localStorage...');
+        try {
+            localStorage.setItem('test', 'value');
+            const value = localStorage.getItem('test');
+            localStorage.removeItem('test');
+            if (value === 'value') {
+                updateLastResult('success');
+                addResult('✓ localStorage working');
+            }
+        } catch (error) {
+            updateLastResult('error');
+            addResult('✗ localStorage failed: ' + error.message);
+        }
+
+        // Step 4: Load StorageService
+        addResult('Loading StorageService...');
+        const storageScript = document.createElement('script');
+        storageScript.src = 'js/services/storage.js';
+        storageScript.onload = () => {
+            updateLastResult('success');
+            addResult('✓ StorageService script loaded');
+            
+            // Test StorageService
+            addResult('Testing StorageService...');
+            try {
+                if (typeof StorageService !== 'undefined') {
+                    const storage = StorageService.getInstance();
+                    if (storage) {
+                        updateLastResult('success');
+                        addResult('✓ StorageService instance created');
+                        loadUserDataService();
+                    } else {
+                        updateLastResult('error');
+                        addResult('✗ StorageService instance failed');
+                    }
+                } else {
+                    updateLastResult('error');
+                    addResult('✗ StorageService not defined');
+                }
+            } catch (error) {
+                updateLastResult('error');
+                addResult('✗ StorageService error: ' + error.message);
+            }
+        };
+        storageScript.onerror = () => {
+            updateLastResult('error');
+            addResult('✗ Failed to load StorageService script');
+        };
+        document.head.appendChild(storageScript);
+
+        function loadUserDataService() {
+            addResult('Loading UserDataService...');
+            const userDataScript = document.createElement('script');
+            userDataScript.src = 'js/services/user-data.js';
+            userDataScript.onload = () => {
+                updateLastResult('success');
+                addResult('✓ UserDataService script loaded');
+                
+                // Test UserDataService
+                addResult('Testing UserDataService...');
+                try {
+                    if (typeof UserDataService !== 'undefined') {
+                        const userData = UserDataService.getInstance();
+                        if (userData) {
+                            updateLastResult('success');
+                            addResult('✓ UserDataService instance created');
+                            loadTrackingService();
+                        } else {
+                            updateLastResult('error');
+                            addResult('✗ UserDataService instance failed');
+                        }
+                    } else {
+                        updateLastResult('error');
+                        addResult('✗ UserDataService not defined');
+                    }
+                } catch (error) {
+                    updateLastResult('error');
+                    addResult('✗ UserDataService error: ' + error.message);
+                    addResult('Error details: ' + error.stack);
+                }
+            };
+            userDataScript.onerror = () => {
+                updateLastResult('error');
+                addResult('✗ Failed to load UserDataService script');
+            };
+            document.head.appendChild(userDataScript);
+        }
+
+        function loadTrackingService() {
+            addResult('Loading TrackingService...');
+            const trackingScript = document.createElement('script');
+            trackingScript.src = 'js/services/tracking.js';
+            trackingScript.onload = () => {
+                updateLastResult('success');
+                addResult('✓ TrackingService script loaded');
+                
+                // Test TrackingService
+                addResult('Testing TrackingService...');
+                try {
+                    if (typeof TrackingService !== 'undefined') {
+                        const tracking = TrackingService.getInstance();
+                        if (tracking) {
+                            updateLastResult('success');
+                            addResult('✓ TrackingService instance created');
+                            loadApp();
+                        } else {
+                            updateLastResult('error');
+                            addResult('✗ TrackingService instance failed');
+                        }
+                    } else {
+                        updateLastResult('error');
+                        addResult('✗ TrackingService not defined');
+                    }
+                } catch (error) {
+                    updateLastResult('error');
+                    addResult('✗ TrackingService error: ' + error.message);
+                }
+            };
+            trackingScript.onerror = () => {
+                updateLastResult('error');
+                addResult('✗ Failed to load TrackingService script');
+            };
+            document.head.appendChild(trackingScript);
+        }
+
+        function loadApp() {
+            addResult('Loading App...');
+            const appScript = document.createElement('script');
+            appScript.src = 'js/app.js';
+            appScript.onload = () => {
+                updateLastResult('success');
+                addResult('✓ App script loaded');
+                
+                // Test App
+                addResult('Testing App creation...');
+                try {
+                    if (typeof UnplugApp !== 'undefined') {
+                        // Don't actually create the app, just test if the class exists
+                        updateLastResult('success');
+                        addResult('✓ UnplugApp class available');
+                        addResult('🎉 All components loaded successfully!');
+                        addResult('The issue might be in the app initialization logic.');
+                    } else {
+                        updateLastResult('error');
+                        addResult('✗ UnplugApp not defined');
+                    }
+                } catch (error) {
+                    updateLastResult('error');
+                    addResult('✗ App error: ' + error.message);
+                }
+            };
+            appScript.onerror = () => {
+                updateLastResult('error');
+                addResult('✗ Failed to load App script');
+            };
+            document.head.appendChild(appScript);
+        }
+
+        // Add a button to go back to main app
+        setTimeout(() => {
+            const button = document.createElement('button');
+            button.textContent = 'Go to Main App';
+            button.style.cssText = 'padding: 10px 20px; margin: 20px 0; background: #10B981; color: white; border: none; border-radius: 4px; cursor: pointer;';
+            button.onclick = () => window.location.href = 'index.html';
+            document.body.appendChild(button);
+        }, 5000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Test Suite - Unplug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .test-pass {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        button {
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #059669;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔌 Unplug PWA Test Suite</h1>
+    
+    <div class="test-container">
+        <h2>Service Worker Tests</h2>
+        <div id="sw-results"></div>
+        <button onclick="testServiceWorker()">Test Service Worker</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Manifest Tests</h2>
+        <div id="manifest-results"></div>
+        <button onclick="testManifest()">Test Manifest</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Storage Tests</h2>
+        <div id="storage-results"></div>
+        <button onclick="testStorage()">Test Storage</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Offline Tests</h2>
+        <div id="offline-results"></div>
+        <button onclick="testOffline()">Test Offline Functionality</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Install Tests</h2>
+        <div id="install-results"></div>
+        <button onclick="testInstallability()">Test Installability</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Performance Tests</h2>
+        <div id="performance-results"></div>
+        <button onclick="testPerformance()">Test Performance</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Test Log</h2>
+        <div id="test-log" class="log"></div>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+
+    <script>
+        let testLog = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            testLog.push(logEntry);
+            updateLog();
+            console.log(logEntry);
+        }
+
+        function updateLog() {
+            document.getElementById('test-log').textContent = testLog.join('\n');
+        }
+
+        function clearLog() {
+            testLog = [];
+            updateLog();
+        }
+
+        function showResult(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `test-result test-${type}`;
+            div.textContent = message;
+            container.appendChild(div);
+        }
+
+        async function testServiceWorker() {
+            const container = document.getElementById('sw-results');
+            container.innerHTML = '';
+            log('Starting Service Worker tests');
+
+            // Test 1: Service Worker support
+            if ('serviceWorker' in navigator) {
+                showResult('sw-results', '✓ Service Worker API supported', 'pass');
+                log('Service Worker API is supported');
+            } else {
+                showResult('sw-results', '✗ Service Worker API not supported', 'fail');
+                log('Service Worker API not supported', 'error');
+                return;
+            }
+
+            // Test 2: Service Worker registration
+            try {
+                const registration = await navigator.serviceWorker.getRegistration();
+                if (registration) {
+                    showResult('sw-results', '✓ Service Worker registered', 'pass');
+                    log(`Service Worker registered: ${registration.scope}`);
+                    
+                    // Test 3: Service Worker state
+                    if (registration.active) {
+                        showResult('sw-results', '✓ Service Worker active', 'pass');
+                        log('Service Worker is active');
+                    } else {
+                        showResult('sw-results', '⚠ Service Worker not active', 'warning');
+                        log('Service Worker is not active', 'warning');
+                    }
+                } else {
+                    showResult('sw-results', '✗ Service Worker not registered', 'fail');
+                    log('Service Worker not registered', 'error');
+                }
+            } catch (error) {
+                showResult('sw-results', `✗ Service Worker error: ${error.message}`, 'fail');
+                log(`Service Worker error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testManifest() {
+            const container = document.getElementById('manifest-results');
+            container.innerHTML = '';
+            log('Starting Manifest tests');
+
+            // Test 1: Manifest link
+            const manifestLink = document.querySelector('link[rel="manifest"]');
+            if (manifestLink) {
+                showResult('manifest-results', '✓ Manifest link found', 'pass');
+                log(`Manifest link found: ${manifestLink.href}`);
+            } else {
+                showResult('manifest-results', '✗ Manifest link not found', 'fail');
+                log('Manifest link not found', 'error');
+                return;
+            }
+
+            // Test 2: Fetch manifest
+            try {
+                const response = await fetch(manifestLink.href);
+                if (response.ok) {
+                    const manifest = await response.json();
+                    showResult('manifest-results', '✓ Manifest file accessible', 'pass');
+                    log('Manifest file is accessible');
+
+                    // Test 3: Required fields
+                    const requiredFields = ['name', 'start_url', 'display', 'icons'];
+                    let allFieldsPresent = true;
+                    
+                    requiredFields.forEach(field => {
+                        if (manifest[field]) {
+                            showResult('manifest-results', `✓ ${field} present`, 'pass');
+                            log(`Manifest field '${field}' is present`);
+                        } else {
+                            showResult('manifest-results', `✗ ${field} missing`, 'fail');
+                            log(`Manifest field '${field}' is missing`, 'error');
+                            allFieldsPresent = false;
+                        }
+                    });
+
+                    if (allFieldsPresent) {
+                        showResult('manifest-results', '✓ All required fields present', 'pass');
+                        log('All required manifest fields are present');
+                    }
+                } else {
+                    showResult('manifest-results', '✗ Manifest file not accessible', 'fail');
+                    log(`Manifest file not accessible: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showResult('manifest-results', `✗ Manifest error: ${error.message}`, 'fail');
+                log(`Manifest error: ${error.message}`, 'error');
+            }
+        }
+
+        function testStorage() {
+            const container = document.getElementById('storage-results');
+            container.innerHTML = '';
+            log('Starting Storage tests');
+
+            // Test 1: localStorage support
+            try {
+                const testKey = '__test_storage__';
+                const testValue = 'test';
+                localStorage.setItem(testKey, testValue);
+                const retrieved = localStorage.getItem(testKey);
+                localStorage.removeItem(testKey);
+                
+                if (retrieved === testValue) {
+                    showResult('storage-results', '✓ localStorage working', 'pass');
+                    log('localStorage is working correctly');
+                } else {
+                    showResult('storage-results', '✗ localStorage not working', 'fail');
+                    log('localStorage is not working correctly', 'error');
+                }
+            } catch (error) {
+                showResult('storage-results', `✗ localStorage error: ${error.message}`, 'fail');
+                log(`localStorage error: ${error.message}`, 'error');
+            }
+
+            // Test 2: IndexedDB support
+            if ('indexedDB' in window) {
+                showResult('storage-results', '✓ IndexedDB supported', 'pass');
+                log('IndexedDB is supported');
+            } else {
+                showResult('storage-results', '⚠ IndexedDB not supported', 'warning');
+                log('IndexedDB is not supported', 'warning');
+            }
+
+            // Test 3: Cache API support
+            if ('caches' in window) {
+                showResult('storage-results', '✓ Cache API supported', 'pass');
+                log('Cache API is supported');
+            } else {
+                showResult('storage-results', '✗ Cache API not supported', 'fail');
+                log('Cache API is not supported', 'error');
+            }
+        }
+
+        async function testOffline() {
+            const container = document.getElementById('offline-results');
+            container.innerHTML = '';
+            log('Starting Offline tests');
+
+            // Test 1: Online/Offline detection
+            if (navigator.onLine) {
+                showResult('offline-results', '✓ Currently online', 'pass');
+                log('Currently online');
+            } else {
+                showResult('offline-results', '⚠ Currently offline', 'warning');
+                log('Currently offline', 'warning');
+            }
+
+            // Test 2: Cache availability
+            if ('caches' in window) {
+                try {
+                    const cacheNames = await caches.keys();
+                    if (cacheNames.length > 0) {
+                        showResult('offline-results', `✓ ${cacheNames.length} cache(s) found`, 'pass');
+                        log(`Found ${cacheNames.length} cache(s): ${cacheNames.join(', ')}`);
+                    } else {
+                        showResult('offline-results', '⚠ No caches found', 'warning');
+                        log('No caches found', 'warning');
+                    }
+                } catch (error) {
+                    showResult('offline-results', `✗ Cache error: ${error.message}`, 'fail');
+                    log(`Cache error: ${error.message}`, 'error');
+                }
+            }
+
+            // Test 3: Test cached resource
+            try {
+                const response = await fetch('/css/styles.css');
+                if (response.ok) {
+                    showResult('offline-results', '✓ CSS file accessible', 'pass');
+                    log('CSS file is accessible');
+                } else {
+                    showResult('offline-results', '✗ CSS file not accessible', 'fail');
+                    log(`CSS file not accessible: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showResult('offline-results', `✗ Resource fetch error: ${error.message}`, 'fail');
+                log(`Resource fetch error: ${error.message}`, 'error');
+            }
+        }
+
+        function testInstallability() {
+            const container = document.getElementById('install-results');
+            container.innerHTML = '';
+            log('Starting Installability tests');
+
+            // Test 1: beforeinstallprompt support
+            if (window.beforeinstallprompt !== undefined) {
+                showResult('install-results', '✓ Install prompt supported', 'pass');
+                log('Install prompt is supported');
+            } else {
+                showResult('install-results', '⚠ Install prompt not supported', 'warning');
+                log('Install prompt not supported', 'warning');
+            }
+
+            // Test 2: Standalone mode detection
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                showResult('install-results', '✓ Running in standalone mode', 'pass');
+                log('App is running in standalone mode');
+            } else {
+                showResult('install-results', '⚠ Not in standalone mode', 'warning');
+                log('App is not in standalone mode', 'warning');
+            }
+
+            // Test 3: iOS standalone detection
+            if (window.navigator.standalone) {
+                showResult('install-results', '✓ iOS standalone mode', 'pass');
+                log('Running in iOS standalone mode');
+            } else {
+                showResult('install-results', '⚠ Not iOS standalone', 'warning');
+                log('Not running in iOS standalone mode', 'warning');
+            }
+        }
+
+        function testPerformance() {
+            const container = document.getElementById('performance-results');
+            container.innerHTML = '';
+            log('Starting Performance tests');
+
+            // Test 1: Performance API
+            if ('performance' in window) {
+                showResult('performance-results', '✓ Performance API available', 'pass');
+                log('Performance API is available');
+
+                // Test 2: Navigation timing
+                const navigation = performance.getEntriesByType('navigation')[0];
+                if (navigation) {
+                    const loadTime = navigation.loadEventEnd - navigation.navigationStart;
+                    if (loadTime < 3000) {
+                        showResult('performance-results', `✓ Load time: ${loadTime}ms`, 'pass');
+                        log(`Page load time: ${loadTime}ms`);
+                    } else {
+                        showResult('performance-results', `⚠ Slow load time: ${loadTime}ms`, 'warning');
+                        log(`Slow page load time: ${loadTime}ms`, 'warning');
+                    }
+                }
+            } else {
+                showResult('performance-results', '✗ Performance API not available', 'fail');
+                log('Performance API not available', 'error');
+            }
+
+            // Test 3: Memory usage (if available)
+            if (performance.memory) {
+                const memoryMB = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024);
+                showResult('performance-results', `✓ Memory usage: ${memoryMB}MB`, 'pass');
+                log(`JavaScript heap size: ${memoryMB}MB`);
+            } else {
+                showResult('performance-results', '⚠ Memory info not available', 'warning');
+                log('Memory information not available', 'warning');
+            }
+        }
+
+        // Auto-run basic tests on load
+        window.addEventListener('load', () => {
+            log('PWA Test Suite loaded');
+            setTimeout(() => {
+                testServiceWorker();
+                testManifest();
+                testStorage();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

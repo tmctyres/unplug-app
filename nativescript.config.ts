@@ -20,7 +20,7 @@ export default {
   hooks: [
     {
       type: 'before-prepare',
-      script: 'hooks/before-prepare/nativescript-dev-webpack.js'
+      script: 'hooks/before-prepare/nativescript-firebase.js'
     }
   ]
 } as NativeScriptConfig;

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Unplug PWA</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+        .log {
+            background: #000;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error {
+            color: #ff4444;
+        }
+        .warning {
+            color: #ffaa00;
+        }
+        .info {
+            color: #00aaff;
+        }
+        button {
+            background: #333;
+            color: #fff;
+            border: 1px solid #666;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>🐛 Unplug PWA Debug Console</h1>
+    
+    <div>
+        <button onclick="testServices()">Test Services</button>
+        <button onclick="testApp()">Test App</button>
+        <button onclick="clearLog()">Clear Log</button>
+        <button onclick="location.href='index.html'">Go to Main App</button>
+    </div>
+    
+    <div id="debug-log" class="log"></div>
+
+    <!-- Include all the service scripts -->
+    <script src="js/services/storage.js"></script>
+    <script src="js/services/user-data.js"></script>
+    <script src="js/services/tracking.js"></script>
+    <script src="js/services/achievements.js"></script>
+    <script src="js/services/notifications.js"></script>
+    <script src="js/components/modal.js"></script>
+    <script src="js/components/celebration.js"></script>
+
+    <script>
+        let debugLog = [];
+
+        // Override console methods to capture logs
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn,
+            info: console.info
+        };
+
+        function addToDebugLog(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            debugLog.push(`[${timestamp}] ${type.toUpperCase()}: ${message}`);
+            updateDebugDisplay();
+            
+            // Also call original console method
+            originalConsole[type](message);
+        }
+
+        console.log = (...args) => addToDebugLog(args.join(' '), 'log');
+        console.error = (...args) => addToDebugLog(args.join(' '), 'error');
+        console.warn = (...args) => addToDebugLog(args.join(' '), 'warn');
+        console.info = (...args) => addToDebugLog(args.join(' '), 'info');
+
+        function updateDebugDisplay() {
+            const logElement = document.getElementById('debug-log');
+            logElement.innerHTML = debugLog.map(entry => {
+                let className = '';
+                if (entry.includes('ERROR:')) className = 'error';
+                else if (entry.includes('WARN:')) className = 'warning';
+                else if (entry.includes('INFO:')) className = 'info';
+                
+                return `<div class="${className}">${entry}</div>`;
+            }).join('');
+            
+            // Auto-scroll to bottom
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function clearLog() {
+            debugLog = [];
+            updateDebugDisplay();
+        }
+
+        function testServices() {
+            console.log('=== Testing Services ===');
+            
+            // Test StorageService
+            try {
+                console.log('Testing StorageService...');
+                if (typeof StorageService === 'undefined') {
+                    console.error('StorageService is not defined');
+                } else {
+                    const storage = StorageService.getInstance();
+                    console.log('StorageService instance created:', !!storage);
+                    
+                    // Test basic operations
+                    storage.setItem('test', 'value');
+                    const retrieved = storage.getItem('test');
+                    console.log('Storage test:', retrieved === 'value' ? 'PASS' : 'FAIL');
+                    storage.removeItem('test');
+                }
+            } catch (error) {
+                console.error('StorageService error:', error.message);
+            }
+
+            // Test UserDataService
+            try {
+                console.log('Testing UserDataService...');
+                if (typeof UserDataService === 'undefined') {
+                    console.error('UserDataService is not defined');
+                } else {
+                    const userData = UserDataService.getInstance();
+                    console.log('UserDataService instance created:', !!userData);
+                    console.log('User profile:', !!userData.userProfile);
+                }
+            } catch (error) {
+                console.error('UserDataService error:', error.message);
+            }
+
+            // Test TrackingService
+            try {
+                console.log('Testing TrackingService...');
+                if (typeof TrackingService === 'undefined') {
+                    console.error('TrackingService is not defined');
+                } else {
+                    const tracking = TrackingService.getInstance();
+                    console.log('TrackingService instance created:', !!tracking);
+                }
+            } catch (error) {
+                console.error('TrackingService error:', error.message);
+            }
+
+            console.log('=== Service Tests Complete ===');
+        }
+
+        function testApp() {
+            console.log('=== Testing App Initialization ===');
+            
+            try {
+                // Load the app script
+                const script = document.createElement('script');
+                script.src = 'js/app.js';
+                script.onload = () => {
+                    console.log('App script loaded');
+                    
+                    // Try to create app instance
+                    try {
+                        if (typeof UnplugApp === 'undefined') {
+                            console.error('UnplugApp class is not defined');
+                        } else {
+                            console.log('Creating UnplugApp instance...');
+                            const app = new UnplugApp();
+                            console.log('App instance created successfully:', !!app);
+                        }
+                    } catch (error) {
+                        console.error('App creation error:', error.message);
+                        console.error('Stack trace:', error.stack);
+                    }
+                };
+                script.onerror = () => {
+                    console.error('Failed to load app script');
+                };
+                document.head.appendChild(script);
+                
+            } catch (error) {
+                console.error('App test error:', error.message);
+            }
+        }
+
+        // Auto-run service tests on load
+        window.addEventListener('load', () => {
+            console.log('Debug page loaded');
+            setTimeout(testServices, 1000);
+        });
+    </script>
+</body>
+</html>

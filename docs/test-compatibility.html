@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compatibility Test - Unplug PWA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .test-pass {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        .test-fail {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        .test-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+        button {
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #059669;
+        }
+        .browser-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .info-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .info-title {
+            font-weight: bold;
+            color: #10B981;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            font-size: 14px;
+            color: #666;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .feature-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #dee2e6;
+        }
+        .feature-supported {
+            border-left-color: #28a745;
+        }
+        .feature-unsupported {
+            border-left-color: #dc3545;
+        }
+        .feature-partial {
+            border-left-color: #ffc107;
+        }
+        .support-icon {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .test-instructions {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .test-instructions h4 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌐 Unplug PWA - Cross-Platform Compatibility Tests</h1>
+    
+    <div class="test-container">
+        <h2>Browser Detection</h2>
+        <div id="browser-info" class="browser-info"></div>
+        <div id="browser-results"></div>
+        <button onclick="detectBrowser()">Detect Browser</button>
+    </div>
+
+    <div class="test-container">
+        <h2>PWA Feature Support</h2>
+        <div id="pwa-features" class="feature-grid"></div>
+        <div id="pwa-results"></div>
+        <button onclick="testPWAFeatures()">Test PWA Features</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Modern Web APIs</h2>
+        <div id="api-features" class="feature-grid"></div>
+        <div id="api-results"></div>
+        <button onclick="testWebAPIs()">Test Web APIs</button>
+    </div>
+
+    <div class="test-container">
+        <h2>CSS Features</h2>
+        <div id="css-features" class="feature-grid"></div>
+        <div id="css-results"></div>
+        <button onclick="testCSSFeatures()">Test CSS Features</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Mobile Platform Tests</h2>
+        <div id="mobile-results"></div>
+        <div class="test-instructions">
+            <h4>Mobile Testing Instructions:</h4>
+            <p>1. Open this page on your mobile device</p>
+            <p>2. Test touch interactions and gestures</p>
+            <p>3. Try adding the PWA to home screen</p>
+            <p>4. Test offline functionality</p>
+            <p>5. Check notification permissions</p>
+        </div>
+        <button onclick="testMobilePlatform()">Test Mobile Platform</button>
+    </div>
+
+    <div class="test-container">
+        <h2>iOS Safari Specific Tests</h2>
+        <div id="ios-results"></div>
+        <div class="test-instructions">
+            <h4>iOS Safari Testing:</h4>
+            <p>1. Test "Add to Home Screen" functionality</p>
+            <p>2. Check standalone mode behavior</p>
+            <p>3. Verify safe area handling</p>
+            <p>4. Test touch events and gestures</p>
+        </div>
+        <button onclick="testIOSSafari()">Test iOS Safari</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Android Chrome Tests</h2>
+        <div id="android-results"></div>
+        <div class="test-instructions">
+            <h4>Android Chrome Testing:</h4>
+            <p>1. Test install prompt</p>
+            <p>2. Check WebAPK generation</p>
+            <p>3. Verify notification support</p>
+            <p>4. Test background sync</p>
+        </div>
+        <button onclick="testAndroidChrome()">Test Android Chrome</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Desktop Browser Tests</h2>
+        <div id="desktop-results"></div>
+        <button onclick="testDesktopBrowsers()">Test Desktop Features</button>
+    </div>
+
+    <div class="test-container">
+        <h2>Test Log</h2>
+        <div id="test-log" class="log"></div>
+        <button onclick="clearLog()">Clear Log</button>
+        <button onclick="runAllCompatibilityTests()">Run All Compatibility Tests</button>
+    </div>
+
+    <script>
+        let testLog = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            testLog.push(logEntry);
+            updateLog();
+            console.log(logEntry);
+        }
+
+        function updateLog() {
+            document.getElementById('test-log').textContent = testLog.join('\n');
+        }
+
+        function clearLog() {
+            testLog = [];
+            updateLog();
+        }
+
+        function showResult(containerId, message, type) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `test-result test-${type}`;
+            div.textContent = message;
+            container.appendChild(div);
+        }
+
+        function clearResults(containerId) {
+            document.getElementById(containerId).innerHTML = '';
+        }
+
+        function createFeatureItem(name, supported, details = '') {
+            const supportClass = supported === true ? 'feature-supported' : 
+                                supported === false ? 'feature-unsupported' : 'feature-partial';
+            const supportIcon = supported === true ? '✓' : 
+                               supported === false ? '✗' : '⚠';
+            const supportText = supported === true ? 'Supported' : 
+                               supported === false ? 'Not Supported' : 'Partial';
+
+            return `
+                <div class="feature-item ${supportClass}">
+                    <div>
+                        <strong>${name}</strong>
+                        ${details ? `<br><small>${details}</small>` : ''}
+                    </div>
+                    <div class="support-icon" title="${supportText}">${supportIcon}</div>
+                </div>
+            `;
+        }
+
+        function detectBrowser() {
+            clearResults('browser-results');
+            log('Detecting browser and platform');
+
+            const ua = navigator.userAgent;
+            const browserInfo = {
+                userAgent: ua,
+                platform: navigator.platform,
+                language: navigator.language,
+                cookieEnabled: navigator.cookieEnabled,
+                onLine: navigator.onLine,
+                hardwareConcurrency: navigator.hardwareConcurrency || 'Unknown',
+                maxTouchPoints: navigator.maxTouchPoints || 0,
+                deviceMemory: navigator.deviceMemory || 'Unknown'
+            };
+
+            // Detect browser
+            let browserName = 'Unknown';
+            let browserVersion = 'Unknown';
+
+            if (ua.includes('Chrome') && !ua.includes('Edg')) {
+                browserName = 'Chrome';
+                browserVersion = ua.match(/Chrome\/([0-9.]+)/)?.[1] || 'Unknown';
+            } else if (ua.includes('Firefox')) {
+                browserName = 'Firefox';
+                browserVersion = ua.match(/Firefox\/([0-9.]+)/)?.[1] || 'Unknown';
+            } else if (ua.includes('Safari') && !ua.includes('Chrome')) {
+                browserName = 'Safari';
+                browserVersion = ua.match(/Version\/([0-9.]+)/)?.[1] || 'Unknown';
+            } else if (ua.includes('Edg')) {
+                browserName = 'Edge';
+                browserVersion = ua.match(/Edg\/([0-9.]+)/)?.[1] || 'Unknown';
+            }
+
+            // Detect OS
+            let osName = 'Unknown';
+            if (ua.includes('Windows')) osName = 'Windows';
+            else if (ua.includes('Mac')) osName = 'macOS';
+            else if (ua.includes('Linux')) osName = 'Linux';
+            else if (ua.includes('Android')) osName = 'Android';
+            else if (ua.includes('iPhone') || ua.includes('iPad')) osName = 'iOS';
+
+            // Display browser info
+            const infoContainer = document.getElementById('browser-info');
+            infoContainer.innerHTML = [
+                { title: 'Browser', value: `${browserName} ${browserVersion}` },
+                { title: 'Operating System', value: osName },
+                { title: 'Platform', value: browserInfo.platform },
+                { title: 'Language', value: browserInfo.language },
+                { title: 'CPU Cores', value: browserInfo.hardwareConcurrency },
+                { title: 'Touch Points', value: browserInfo.maxTouchPoints },
+                { title: 'Device Memory', value: `${browserInfo.deviceMemory} GB` },
+                { title: 'Online Status', value: browserInfo.onLine ? 'Online' : 'Offline' }
+            ].map(item => `
+                <div class="info-card">
+                    <div class="info-title">${item.title}</div>
+                    <div class="info-value">${item.value}</div>
+                </div>
+            `).join('');
+
+            showResult('browser-results', `✓ Detected: ${browserName} ${browserVersion} on ${osName}`, 'pass');
+            log(`Browser detected: ${browserName} ${browserVersion} on ${osName}`);
+
+            // Check for mobile
+            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+            showResult('browser-results', `✓ Device type: ${isMobile ? 'Mobile' : 'Desktop'}`, 'pass');
+            log(`Device type: ${isMobile ? 'Mobile' : 'Desktop'}`);
+
+            return { browserName, browserVersion, osName, isMobile, browserInfo };
+        }
+
+        function testPWAFeatures() {
+            clearResults('pwa-results');
+            log('Testing PWA feature support');
+
+            const features = [
+                { name: 'Service Worker', test: () => 'serviceWorker' in navigator },
+                { name: 'Web App Manifest', test: () => 'onbeforeinstallprompt' in window || window.navigator.standalone !== undefined },
+                { name: 'Cache API', test: () => 'caches' in window },
+                { name: 'Push Notifications', test: () => 'PushManager' in window },
+                { name: 'Background Sync', test: () => 'serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype },
+                { name: 'Web Share API', test: () => 'share' in navigator },
+                { name: 'Install Prompt', test: () => 'onbeforeinstallprompt' in window },
+                { name: 'Standalone Mode', test: () => window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone }
+            ];
+
+            const featuresContainer = document.getElementById('pwa-features');
+            let supportedCount = 0;
+
+            featuresContainer.innerHTML = features.map(feature => {
+                const supported = feature.test();
+                if (supported) supportedCount++;
+                return createFeatureItem(feature.name, supported);
+            }).join('');
+
+            showResult('pwa-results', `✓ PWA Features: ${supportedCount}/${features.length} supported`, 'pass');
+            log(`PWA feature support: ${supportedCount}/${features.length} features supported`);
+
+            features.forEach(feature => {
+                const supported = feature.test();
+                log(`${feature.name}: ${supported ? 'Supported' : 'Not supported'}`);
+            });
+        }
+
+        function testWebAPIs() {
+            clearResults('api-results');
+            log('Testing modern Web API support');
+
+            const apis = [
+                { name: 'Fetch API', test: () => 'fetch' in window },
+                { name: 'Local Storage', test: () => 'localStorage' in window },
+                { name: 'Session Storage', test: () => 'sessionStorage' in window },
+                { name: 'IndexedDB', test: () => 'indexedDB' in window },
+                { name: 'Geolocation', test: () => 'geolocation' in navigator },
+                { name: 'Device Orientation', test: () => 'DeviceOrientationEvent' in window },
+                { name: 'Vibration API', test: () => 'vibrate' in navigator },
+                { name: 'Battery API', test: () => 'getBattery' in navigator },
+                { name: 'Network Information', test: () => 'connection' in navigator },
+                { name: 'Payment Request', test: () => 'PaymentRequest' in window },
+                { name: 'Web Bluetooth', test: () => 'bluetooth' in navigator },
+                { name: 'Web USB', test: () => 'usb' in navigator }
+            ];
+
+            const apiContainer = document.getElementById('api-features');
+            let supportedCount = 0;
+
+            apiContainer.innerHTML = apis.map(api => {
+                const supported = api.test();
+                if (supported) supportedCount++;
+                return createFeatureItem(api.name, supported);
+            }).join('');
+
+            showResult('api-results', `✓ Web APIs: ${supportedCount}/${apis.length} supported`, 'pass');
+            log(`Web API support: ${supportedCount}/${apis.length} APIs supported`);
+        }
+
+        function testCSSFeatures() {
+            clearResults('css-results');
+            log('Testing CSS feature support');
+
+            const cssFeatures = [
+                { name: 'CSS Grid', test: () => CSS.supports('display', 'grid') },
+                { name: 'CSS Flexbox', test: () => CSS.supports('display', 'flex') },
+                { name: 'CSS Variables', test: () => CSS.supports('color', 'var(--test)') },
+                { name: 'CSS Transforms', test: () => CSS.supports('transform', 'translateX(0)') },
+                { name: 'CSS Animations', test: () => CSS.supports('animation', 'test 1s') },
+                { name: 'CSS Transitions', test: () => CSS.supports('transition', 'all 1s') },
+                { name: 'Viewport Units', test: () => CSS.supports('width', '100vw') },
+                { name: 'CSS Calc', test: () => CSS.supports('width', 'calc(100% - 10px)') },
+                { name: 'CSS Filters', test: () => CSS.supports('filter', 'blur(5px)') },
+                { name: 'CSS Backdrop Filter', test: () => CSS.supports('backdrop-filter', 'blur(5px)') }
+            ];
+
+            const cssContainer = document.getElementById('css-features');
+            let supportedCount = 0;
+
+            cssContainer.innerHTML = cssFeatures.map(feature => {
+                const supported = feature.test();
+                if (supported) supportedCount++;
+                return createFeatureItem(feature.name, supported);
+            }).join('');
+
+            showResult('css-results', `✓ CSS Features: ${supportedCount}/${cssFeatures.length} supported`, 'pass');
+            log(`CSS feature support: ${supportedCount}/${cssFeatures.length} features supported`);
+        }
+
+        function testMobilePlatform() {
+            clearResults('mobile-results');
+            log('Testing mobile platform features');
+
+            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if (!isMobile) {
+                showResult('mobile-results', '⚠ Not running on mobile device', 'warning');
+                log('Not running on mobile device', 'warning');
+                return;
+            }
+
+            // Test touch support
+            const touchSupported = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            showResult('mobile-results', `✓ Touch support: ${touchSupported ? 'Yes' : 'No'}`, touchSupported ? 'pass' : 'fail');
+            log(`Touch support: ${touchSupported}`);
+
+            // Test orientation
+            const orientationSupported = 'orientation' in window || 'onorientationchange' in window;
+            showResult('mobile-results', `✓ Orientation events: ${orientationSupported ? 'Yes' : 'No'}`, orientationSupported ? 'pass' : 'warning');
+            log(`Orientation events: ${orientationSupported}`);
+
+            // Test device motion
+            const motionSupported = 'DeviceMotionEvent' in window;
+            showResult('mobile-results', `✓ Device motion: ${motionSupported ? 'Yes' : 'No'}`, motionSupported ? 'pass' : 'warning');
+            log(`Device motion: ${motionSupported}`);
+
+            // Test viewport
+            const viewport = document.querySelector('meta[name="viewport"]');
+            showResult('mobile-results', `✓ Viewport meta tag: ${viewport ? 'Present' : 'Missing'}`, viewport ? 'pass' : 'fail');
+            log(`Viewport meta tag: ${viewport ? 'Present' : 'Missing'}`);
+        }
+
+        function testIOSSafari() {
+            clearResults('ios-results');
+            log('Testing iOS Safari specific features');
+
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+            if (!isIOS) {
+                showResult('ios-results', '⚠ Not running on iOS device', 'warning');
+                log('Not running on iOS device', 'warning');
+                return;
+            }
+
+            // Test standalone mode
+            const isStandalone = window.navigator.standalone;
+            showResult('ios-results', `✓ Standalone mode: ${isStandalone ? 'Yes' : 'No'}`, 'pass');
+            log(`iOS standalone mode: ${isStandalone}`);
+
+            // Test safe area support
+            const safeAreaSupported = CSS.supports('padding', 'env(safe-area-inset-top)');
+            showResult('ios-results', `✓ Safe area support: ${safeAreaSupported ? 'Yes' : 'No'}`, safeAreaSupported ? 'pass' : 'warning');
+            log(`Safe area support: ${safeAreaSupported}`);
+
+            // Test iOS version (approximate)
+            const iosVersion = navigator.userAgent.match(/OS (\d+)_(\d+)/);
+            if (iosVersion) {
+                const version = `${iosVersion[1]}.${iosVersion[2]}`;
+                showResult('ios-results', `✓ iOS version: ${version}`, 'pass');
+                log(`iOS version: ${version}`);
+            }
+
+            // Test PWA features on iOS
+            const addToHomeScreen = 'onbeforeinstallprompt' in window;
+            showResult('ios-results', `✓ Add to Home Screen: ${addToHomeScreen ? 'Supported' : 'Manual only'}`, 'pass');
+            log(`Add to Home Screen: ${addToHomeScreen ? 'Supported' : 'Manual only'}`);
+        }
+
+        function testAndroidChrome() {
+            clearResults('android-results');
+            log('Testing Android Chrome specific features');
+
+            const isAndroid = /Android/.test(navigator.userAgent);
+
+            if (!isAndroid) {
+                showResult('android-results', '⚠ Not running on Android device', 'warning');
+                log('Not running on Android device', 'warning');
+                return;
+            }
+
+            // Test install prompt
+            const installPromptSupported = 'onbeforeinstallprompt' in window;
+            showResult('android-results', `✓ Install prompt: ${installPromptSupported ? 'Supported' : 'Not supported'}`, installPromptSupported ? 'pass' : 'fail');
+            log(`Install prompt: ${installPromptSupported}`);
+
+            // Test WebAPK
+            const isWebAPK = window.matchMedia('(display-mode: standalone)').matches;
+            showResult('android-results', `✓ WebAPK mode: ${isWebAPK ? 'Yes' : 'No'}`, 'pass');
+            log(`WebAPK mode: ${isWebAPK}`);
+
+            // Test notification permission
+            const notificationSupported = 'Notification' in window;
+            showResult('android-results', `✓ Notifications: ${notificationSupported ? 'Supported' : 'Not supported'}`, notificationSupported ? 'pass' : 'fail');
+            log(`Notifications: ${notificationSupported}`);
+
+            if (notificationSupported) {
+                showResult('android-results', `✓ Notification permission: ${Notification.permission}`, 'pass');
+                log(`Notification permission: ${Notification.permission}`);
+            }
+        }
+
+        function testDesktopBrowsers() {
+            clearResults('desktop-results');
+            log('Testing desktop browser features');
+
+            const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                showResult('desktop-results', '⚠ Running on mobile device', 'warning');
+                log('Running on mobile device', 'warning');
+            }
+
+            // Test desktop PWA install
+            const desktopInstallSupported = 'onbeforeinstallprompt' in window;
+            showResult('desktop-results', `✓ Desktop PWA install: ${desktopInstallSupported ? 'Supported' : 'Not supported'}`, desktopInstallSupported ? 'pass' : 'warning');
+            log(`Desktop PWA install: ${desktopInstallSupported}`);
+
+            // Test keyboard events
+            const keyboardSupported = 'onkeydown' in window;
+            showResult('desktop-results', `✓ Keyboard events: ${keyboardSupported ? 'Supported' : 'Not supported'}`, keyboardSupported ? 'pass' : 'fail');
+            log(`Keyboard events: ${keyboardSupported}`);
+
+            // Test mouse events
+            const mouseSupported = 'onmousedown' in window;
+            showResult('desktop-results', `✓ Mouse events: ${mouseSupported ? 'Supported' : 'Not supported'}`, mouseSupported ? 'pass' : 'fail');
+            log(`Mouse events: ${mouseSupported}`);
+
+            // Test hover capability
+            const hoverSupported = window.matchMedia('(hover: hover)').matches;
+            showResult('desktop-results', `✓ Hover capability: ${hoverSupported ? 'Yes' : 'No'}`, 'pass');
+            log(`Hover capability: ${hoverSupported}`);
+
+            // Test pointer precision
+            const pointerPrecision = window.matchMedia('(pointer: fine)').matches;
+            showResult('desktop-results', `✓ Fine pointer: ${pointerPrecision ? 'Yes' : 'No'}`, 'pass');
+            log(`Fine pointer: ${pointerPrecision}`);
+        }
+
+        function runAllCompatibilityTests() {
+            log('Running all compatibility tests');
+            clearLog();
+
+            detectBrowser();
+            setTimeout(() => {
+                testPWAFeatures();
+                setTimeout(() => {
+                    testWebAPIs();
+                    setTimeout(() => {
+                        testCSSFeatures();
+                        setTimeout(() => {
+                            testMobilePlatform();
+                            setTimeout(() => {
+                                testIOSSafari();
+                                setTimeout(() => {
+                                    testAndroidChrome();
+                                    setTimeout(() => {
+                                        testDesktopBrowsers();
+                                        log('All compatibility tests completed');
+                                    }, 500);
+                                }, 500);
+                            }, 500);
+                        }, 500);
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+
+        // Auto-run browser detection on load
+        window.addEventListener('load', () => {
+            log('Compatibility test suite loaded');
+            detectBrowser();
+        });
+    </script>
+</body>
+</html>

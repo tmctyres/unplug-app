@@ -1,5 +1,10 @@
 # 📱 Unplug - Digital Wellness App
 
+[![CI/CD Pipeline](https://github.com/tmctyres/unplug-app/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/tmctyres/unplug-app/actions/workflows/ci-cd.yml)
+[![iOS Build](https://github.com/tmctyres/unplug-app/actions/workflows/ios-build.yml/badge.svg)](https://github.com/tmctyres/unplug-app/actions/workflows/ios-build.yml)
+[![Security Scan](https://github.com/tmctyres/unplug-app/actions/workflows/security.yml/badge.svg)](https://github.com/tmctyres/unplug-app/actions/workflows/security.yml)
+[![codecov](https://codecov.io/gh/tmctyres/unplug-app/branch/main/graph/badge.svg)](https://codecov.io/gh/tmctyres/unplug-app)
+
 A comprehensive digital wellness app that helps users track their offline time and build healthier digital habits. Available as both a Progressive Web App (PWA) and native mobile app.
 
 ## 🌐 **Live PWA Demo**

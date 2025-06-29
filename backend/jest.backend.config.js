@@ -1,7 +1,10 @@
+const path = require('path');
+
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   rootDir: __dirname,
+  displayName: 'Backend Tests',
   testMatch: [
     '<rootDir>/tests/**/*.test.ts',
     '<rootDir>/tests/**/*.spec.ts'
@@ -9,14 +12,14 @@ module.exports = {
   testPathIgnorePatterns: [
     '/node_modules/',
     '/dist/',
-    '<rootDir>/../tests/',
-    '<rootDir>/../app/',
-    '<rootDir>/../coverage/'
+    '../tests/',
+    '../app/',
+    '../coverage/'
   ],
   modulePathIgnorePatterns: [
-    '<rootDir>/../tests/',
-    '<rootDir>/../app/',
-    '<rootDir>/../coverage/'
+    '../tests/',
+    '../app/',
+    '../coverage/'
   ],
   transform: {
     '^.+\\.ts$': ['ts-jest', {
@@ -38,5 +41,11 @@ module.exports = {
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  testTimeout: 10000
+  testTimeout: 10000,
+  // Explicitly ignore parent directory patterns
+  watchPathIgnorePatterns: [
+    '<rootDir>/../tests/',
+    '<rootDir>/../app/',
+    '<rootDir>/../node_modules/'
+  ]
 };

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unplug PWA - Test Suite Index</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .test-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e1e5e9;
+        }
+        .test-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+        }
+        .test-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .test-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        .test-description {
+            color: #718096;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .test-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        .test-features li {
+            padding: 4px 0;
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+        .test-features li:before {
+            content: "✓ ";
+            color: #10B981;
+            font-weight: bold;
+        }
+        .test-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #10B981, #34D399);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .test-button:hover {
+            background: linear-gradient(135deg, #059669, #10B981);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .main-app-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .main-app-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        .main-app-button:hover {
+            background: linear-gradient(135deg, #5a67d8, #6b46c1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        .footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            margin-top: 40px;
+        }
+        .status-badge {
+            display: inline-block;
+            background: #10B981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔌 Unplug PWA</h1>
+        <p>Comprehensive Test Suite Dashboard</p>
+    </div>
+
+    <div class="main-app-section">
+        <h2>🚀 Main Application</h2>
+        <p>Test the main Unplug PWA application</p>
+        <a href="index.html" class="main-app-button">Open Main App</a>
+        <a href="TEST_SUMMARY.md" class="main-app-button">View Test Summary</a>
+    </div>
+
+    <div class="test-grid">
+        <div class="test-card">
+            <span class="test-icon">🔧</span>
+            <div class="status-badge">CORE</div>
+            <h3 class="test-title">PWA Core Features</h3>
+            <p class="test-description">Test fundamental PWA functionality including Service Worker, Manifest, and offline capabilities.</p>
+            <ul class="test-features">
+                <li>Service Worker registration</li>
+                <li>Web App Manifest validation</li>
+                <li>Offline functionality</li>
+                <li>Cache performance</li>
+                <li>Installability features</li>
+            </ul>
+            <a href="test-pwa.html" class="test-button">Run PWA Tests</a>
+        </div>
+
+        <div class="test-card">
+            <span class="test-icon">⚙️</span>
+            <div class="status-badge">FUNCTIONALITY</div>
+            <h3 class="test-title">Application Features</h3>
+            <p class="test-description">Comprehensive testing of all application features and business logic.</p>
+            <ul class="test-features">
+                <li>Service initialization</li>
+                <li>User data management</li>
+                <li>Session tracking</li>
+                <li>Achievement system</li>
+                <li>Storage operations</li>
+            </ul>
+            <a href="test-functionality.html" class="test-button">Run Functionality Tests</a>
+        </div>
+
+        <div class="test-card">
+            <span class="test-icon">🎨</span>
+            <div class="status-badge">UI/UX</div>
+            <h3 class="test-title">UI/UX & Responsive Design</h3>
+            <p class="test-description">Test user interface, responsiveness, and user experience across devices.</p>
+            <ul class="test-features">
+                <li>Responsive design</li>
+                <li>Color schemes & theming</li>
+                <li>Typography testing</li>
+                <li>Touch interactions</li>
+                <li>Accessibility features</li>
+            </ul>
+            <a href="test-ui.html" class="test-button">Run UI/UX Tests</a>
+        </div>
+
+        <div class="test-card">
+            <span class="test-icon">⚡</span>
+            <div class="status-badge">PERFORMANCE</div>
+            <h3 class="test-title">Performance & Optimization</h3>
+            <p class="test-description">Analyze loading times, runtime performance, and optimization metrics.</p>
+            <ul class="test-features">
+                <li>Loading performance</li>
+                <li>Runtime benchmarks</li>
+                <li>Memory usage</li>
+                <li>Network performance</li>
+                <li>JavaScript benchmarks</li>
+            </ul>
+            <a href="test-performance.html" class="test-button">Run Performance Tests</a>
+        </div>
+
+        <div class="test-card">
+            <span class="test-icon">🌐</span>
+            <div class="status-badge">COMPATIBILITY</div>
+            <h3 class="test-title">Cross-Platform Compatibility</h3>
+            <p class="test-description">Test compatibility across different browsers and mobile platforms.</p>
+            <ul class="test-features">
+                <li>Browser detection</li>
+                <li>PWA feature support</li>
+                <li>Web API compatibility</li>
+                <li>Mobile platform testing</li>
+                <li>Desktop browser support</li>
+            </ul>
+            <a href="test-compatibility.html" class="test-button">Run Compatibility Tests</a>
+        </div>
+
+        <div class="test-card">
+            <span class="test-icon">📋</span>
+            <div class="status-badge">STANDARDS</div>
+            <h3 class="test-title">PWA Standards Compliance</h3>
+            <p class="test-description">Validate against PWA standards and best practices using comprehensive checklists.</p>
+            <ul class="test-features">
+                <li>Core PWA requirements</li>
+                <li>Manifest validation</li>
+                <li>Security standards</li>
+                <li>Performance standards</li>
+                <li>Accessibility compliance</li>
+            </ul>
+            <a href="test-standards.html" class="test-button">Run Standards Tests</a>
+        </div>
+    </div>
+
+    <div class="main-app-section">
+        <h2>🔍 External Audits</h2>
+        <p>Run external audits for comprehensive validation</p>
+        <a href="https://pagespeed.web.dev/" target="_blank" class="main-app-button">Lighthouse Audit</a>
+        <a href="https://www.webpagetest.org/" target="_blank" class="main-app-button">WebPageTest</a>
+    </div>
+
+    <div class="footer">
+        <p>🧪 Comprehensive PWA Testing Suite | Built for Unplug Digital Wellness App</p>
+        <p>Test all aspects of your Progressive Web Application</p>
+    </div>
+
+    <script>
+        // Add some interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click tracking
+            document.querySelectorAll('.test-button, .main-app-button').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    console.log('Test navigation:', this.href);
+                });
+            });
+
+            // Add keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.target.classList.contains('test-card')) {
+                    const button = e.target.querySelector('.test-button');
+                    if (button) button.click();
+                }
+            });
+
+            // Make cards focusable for accessibility
+            document.querySelectorAll('.test-card').forEach(card => {
+                card.setAttribute('tabindex', '0');
+                card.setAttribute('role', 'button');
+                card.setAttribute('aria-label', 'Navigate to ' + card.querySelector('.test-title').textContent);
+            });
+
+            console.log('🔌 Unplug PWA Test Suite Dashboard loaded');
+            console.log('Available test suites:', [
+                'PWA Core Features',
+                'Application Features', 
+                'UI/UX & Responsive Design',
+                'Performance & Optimization',
+                'Cross-Platform Compatibility',
+                'PWA Standards Compliance'
+            ]);
+        });
+    </script>
+</body>
+</html>
