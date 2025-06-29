@@ -1,6 +1,16 @@
-# 📱 Unplug - Screen-Time Tracker
+# 📱 Unplug - Digital Wellness App
 
-A comprehensive screen-time tracking app built with NativeScript for iOS, featuring gamification, social features, and real-time analytics.
+A comprehensive digital wellness app that helps users track their offline time and build healthier digital habits. Available as both a Progressive Web App (PWA) and native mobile app.
+
+## 🌐 **Live PWA Demo**
+**Try it now:** [https://tmctyres.github.io/unplug-app/](https://tmctyres.github.io/unplug-app/)
+
+📱 **Install on your device:** Visit the link above and use "Add to Home Screen" on mobile or "Install App" on desktop.
+
+## 📱 **Platform Availability**
+- ✅ **Progressive Web App (PWA)** - Works on all devices, installable
+- ✅ **NativeScript App** - iOS and Android native apps
+- ✅ **Cross-platform** - Same features across all platforms
 
 ## ✨ Features
 
